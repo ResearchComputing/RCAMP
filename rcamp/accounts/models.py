@@ -1,4 +1,6 @@
 from django.db import models
+from django.views.decorators.debug import sensitive_variables
+from mump.ldap_utils import LdapObject
 import ldapdb.models.fields as ldap_fields
 import datetime
 import ldapdb.models
@@ -58,6 +60,31 @@ class AccountRequest(models.Model):
         
         super(AccountRequest,self).save(*args,**kwargs)
 
+class IdTracker(models.Model):
+    category = models.CharField(max_length=12,blank=False,null=False,unique=True)
+    min_id = models.IntegerField(blank=False,null=False)
+    max_id = models.IntegerField(blank=False,null=False)
+    next_id = models.IntegerField(blank=True,null=True)
+
+    def __unicode__(self):
+        return self.category
+
+    def get_next_id(self):
+        if self.next_id:
+            uid = self.next_id
+        else:
+            uid = self.min_id
+        while uid < self.max_id:
+            rc_users = RcLdapUser.objects.filter(uid=uid)
+            rc_groups = RcLdapGroup.objects.filter(gid=uid)
+
+            if all([(len(rc_users)==0),(len(rc_groups)==0)]):
+                self.next_id = uid + 1
+                self.save()
+                return uid
+            else:
+                uid += 1
+
 class LdapUser(ldapdb.models.Model):
     # inetOrgPerson
     first_name = ldap_fields.CharField(db_column='givenName')
@@ -89,17 +116,21 @@ class RcLdapUserManager(models.Manager):
         except KeyError:
             logger.error('No all required values supplied to user create.')
             raise FieldError
-            
+        
+        id_tracker = IdTracker.objects.get(category='posix')
+        uid = id_tracker.get_next_id()
         user_fields = {}
         user_fields['first_name'] = first_name.strip()
         user_fields['last_name'] = last_name.strip()
         user_fields['full_name'] = '%s, %s' % (user_fields['first_name'],user_fields['last_name'])
         user_fields['email'] = email.strip()
         user_fields['username'] = username.strip()
-        # UID,GID handling currently missing,
-        # as well as handling for auth domains
+        user_fields['uid'] = uid
+        user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         user_fields['home_directory'] = '/home/%s' % user_fields['username']
+        # This will change with the new auth schema
+        user_fields['radius_name'] = '%s@ucb' % user_fields['username']
         user = self.create(**user_fields)
         return user
 
@@ -127,6 +158,15 @@ class CuLdapUser(LdapUser):
     edu_primary_affiliation = ldap_fields.CharField(db_column='eduPersonPrimaryAffiliation')
     cu_primary_major = ldap_fields.CharField(db_column='cuEduPersonPrimaryMajor1')
     cu_home_department = ldap_fields.CharField(db_column='cuEduPersonHomeDepartment')
+    
+    @sensitive_variables('pwd')
+    def authenticate(self,pwd):
+        l=LdapObject(**settings.LDAPCONFS['culdap'])
+        br=l.authenticate(self.username,pwd)
+        if br:
+            return True
+        else:
+            return False
 
 class RcLdapGroup(ldapdb.models.Model):
     base_dn =  settings.LDAPCONFS['rcldap']['group_dn']
