@@ -1,4 +1,5 @@
 from django.conf import settings
+from ldapdb import escape_ldap_filter
 import ldap
 import logging
 
@@ -10,14 +11,6 @@ def ldapentry_to_dict(result):
     for key in result:
         r[key]=result[key][0]
     return r
-
-def escape_ldap_filter(value):
-    value = unicode(value)
-    return value.replace('\\', '\\5c') \
-                .replace('*', '\\2a') \
-                .replace('(', '\\28') \
-                .replace(')', '\\29') \
-                .replace('\0', '\\00')
 
 class LdapObject():
     def __init__(self,*args, **kwargs):

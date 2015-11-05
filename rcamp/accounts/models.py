@@ -1,6 +1,8 @@
 from django.db import models
+from django.conf import settings
 from django.views.decorators.debug import sensitive_variables
-from mump.ldap_utils import LdapObject
+from accounts.ldap_utils import LdapObject
+from accounts.fields import DateTimeField
 import ldapdb.models.fields as ldap_fields
 import datetime
 import ldapdb.models
@@ -29,7 +31,7 @@ class AccountRequest(models.Model):
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
 
-    organization = models.CharField(choices=ORGANIZATIONS,blank=False,null=False)
+    organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
 
     status = models.BooleanField(choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
@@ -94,7 +96,7 @@ class LdapUser(ldapdb.models.Model):
     # posixAccount
     username = ldap_fields.CharField(db_column='uid', primary_key=True)
     # ldap specific
-    modified_date = ldap_fields.DateTimeField(db_column='modifytimestamp',blank=True)
+    modified_date = DateTimeField(db_column='modifytimestamp',blank=True)
 
     def __str__(self):
         return self.username

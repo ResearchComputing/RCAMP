@@ -37,6 +37,9 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    'ldapdb',
+    'accounts',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -81,6 +84,7 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['accounts.router.LdapRouter',]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
@@ -100,3 +104,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
+
+try:
+    from local_settings import *
+except:
+    pass
