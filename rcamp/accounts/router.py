@@ -32,14 +32,12 @@ class LdapRouter(object):
             return True
         return None
 
-    def allow_syncdb(self, db, model):
+    def allow_migrate(self, db, app_label):
         """
         Make sure the auth app only appears in the 'auth_db'
         database.
         """
 
         if db in ['rcldap','culdap']:
-            return False
-        elif model._meta.object_name in ['RcLdapUser','CuLdapUser','RcLdapGroup']:
             return False
         return None
