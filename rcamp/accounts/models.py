@@ -140,13 +140,13 @@ class RcLdapUser(LdapUser):
     objects = RcLdapUserManager()
     
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
-    object_classes = ['top','person','inetorgperson','posixaccount','curcradiususer']
+    object_classes = ['top','person','inetorgperson','posixaccount']
     uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
     gid = ldap_fields.IntegerField(db_column='gidNumber')
     gecos =  ldap_fields.CharField(db_column='gecos')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
-    radius_name = ldap_fields.CharField(db_column='curcradiusname')
+    # radius_name = ldap_fields.CharField(db_column='curcradiusname')
 
     def active(self):
         return 'deactivated-' not in self.radius_name
