@@ -131,8 +131,6 @@ class RcLdapUserManager(models.Manager):
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         user_fields['home_directory'] = '/home/%s' % user_fields['username']
-        # This will change with the new auth schema
-        user_fields['radius_name'] = '%s@ucb' % user_fields['username']
         user = self.create(**user_fields)
         return user
 
