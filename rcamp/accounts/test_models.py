@@ -4,8 +4,11 @@ import datetime
 import ldap
 
 from django.conf import settings
-
 from ldapdb.backends.ldap.compiler import query_as_ldap
+
+from accounts.models import IdTracker
+from accounts.models import RcLdapUser
+from accounts.models import RcLdapGroup
 
 from mockldap import MockLdap
 # Create your tests here.
@@ -17,7 +20,7 @@ groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
 people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount'], 'ou': ['people']})
 test_user = (
-    'uid=test,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'uid=testuser,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
         'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount'],
         'cn': ['test user'],
         'givenName': ['test'],
@@ -33,7 +36,7 @@ test_user = (
     }
 )
 
-class UserTestCase(TestCase):
+class BaseCase(TestCase):
     directory = dict([admin, groups, people, test_user])
 
     @classmethod
@@ -52,10 +55,9 @@ class UserTestCase(TestCase):
         self.mockldap.stop()
         del self.ldapobj
 
+class RcLdapUserTestCase(BaseCase):
     @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
-    def test_get(self):
-        from accounts.models import RcLdapUser
-        from accounts.models import RcLdapGroup
+    def test_read(self):
         u = RcLdapUser.objects.get(username='testuser')
 
         # self.assertEquals(u.group, 1000)
@@ -67,13 +69,33 @@ class UserTestCase(TestCase):
         self.assertRaises(RcLdapUser.DoesNotExist, RcLdapUser.objects.get,
                           username='does_not_exist')
 
-    # def test_update(self):
-    #     u = RcLdapUser.objects.get(username='foouser')
-    #     u.first_name = u'Foo2'
-    #     u.save()
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_update(self):
+        u = RcLdapUser.objects.get(username='testuser')
+        u.first_name = 'Tested'
+        u.save()
+        self.assertEquals(u.first_name, 'Tested')
 
-    #     # make sure DN gets updated if we change the pk
-    #     u.username = 'foouser2'
-    #     u.save()
-    #     self.assertEquals(u.dn, 'uid=foouser2,%s' % RcLdapUser.base_dn)
+class AccountCreationTestCase(BaseCase):
+    def setUp(self):
+        super(AccountCreationTestCase,self).setUp()
+        idt = IdTracker(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1001
+        )
+        idt.save()
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_create_user_from_request(self):
+        user_dict = {
+            'username': 'requestuser',
+            'first_name': 'Request',
+            'last_name': 'User',
+            'email': 'requser@requests.org',
+            'organization': 'ucb'
+        }
+        u = RcLdapUser.objects.create_user_from_request(**user_dict)
         
+        self.assertEquals(u.username, 'requestuser')
