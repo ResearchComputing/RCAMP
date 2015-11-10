@@ -92,6 +92,24 @@ class MockLdapTestCase(BaseCase):
         self.assertEquals(u.first_name, 'Tested')
     
     @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_rcuser_save(self):
+        user_dict = dict(
+                username='createtest',
+                first_name='c',
+                last_name='u',
+                full_name='u, c',
+                email='cu@cu.org',
+                modified_date=datetime.datetime(2015,11,06,03,43,24),
+                uid=1010,
+                gid=1010,
+                gecos='c u,,,',
+                home_directory='/home/createtest'
+            )
+        u = RcLdapUser(**user_dict)
+        u.save()
+        self.assertEquals(u.uid, 1010)
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
     def test_rcuser_create(self):
         user_dict = dict(
                 username='createtest',
@@ -105,11 +123,19 @@ class MockLdapTestCase(BaseCase):
                 gecos='c u,,,',
                 home_directory='/home/createtest'
             )
-        u = RcLdapUser(**user_dict).save()
-        self.assertEquals(u.uid, 1010)
-        
         u = RcLdapUser.objects.create(**user_dict)
-        self.assertEquals(u.uid, 1011)
+        self.assertEquals(u.uid, 1010)
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_rcgroup_save(self):
+        grp_dict = dict(
+                name='createtestgrp',
+                gid=1010,
+                members=['createtest']
+            )
+        g = RcLdapGroup(**grp_dict)
+        g.save()
+        self.assertEquals(g.gid, 1010)
     
     @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
     def test_rcgroup_create(self):
@@ -118,11 +144,8 @@ class MockLdapTestCase(BaseCase):
                 gid=1010,
                 members=['createtest']
             )
-        g = RcLdapGroup(**grp_dict).save()
+        g = RcLdapGroup.objects.create(**grp_dict)
         self.assertEquals(g.gid, 1010)
-        
-        u = RcLdapGroup.objects.create(**grp_dict)
-        self.assertEquals(g.gid, 1011)
     
     @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
     def test_rcgroup_read(self):
