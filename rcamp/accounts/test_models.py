@@ -22,7 +22,7 @@ people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
 test_user = (
     'uid=testuser,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
         'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount'],
-        'cn': ['test user'],
+        'cn': ['user, test'],
         'givenName': ['test'],
         'sn': ['user'],
         'mail': ['testuser@test.org'],
@@ -92,6 +92,39 @@ class MockLdapTestCase(BaseCase):
         self.assertEquals(u.first_name, 'Tested')
     
     @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_rcuser_create(self):
+        user_dict = dict(
+                username='createtest',
+                first_name='c',
+                last_name='u',
+                full_name='u, c',
+                email='cu@cu.org',
+                modified_date=datetime.datetime(2015,11,06,03,43,24),
+                uid=1010,
+                gid=1010,
+                gecos='c u,,,',
+                home_directory='/home/createtest'
+            )
+        u = RcLdapUser(**user_dict).save()
+        self.assertEquals(u.uid, 1010)
+        
+        u = RcLdapUser.objects.create(**user_dict)
+        self.assertEquals(u.uid, 1011)
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_rcgroup_create(self):
+        grp_dict = dict(
+                name='createtestgrp',
+                gid=1010,
+                members=['createtest']
+            )
+        g = RcLdapGroup(**grp_dict).save()
+        self.assertEquals(g.gid, 1010)
+        
+        u = RcLdapGroup.objects.create(**grp_dict)
+        self.assertEquals(g.gid, 1011)
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
     def test_rcgroup_read(self):
         g = RcLdapGroup.objects.get(name='testgrp')
         
@@ -156,8 +189,7 @@ class AccountCreationTestCase(BaseCase):
         idt = IdTracker(
             category='posix',
             min_id=1000,
-            max_id=1500,
-            next_id=1001
+            max_id=1500
         )
         idt.save()
     
@@ -173,3 +205,23 @@ class AccountCreationTestCase(BaseCase):
         u = RcLdapUser.objects.create_user_from_request(**user_dict)
         
         self.assertEquals(u.username, 'requestuser')
+        self.assertEquals(u.first_name, 'Request')
+        self.assertEquals(u.last_name, 'User')
+        self.assertEquals(u.full_name, 'User, Request')
+        self.assertEquals(u.email, 'requser@requests.org')
+        self.assertEquals(u.uid, 1001)
+        self.assertEquals(u.gid, 1001)
+        self.assertEquals(u.gecos, 'Request User,,,')
+        self.assertEquals(u.home_directory, '/home/requestuser')
+        self.assertEquals(u.login_shell, '/bin/bash')
+        
+        idt = IdTracker.objects.get(category='posix')
+        self.assertEquals(idt.next_id, 1003)
+        
+        pgrp = RcLdapGroup.objects.get(name='requestuserpgrp')
+        sgrp = RcLdapGroup.objects.get(name='requestusergrp')
+        
+        self.assertEquals(pgrp.gid, 1001)
+        self.assertEquals(sgrp.gid, 1002)
+        for grp in [pgrp,sgrp]:
+            self.assertEquals(grp.members, ['requestuser'])

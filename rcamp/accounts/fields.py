@@ -31,5 +31,10 @@ class DateTimeField(fields.DateTimeField):
 
 
     def get_db_prep_save(self, value, connection):
+        if not value:
+            return None
+        if not isinstance(value, datetime.datetime):
+            raise ValueError('DateTimeField can only be set to an instance\
+            of datetime.datetime.')
         v=value.strftime("%Y%m%d%H%M%SZ")
         return [v.encode(connection.charset)]

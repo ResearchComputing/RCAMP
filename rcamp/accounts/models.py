@@ -104,11 +104,15 @@ class LdapUser(ldapdb.models.Model):
     def __unicode__(self):
         return self.full_name
 
+    def save(self,*args,**kwargs):
+        force_insert = kwargs.pop('force_insert',None)
+        super(LdapUser,self).save(*args,**kwargs)
+
     class Meta:
         abstract=True
 
 class RcLdapUserManager(models.Manager):
-    def create_user_from_request(self,username,**kwargs):
+    def create_user_from_request(self,**kwargs):
         try:
             username = kwargs.get('username')
             first_name = kwargs.get('first_name')
@@ -124,7 +128,7 @@ class RcLdapUserManager(models.Manager):
         user_fields = {}
         user_fields['first_name'] = first_name.strip()
         user_fields['last_name'] = last_name.strip()
-        user_fields['full_name'] = '%s, %s' % (user_fields['first_name'],user_fields['last_name'])
+        user_fields['full_name'] = '%s, %s' % (user_fields['last_name'],user_fields['first_name'])
         user_fields['email'] = email.strip()
         user_fields['username'] = username.strip()
         user_fields['uid'] = uid
@@ -144,10 +148,9 @@ class RcLdapUser(LdapUser):
     gecos =  ldap_fields.CharField(db_column='gecos')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
-    # radius_name = ldap_fields.CharField(db_column='curcradiusname')
 
-    def active(self):
-        return 'deactivated-' not in self.radius_name
+    # def active(self):
+    #     return 'deactivated-' not in self.radius_name
 
 class CuLdapUser(LdapUser):
     base_dn = settings.LDAPCONFS['culdap']['people_dn']
