@@ -136,6 +136,17 @@ class RcLdapUserManager(models.Manager):
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         user_fields['home_directory'] = '/home/%s' % user_fields['username']
         user = self.create(**user_fields)
+        pgrp = RcLdapGroup.objects.create(
+                name='%spgrp'%username,
+                gid=user_fields['gid'],
+                members=[username]
+            )
+        sgrp_gid = id_tracker.get_next_id()
+        sgrp = RcLdapGroup.objects.create(
+                name='%sgrp'%username,
+                gid=sgrp_gid,
+                members=[username]
+            )
         return user
 
 class RcLdapUser(LdapUser):
@@ -184,3 +195,7 @@ class RcLdapGroup(ldapdb.models.Model):
 
     def __unicode__(self):
         return self.name
+    
+    def save(self,*args,**kwargs):
+        force_insert = kwargs.pop('force_insert',None)
+        super(RcLdapGroup,self).save(*args,**kwargs)
