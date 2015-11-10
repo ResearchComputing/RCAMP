@@ -113,15 +113,13 @@ class LdapUser(ldapdb.models.Model):
 
 class RcLdapUserManager(models.Manager):
     def create_user_from_request(self,**kwargs):
-        try:
-            username = kwargs.get('username')
-            first_name = kwargs.get('first_name')
-            last_name = kwargs.get('last_name')
-            email = kwargs.get('email')
-            organization = kwargs.get('organization')
-        except KeyError:
-            logger.error('No all required values supplied to user create.')
-            raise FieldError
+        username = kwargs.get('username')
+        first_name = kwargs.get('first_name')
+        last_name = kwargs.get('last_name')
+        email = kwargs.get('email')
+        organization = kwargs.get('organization')
+        if not all([username,first_name,last_name,email,organization]):
+            raise TypeError('Missing required field.')
         
         id_tracker = IdTracker.objects.get(category='posix')
         uid = id_tracker.get_next_id()

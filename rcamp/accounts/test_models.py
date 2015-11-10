@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.test import override_settings
 import datetime
 import ldap
+import copy
 
 from django.conf import settings
 from ldapdb.backends.ldap.compiler import query_as_ldap
@@ -248,3 +249,32 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(sgrp.gid, 1002)
         for grp in [pgrp,sgrp]:
             self.assertEquals(grp.members, ['requestuser'])
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_create_user_from_request_missing_fields(self):
+        user_dict = {
+            'username': 'requestuser',
+            'first_name': 'Request',
+            'last_name': 'User',
+            'email': 'requser@requests.org',
+            'organization': 'ucb'
+        }
+        
+        for k in user_dict.keys():
+            tmp_dict = copy.deepcopy(user_dict)
+            del tmp_dict[k]
+            self.assertRaises(
+                    TypeError,
+                    RcLdapUser.objects.create_user_from_request,
+                    **tmp_dict
+                )
+        
+        self.assertRaises(
+                RcLdapGroup.DoesNotExist,
+                RcLdapGroup.objects.get,
+                gid=1001
+            )
+
+# This test case covers AccountRequest model functionality.
+class AccountRequestTestCase(BaseCase):
+    pass
