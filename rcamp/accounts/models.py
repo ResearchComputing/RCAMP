@@ -1,10 +1,10 @@
 from django.db import models
 from django.conf import settings
+from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
 from accounts.ldap_utils import LdapObject
 from accounts.fields import DateTimeField
 import ldapdb.models.fields as ldap_fields
-import datetime
 import ldapdb.models
 import logging
 
@@ -33,7 +33,7 @@ class AccountRequest(models.Model):
 
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
 
-    status = models.BooleanField(choices=STATUSES,default='p')
+    status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField()
 
@@ -41,7 +41,7 @@ class AccountRequest(models.Model):
 
     @classmethod
     def from_db(cls,db,field_names,values):
-        instance = super(AccountRequest,cls).from_db(cls,db,field_names,values)
+        instance = super(AccountRequest,cls).from_db(db,field_names,values)
         # Store original field values on the instance
         instance._loaded_values = dict(zip(field_names,values))
         return instance
@@ -51,7 +51,7 @@ class AccountRequest(models.Model):
         if (self.status == 'a') and (self._loaded_values['status'] != 'a'):
             # Approval process
             logger.info('Approving account request: '+self.username)
-            self.approved_on=datetime.datetime.now()
+            self.approved_on=timezone.now()
             RcLdapUser.objects.create_user_from_request(
                 username=self.username,
                 first_name=self.first_name,
