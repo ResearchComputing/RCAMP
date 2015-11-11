@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.test import override_settings
+from mock import MagicMock
+import mock
 import datetime
 import ldap
 import copy
@@ -7,7 +9,10 @@ import copy
 from django.conf import settings
 from ldapdb.backends.ldap.compiler import query_as_ldap
 
+# Import namespace for mock
+import accounts.models
 from accounts.models import IdTracker
+from accounts.models import AccountRequest
 from accounts.models import RcLdapUser
 from accounts.models import RcLdapGroup
 
@@ -275,6 +280,46 @@ class AccountCreationTestCase(BaseCase):
                 gid=1001
             )
 
+class MockLdapObjectManager():
+    create_user_from_request = MagicMock(return_value={})
+
 # This test case covers AccountRequest model functionality.
 class AccountRequestTestCase(BaseCase):
-    pass
+    def setUp(self):
+        super(AccountRequestTestCase,self).setUp()
+        self.ar_dict = {
+            'username': 'testuser',
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': 'tu@tu.org',
+            'organization': 'ucb'
+        }
+        ar = AccountRequest.objects.create(**self.ar_dict)
+    
+    def test_loaded_values(self):
+        ar = AccountRequest.objects.get(username='testuser')
+        self.assertDictContainsSubset(self.ar_dict,ar._loaded_values)
+    
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_update_account_request(self):
+        ar = AccountRequest.objects.get(username='testuser')
+        self.assertEquals(ar.status,'p')
+        ar.status = 'p'
+        ar.save()
+        self.assertEquals(ar.status,'p')
+        self.assertIsNone(ar.approved_on)
+    
+    @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
+    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    def test_approve_account_request(self):
+        ar = AccountRequest.objects.get(username='testuser')
+        self.assertEquals(ar.status,'p')
+        ar.status = 'p'
+        ar.save()
+        ar.status = 'a'
+        ar.save()
+        self.assertEquals(ar.status,'a')
+        self.assertIsNotNone(ar.approved_on)
+        RcLdapUser.objects.create_user_from_request.assert_called_with(**self.ar_dict)
+
+
