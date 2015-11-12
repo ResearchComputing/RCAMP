@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Request Account{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/org-select.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Request an account on the Janus supercomputer at the University of Colorado Boulder.</p>
+{% endblock %}
+{% block jumbotron_button %}
+<p><a data-toggle="modal" href="#helpmodal" 
+class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
+{% endblock %}
+
+{% block modal_title %}
+<h4 class="modal-title">Terms &amp; Conditions</h4>
+{% endblock %}
+{% block modal_body %}
+<p> Acknowledgement of the Janus supercomputer in publications: 
+                "This work utilized the Janus supercomputer, which is supported 
+                by the National Science Foundation (award number CNS-0821794) and 
+                the University of Colorado Boulder. The Janus supercomputer is 
+                a joint effort of the University of Colorado Boulder, the 
+                University of Colorado Denver and the National Center for Atmospheric Research."
+            </p>
+            <p>In order to meet export control guidelines, the PI certifies that:
+            <ul>
+                <li>The system will be used for fundamental research intended 
+                    to be published without any restrictions.
+                </li>
+                <li>The PI will ensure that all users added under their allocation 
+                    to the system are (a) employees, students, or visitors of a U.S. 
+                    university, or (b) citizens or permanent residents of the United States.
+                </li> 
+                <li>The PI will retain records or correspondence documenting the 
+                    export control status of every user requested.
+                </li>
+            </ul>
+            </p>
+            <p>No HIPAA, FERPA, ITAR, classified or copywrited data may be stored on RC resources.
+            </p>
+            <p>The PI agrees to provide summaries of activities and accomplishments 
+                resulting from use of the Janus system to facilitate the annual reporting 
+                requirements to the NSF and the VCR office.
+            </p>
+{% endblock %}
+
+{% block container %}
+
+<form class="form-inline" method="POST" action="" role="form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset>
+        <p>
+            Please select the organization through which you will be requesting an account.
+            <br /><br />
+        </p>
+        <br />
+        <legend>Select your organization</legend>
+            <div class="form-group">
+                <ul>
+                    {% for org in organizations %}
+                    <li>
+                        <a href="{% url 'account-request-create' org.0 %}">{{ org.1 }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+    </fieldset>
+</form>
+
+{% endblock %}

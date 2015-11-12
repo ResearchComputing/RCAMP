@@ -1,0 +1,12 @@
+{
+  "name": "rcamp",
+  "version": "2.0.1",
+  "homepage": "https://github.com/ResearchComputing/RCAMP",
+  "description": "Research Computing Administrative & Management Portal",
+  "authors": [
+    "Zebula Sampedro"
+  ],
+  "license": "AGPLv3",
+  "private": true,
+  "dependencies": {}
+}

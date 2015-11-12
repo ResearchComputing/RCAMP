@@ -1,0 +1,141 @@
+body 
+{
+  padding-top: 140px;
+  padding-bottom: 40px;
+}
+
+.navbar .navbar-default .navbar-fixed-top {
+  background-color: #d8d8d8;
+  background-image: none;
+  background-repeat: repeat-x;
+  border: 1px #ddd;
+  border-radius: 4px 4px 4px 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+  min-height: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.gray-nav {
+  background-color: #d8d8d8;
+  background-image: none;
+  background-repeat: repeat-x;
+  border: 1px #ddd;
+  border-radius: 4px 4px 4px 4px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.067);
+  min-height: 40px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+#curc_logo {
+  object-fit: contain;
+}
+
+.navbar .nav
+{
+  color: #000000 !important;
+  float: right;
+  margin: 40px 0 0 0;
+}
+
+.container
+{
+  max-width: 960px;
+}
+
+.brand
+{
+  float: left !important;
+}
+
+.sub-container
+{
+  clear: both;
+}
+
+#date-select
+{
+  float: right;
+  clear: both;
+  margin-bottom: 10px;
+}
+
+#date-select .btn:first-child
+{
+  width: 100px;
+}
+
+#percent-select
+{
+  width: 60px;
+  float: left;
+  margin-right: 5px
+}
+
+#page-select
+{
+  float: left;
+}
+
+#pagination-menu
+{
+  display: inline;
+}
+
+#pagination-text
+{
+  line-height: 40px;
+  padding-left: 10px;
+}
+
+#example_bock
+{
+  height: 1200px;
+  background-color: gray;
+}
+
+#summary_table
+{
+  max-width: 600px;
+  clear: both;
+  margin-top: 10px;
+}
+
+#loading
+{           
+  background-position: 50% 50%;
+  height: 20px;
+  width: 200px;
+  float: right;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-image: url(../images/ajax-wait-bar.gif);
+  background-repeat: no-repeat;
+}
+.slidingDiv
+{
+  margin-top: 10px;
+}
+
+.non-sliding-div
+{
+  margin-top: 10px;
+}
+
+@media (max-width: 480px) { 
+  .iphonebtn
+  {
+    width: 300px;
+  }
+  
+  #date-select
+  {
+    float: left;
+    clear: both;
+  }
+  #date-select .btn:first-child
+  {
+    width: 280px;
+  }
+}
