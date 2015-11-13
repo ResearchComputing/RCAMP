@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Request Account{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/org-select.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Request an account on the Janus supercomputer at the University of Colorado Boulder.</p>
+{% endblock %}
+{% block jumbotron_button %}
+<p><a data-toggle="modal" href="#helpmodal" 
+class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;</a></p>
+{% endblock %}
+
+{% block modal_title %}
+<h4 class="modal-title">Definitions &amp; Form Help</h4>
+{% endblock %}
+{% block modal_body %}
+<ul class="list-group">
+    <li class="list-group-item">
+        <strong>UCB username/password</strong>
+        <p>The identikey username and password you use to access UCB resources,
+            such as Desire2Learn or myCUinfo. You can manage your CU Boulder Identity 
+            through <a href="https://cuidm.colorado.edu/">CU Identity Management</a>.
+        </p>
+    </li>
+    <li class="list-group-item">
+        <strong>Preferred login shell</strong>
+        <p>A shell is a command-line interpreter
+        that provides a traditional user interface for the Unix
+        operating system. BASH is the most common choice.
+        </p>
+    </li>
+</ul>
+{% endblock %}
+
+{% block container %}
+
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <p><strong>Could not submit request.</strong> Please resolve the errors below.</p>
+    {{ form.non_field_errors }}
+</div>
+{% endif %}
+
+<form class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset>
+        <legend>CU Login</legend>
+        {% if form.username.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_username">CU username</label>
+            <div class="col-sm-8">
+                <input id="id_username" type="text" name="username" class="form-control"
+                {% if form.username.value %}value={{ form.username.value }}{% endif %}
+                maxlength="256" />
+                {% if form.username.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.username.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if form.password.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_password">CU password</label>
+            <div class="col-sm-8">
+                <input id="id_password" type="password" name="password" class="form-control"
+                {% if form.password.value %}value={{ form.password.value }}{% endif %}
+                maxlength="256" />
+                {% if form.password.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.password.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+    
+    <div class="col-sm-2 col-sm-offset-5">
+        <button type="submit" class="btn btn-primary btn-lg btn-block">Submit Request</button>
+    </div>
+</form>
+{% endblock %}

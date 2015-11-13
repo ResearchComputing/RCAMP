@@ -163,7 +163,7 @@ class RcLdapUser(LdapUser):
 
 class CuLdapUser(LdapUser):
     base_dn = settings.LDAPCONFS['culdap']['people_dn']
-    object_classes = None
+    object_classes = []
     uid = ldap_fields.IntegerField(db_column='unixUID', unique=True)
     # Used for automatic determination of role and affiliation.
     edu_affiliation = ldap_fields.ListField(db_column='eduPersonAffiliation')
