@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 # Create your models here.
 ORGANIZATIONS = (
-    ('ucb','University of Colorado Boulder'),
+    ('cu','University of Colorado Boulder'),
     ('xsede','XSEDE'),
 )
 
@@ -38,6 +38,9 @@ class AccountRequest(models.Model):
     notes = models.TextField()
 
     request_date = models.DateTimeField(auto_now_add=True)
+
+    def __unicode__(self):
+        return '%s_%s'%(self.username,self.request_date)
 
     @classmethod
     def from_db(cls,db,field_names,values):

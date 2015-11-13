@@ -8,7 +8,20 @@ from accounts.models import AccountRequest
 
 @admin.register(AccountRequest)
 class AccountRequestAdmin(admin.ModelAdmin):
-    pass
+    list_display = [
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'organization',
+        'request_date',
+        'status'
+    ]
+    search_fields = [
+        'first_name',
+        'last_name',
+        'username'
+    ]
 
 # Register your models here.
 admin.site.register(RcLdapUser)
