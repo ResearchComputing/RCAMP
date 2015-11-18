@@ -18,3 +18,5 @@ class CuAuthForm(forms.Form):
             return cleaned_data
         except CuLdapUser.DoesNotExist:
             raise forms.ValidationError('Invalid username')
+        except TypeError:
+            raise forms.ValidationError('Missing field(s)')

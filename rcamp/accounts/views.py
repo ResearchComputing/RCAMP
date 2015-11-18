@@ -2,6 +2,7 @@ from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 from django.views.generic.base import ContextMixin
 from django.core.urlresolvers import reverse_lazy
+from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
 from accounts.forms import CuAuthForm
@@ -45,7 +46,10 @@ class AccountRequestReviewView(TemplateView):
     
     def get_context_data(self, **kwargs):
         request_id = kwargs.get('request_id')
-        context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
-        ar = AccountRequest.objects.get(id=request_id)
-        context['account_request'] = ar
-        return context
+        try:
+            context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
+            ar = AccountRequest.objects.get(id=request_id)
+            context['account_request'] = ar
+            return context
+        except AccountRequest.DoesNotExist:
+            raise Http404('Account Request not found.')
