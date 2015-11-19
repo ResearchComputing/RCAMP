@@ -2,8 +2,8 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
-from accounts.ldap_utils import LdapObject
 from accounts.fields import DateTimeField
+import accounts.ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
@@ -176,12 +176,8 @@ class CuLdapUser(LdapUser):
     
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
-        l=LdapObject(**settings.LDAPCONFS['culdap'])
-        br=l.authenticate(self.username,pwd)
-        if br:
-            return True
-        else:
-            return False
+        authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
+        return authed
 
 class RcLdapGroup(ldapdb.models.Model):
     base_dn =  settings.LDAPCONFS['rcldap']['group_dn']
