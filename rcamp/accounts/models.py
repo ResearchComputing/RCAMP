@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
 from accounts.fields import DateTimeField
-import accounts.ldap_utils
+from accounts import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging

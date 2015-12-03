@@ -63,7 +63,7 @@ class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a><
                 <ul>
                     {% for org in organizations %}
                     <li>
-                        <a href="{% url 'cu-account-request-create' %}">{{ org.1 }}</a>
+                        <a href="{% url org.0|add:'-account-request-create' %}">{{ org.1 }}</a>
                     </li>
                     {% endfor %}
                 </ul>

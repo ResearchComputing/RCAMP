@@ -14,7 +14,7 @@ class OrgSelectView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OrgSelectView,self).get_context_data(**kwargs)
         context['organizations'] = (
-            ('ucb','University of Colorado Boulder'),
+            ('cu','University of Colorado Boulder'),
             ('csu','Colorado State University'),
             ('xsede','XSEDE'),
         )

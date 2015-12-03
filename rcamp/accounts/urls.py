@@ -6,5 +6,7 @@ from accounts.views import AccountRequestReviewView
 urlpatterns = [
     url(r'^account-request/create$', OrgSelectView.as_view(), name='account-request-org'),
     url(r'^account-request/create/cu$', CuAccountRequestCreateView.as_view(), name='cu-account-request-create'),
+    url(r'^account-request/create/csu$', CuAccountRequestCreateView.as_view(), name='csu-account-request-create'),
+    url(r'^account-request/create/xsede$', CuAccountRequestCreateView.as_view(), name='xsede-account-request-create'),
     url(r'^account-request/review/(?P<request_id>\d+)', AccountRequestReviewView.as_view(), name='account-request-review'),
 ]
