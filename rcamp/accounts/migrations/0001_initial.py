@@ -20,8 +20,8 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=128)),
                 ('last_name', models.CharField(max_length=128)),
                 ('email', models.EmailField(unique=True, max_length=254)),
-                ('organization', models.CharField(max_length=128, choices=[(b'ucb', b'University of Colorado Boulder'), (b'xsede', b'XSEDE')])),
-                ('status', models.BooleanField(default=b'p', choices=[(b'p', b'Pending'), (b'a', b'Approved'), (b'd', b'Denied'), (b'i', b'Incomplete')])),
+                ('organization', models.CharField(max_length=128, choices=[(b'cu', b'University of Colorado Boulder'), (b'xsede', b'XSEDE')])),
+                ('status', models.CharField(default=b'p', max_length=16, choices=[(b'p', b'Pending'), (b'a', b'Approved'), (b'd', b'Denied'), (b'i', b'Incomplete')])),
                 ('approved_on', models.DateTimeField(null=True, blank=True)),
                 ('notes', models.TextField()),
                 ('request_date', models.DateTimeField(auto_now_add=True)),
@@ -63,7 +63,7 @@ class Migration(migrations.Migration):
                 ('dn', models.CharField(max_length=200)),
                 ('gid', ldapdb.models.fields.IntegerField(unique=True, db_column=b'gidNumber')),
                 ('name', ldapdb.models.fields.CharField(max_length=200, serialize=False, primary_key=True, db_column=b'cn')),
-                ('members', ldapdb.models.fields.ListField(db_column=b'memberUid')),
+                ('members', ldapdb.models.fields.ListField(null=True, db_column=b'memberUid', blank=True)),
             ],
             options={
                 'abstract': False,
@@ -84,7 +84,6 @@ class Migration(migrations.Migration):
                 ('gecos', ldapdb.models.fields.CharField(max_length=200, db_column=b'gecos')),
                 ('home_directory', ldapdb.models.fields.CharField(max_length=200, db_column=b'homeDirectory')),
                 ('login_shell', ldapdb.models.fields.CharField(default=b'/bin/bash', max_length=200, db_column=b'loginShell')),
-                ('radius_name', ldapdb.models.fields.CharField(max_length=200, db_column=b'curcradiusname')),
             ],
             options={
                 'abstract': False,

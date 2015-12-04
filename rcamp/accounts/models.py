@@ -185,7 +185,7 @@ class RcLdapGroup(ldapdb.models.Model):
     # posixGroup attributes
     gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     name = ldap_fields.CharField(db_column='cn', max_length=200, primary_key=True)
-    members = ldap_fields.ListField(db_column='memberUid')
+    members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
     def __str__(self):
         return self.name
