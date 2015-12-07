@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     
     'ldapdb',
+    'lib',
     'accounts',
     'projects',
 )
@@ -97,7 +98,7 @@ DATABASES = {
     },
 }
 
-DATABASE_ROUTERS = ['accounts.router.LdapRouter',]
+DATABASE_ROUTERS = ['lib.router.LdapRouter',]
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

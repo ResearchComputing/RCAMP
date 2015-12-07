@@ -2,8 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
-from accounts.fields import DateTimeField
-from accounts import ldap_utils
+from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
@@ -99,7 +98,7 @@ class LdapUser(ldapdb.models.Model):
     # posixAccount
     username = ldap_fields.CharField(db_column='uid', primary_key=True)
     # ldap specific
-    modified_date = DateTimeField(db_column='modifytimestamp',blank=True)
+    modified_date = ldap_fields.DateTimeField(db_column='modifytimestamp',blank=True)
 
     def __str__(self):
         return self.username
