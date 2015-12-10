@@ -1,5 +1,6 @@
 from django import forms
 from accounts.models import CuLdapUser
+from accounts.models import AccountRequest
 
 
 class CuAuthForm(forms.Form):
@@ -10,6 +11,10 @@ class CuAuthForm(forms.Form):
         cleaned_data = super(CuAuthForm,self).clean()
         un = cleaned_data.get('username')
         pw = cleaned_data.get('password')
+        if AccountRequest.objects.filter(username=un).count() > 0:
+            raise forms.ValidationError(
+                'An account request has already been submitted for {}'.format(un)
+            )
         try:
             user = CuLdapUser.objects.get(username=un)
             authed = user.authenticate(pw)
