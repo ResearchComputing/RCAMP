@@ -22,8 +22,10 @@ class Project(models.Model):
     project_type = models.ForeignKey(ProjectType)
     project_id = models.CharField(max_length=24,unique=True)
     principal_investigator = models.CharField(max_length=12)
+    affiliation = models.CharField(max_length=128)
     title = models.CharField(max_length=256)
     created_on = models.DateField(auto_now_add=True)
+    qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     notes = models.TextField()
     allocations = models.ManyToManyField(Allocation)
     
@@ -46,6 +48,7 @@ class ProjectRequest(models.Model):
     
     title = models.CharField(max_length=256,unique=True)
     principal_investigator = models.CharField(max_length=12)
+    affiliation = models.CharField(max_length=128)
     abstract = models.TextField()
     proposal = models.FileField()
     

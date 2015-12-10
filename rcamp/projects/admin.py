@@ -37,7 +37,9 @@ class ProjectForm(forms.ModelForm):
             'project_type',
             'project_id',
             'principal_investigator',
+            'affiliation',
             'title',
+            'qos_addenda',
             'notes',
             'allocations',
         ]
@@ -48,13 +50,17 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = [
         'project_id',
         'principal_investigator',
+        'affiliation',
         'title',
         'created_on',
+        'qos_addenda',
     ]
     search_fields = [
         'project_id',
         'principal_investigator',
+        'affiliation',
         'title',
+        'qos_addenda',
         'allocations',
         'created_on',
     ]
@@ -102,15 +108,21 @@ class AllocationAdmin(admin.ModelAdmin):
 
 @admin.register(ProjectRequest)
 class ProjectRequestAdmin(admin.ModelAdmin):
+    def approve_requests(modeladmin, request, queryset):
+        queryset.update(status='a')
+    approve_requests.short_description = 'Approve selected project requests'
+    actions = [approve_requests]
     list_display = [
         'title',
         'principal_investigator',
+        'affiliation',
         'status',
         'request_date',
     ]
     search_fields = [
         'title',
         'principal_investigator',
+        'affiliation',
         'request_date',
     ]
 
@@ -149,6 +161,10 @@ class AllocationRequestForm(forms.ModelForm):
 
 @admin.register(AllocationRequest)
 class AllocationRequestAdmin(admin.ModelAdmin):
+    def approve_requests(modeladmin, request, queryset):
+        queryset.update(status='a')
+    approve_requests.short_description = 'Approve selected allocation requests'
+    actions = [approve_requests]
     list_display = [
         'title',
         'project',
