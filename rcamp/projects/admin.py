@@ -42,6 +42,7 @@ class ProjectForm(forms.ModelForm):
             'qos_addenda',
             'notes',
             'allocations',
+            'deactivate_project',
         ]
 
 @admin.register(Project)
@@ -85,7 +86,7 @@ class AllocationForm(forms.ModelForm):
         fields = [
             'allocation_id',
             'title',
-            'award',
+            'cpu_mins_awarded',
             'members',
         ]
 
@@ -94,13 +95,13 @@ class AllocationAdmin(admin.ModelAdmin):
     list_display = [
         'allocation_id',
         'title',
-        'award',
+        'cpu_mins_awarded',
         'created_on',
     ]
     search_fields = [
         'allocation_id',
         'title',
-        'award',
+        'cpu_mins_awarded',
         'created_on',
         'members',
     ]
@@ -148,7 +149,7 @@ class AllocationRequestForm(forms.ModelForm):
             'funding',
             'proposal',
             'time_requested',
-            'time_awarded',
+            'cpu_mins_awarded',
             'disk_space',
             'software_request',
             'members',

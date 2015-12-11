@@ -6,9 +6,8 @@ from lib import fields
 class Allocation(models.Model):
     allocation_id = models.CharField(max_length=24,unique=True)
     title = models.CharField(max_length=256)
-    award = models.FloatField()
+    cpu_mins_awarded = models.FloatField()
     created_on = models.DateField(auto_now_add=True)
-    deactivate_allocation = models.BooleanField(default=False)
     members = fields.ListField(default=[],blank=True,null=True)
     
     def __unicode__(self):
@@ -28,9 +27,18 @@ class Project(models.Model):
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     notes = models.TextField()
     allocations = models.ManyToManyField(Allocation)
+    deactivate_project = models.BooleanField(default=False)
     
     def __unicode__(self):
         return self.project_id
+    
+    @property
+    def current_limit(self):
+        allocs = self.allocations.all()
+        limit = 0.0
+        for a in allocs:
+            limit += a.cpu_mins_awarded
+        return limit
 
 class ProjectRequest(models.Model):
     STATUSES = (
@@ -97,7 +105,7 @@ class AllocationRequest(models.Model):
     funding = models.TextField()
     proposal = models.FileField()
     time_requested = models.BigIntegerField()
-    time_awarded = models.BigIntegerField(default=0)
+    cpu_mins_awarded = models.BigIntegerField(default=0)
     disk_space = models.IntegerField()
     software_request = models.TextField(null=True,blank=True)
     members = fields.ListField(default=[],blank=True,null=True)
