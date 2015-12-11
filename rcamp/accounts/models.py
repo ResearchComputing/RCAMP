@@ -6,7 +6,7 @@ from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
-
+from mailer.signals import account_created_from_request
 
 logger = logging.getLogger(__name__)
 
@@ -54,14 +54,14 @@ class AccountRequest(models.Model):
             # Approval process
             logger.info('Approving account request: '+self.username)
             self.approved_on=timezone.now()
-            RcLdapUser.objects.create_user_from_request(
+            rc_user = RcLdapUser.objects.create_user_from_request(
                 username=self.username,
                 first_name=self.first_name,
                 last_name=self.last_name,
                 email=self.email,
                 organization=self.organization
             )
-        
+            account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
 
 class IdTracker(models.Model):

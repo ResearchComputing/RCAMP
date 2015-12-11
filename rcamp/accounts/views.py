@@ -6,6 +6,8 @@ from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
 from accounts.forms import CuAuthForm
+from mailer.signals import account_request_received
+
 
 # Create your views here.
 class OrgSelectView(TemplateView):
@@ -15,7 +17,7 @@ class OrgSelectView(TemplateView):
         context = super(OrgSelectView,self).get_context_data(**kwargs)
         context['organizations'] = (
             ('cu','University of Colorado Boulder'),
-            ('csu','Colorado State University'),
+            # ('csu','Colorado State University'),
             ('xsede','XSEDE'),
         )
         return context
@@ -37,6 +39,7 @@ class CuAccountRequestCreateView(FormView):
             'organization': 'cu',
         }
         ar = AccountRequest.objects.get_or_create(**ar_dict)
+        account_request_received.send(sender=ar.__class__,account_request=ar)
         
         self.success_url = reverse_lazy('account-request-review', kwargs={'request_id':ar[0].id})
         return super(CuAccountRequestCreateView,self).form_valid(form)

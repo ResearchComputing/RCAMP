@@ -41,8 +41,9 @@ INSTALLED_APPS = (
     
     'ldapdb',
     'lib',
+    'mailer',
     'accounts',
-    'projects',
+    # 'projects',
 )
 
 MIDDLEWARE_CLASSES = (
