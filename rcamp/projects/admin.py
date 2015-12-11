@@ -55,6 +55,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'title',
         'created_on',
         'qos_addenda',
+        'current_limit',
     ]
     search_fields = [
         'project_id',

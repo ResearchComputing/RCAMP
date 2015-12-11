@@ -15,6 +15,7 @@ class ProjectRequestForm(forms.ModelForm):
         fields = [
             'title',
             'principal_investigator',
+            'affiliation',
             'abstract',
             'proposal',
         ]

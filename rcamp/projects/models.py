@@ -16,6 +16,9 @@ class Allocation(models.Model):
 class ProjectType(models.Model):
     long_name = models.CharField(max_length=128,unique=True)
     short_name = models.CharField(max_length=12,unique=True)
+    
+    def __unicode__(self):
+        return self.long_name
 
 class Project(models.Model):
     project_type = models.ForeignKey(ProjectType)
@@ -26,7 +29,7 @@ class Project(models.Model):
     created_on = models.DateField(auto_now_add=True)
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     notes = models.TextField()
-    allocations = models.ManyToManyField(Allocation)
+    allocations = models.ManyToManyField(Allocation,null=True,blank=True)
     deactivate_project = models.BooleanField(default=False)
     
     def __unicode__(self):
