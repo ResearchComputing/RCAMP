@@ -101,6 +101,8 @@ DATABASES = {
 
 DATABASE_ROUTERS = ['lib.router.LdapRouter',]
 
+EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 
