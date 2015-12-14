@@ -1,8 +1,11 @@
 from django.test import TestCase
 from django.test import override_settings
 
+
 from mailer.models import MailNotifier
 from mailer.models import MailLog
+from mailer import receivers
+from mailer.signals import *
 
 
 # Ensure that the events exposed as choices for the
@@ -119,3 +122,95 @@ class MailNotifierTestCase(TestCase):
         
         ml = MailLog.objects.get()
         self.assertEquals(ml.recipient_emails,'requestuser@test.org,testuser@test.org')
+
+class ARReceivedTestCase(TestCase):
+    def setUp(self):
+        self.ctx = {
+            'username':'testuser',
+            'email':'testuser@test.org',
+        }
+        mn1_dict = {
+            'name':'account_request_received',
+            'event':'account_request_received',
+            'from_address':'test@test.org',
+            'mailto':"requestuser@test.org,{{ account_request.email }},,",
+            'cc':"requestuser@test.org,{{ account_request.email }},,",
+            'bcc':"requestuser@test.org,{{ account_request.email }},,",
+            'subject':"Hi, {{ account_request.username }}!",
+            'body':"You, {{ account_request.username }}, did it!!!!",
+        }
+        mn2_dict = {
+            'name':'account_request_received2',
+            'event':'account_request_received',
+            'from_address':'test@test.org',
+            'mailto':"requestuser@test.org,{{ account_request.email }},,",
+            'cc':"requestuser@test.org,{{ account_request.email }},,",
+            'bcc':"requestuser@test.org,{{ account_request.email }},,",
+            'subject':"Hi, {{ account_request.username }}!",
+            'body':"You, {{ account_request.username }}, did it!!!!",
+        }
+        self.mn1 = MailNotifier.objects.create(**mn1_dict)
+        self.mn2 = MailNotifier.objects.create(**mn2_dict)
+    
+    def test_account_requested_received(self):
+        account_request_received.send(
+            sender='AccountRequest',
+            account_request=self.ctx
+        )
+        
+        from django.core.mail import outbox
+        self.assertEquals(len(outbox),2)
+        self.assertEquals(
+            outbox[0].body,
+            self.mn1.make_body({'account_request':self.ctx})
+        )
+        self.assertEquals(
+            outbox[1].body,
+            self.mn2.make_body({'account_request':self.ctx})
+        )
+
+class ARApprovedTestCase(TestCase):
+    def setUp(self):
+        self.ctx = {
+            'username':'testuser',
+            'email':'testuser@test.org',
+        }
+        mn1_dict = {
+            'name':'account_created_from_request',
+            'event':'account_created_from_request',
+            'from_address':'test@test.org',
+            'mailto':"requestuser@test.org,{{ account.email }},,",
+            'cc':"requestuser@test.org,{{ account.email }},,",
+            'bcc':"requestuser@test.org,{{ account.email }},,",
+            'subject':"Hi, {{ account.username }}!",
+            'body':"You, {{ account.username }}, did it!!!!",
+        }
+        mn2_dict = {
+            'name':'account_created_from_request2',
+            'event':'account_created_from_request',
+            'from_address':'test@test.org',
+            'mailto':"requestuser@test.org,{{ account.email }},,",
+            'cc':"requestuser@test.org,{{ account.email }},,",
+            'bcc':"requestuser@test.org,{{ account.email }},,",
+            'subject':"Hi, {{ account.username }}!",
+            'body':"You, {{ account.username }}, did it!!!!",
+        }
+        self.mn1 = MailNotifier.objects.create(**mn1_dict)
+        self.mn2 = MailNotifier.objects.create(**mn2_dict)
+    
+    def test_account_requested_received(self):
+        account_created_from_request.send(
+            sender='RcLdapUser',
+            account=self.ctx
+        )
+        
+        from django.core.mail import outbox
+        self.assertEquals(len(outbox),2)
+        self.assertEquals(
+            outbox[0].body,
+            self.mn1.make_body({'account':self.ctx})
+        )
+        self.assertEquals(
+            outbox[1].body,
+            self.mn2.make_body({'account':self.ctx})
+        )
