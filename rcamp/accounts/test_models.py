@@ -78,7 +78,7 @@ class BaseCase(TestCase):
 # Ensure basic functionality of the mock LDAP server
 # before continuing onto the remainder of the test suite.
 class MockLdapTestCase(BaseCase):
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_read(self):
         u = RcLdapUser.objects.get(username='testuser')
 
@@ -90,14 +90,14 @@ class MockLdapTestCase(BaseCase):
         self.assertRaises(RcLdapUser.DoesNotExist, RcLdapUser.objects.get,
                         username='does_not_exist')
 
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_update(self):
         u = RcLdapUser.objects.get(username='testuser')
         u.first_name = 'Tested'
         u.save()
         self.assertEquals(u.first_name, 'Tested')
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_save(self):
         user_dict = dict(
                 username='createtest',
@@ -115,7 +115,7 @@ class MockLdapTestCase(BaseCase):
         u.save()
         self.assertEquals(u.uid, 1010)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_create(self):
         user_dict = dict(
                 username='createtest',
@@ -132,7 +132,7 @@ class MockLdapTestCase(BaseCase):
         u = RcLdapUser.objects.create(**user_dict)
         self.assertEquals(u.uid, 1010)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcgroup_save(self):
         grp_dict = dict(
                 name='createtestgrp',
@@ -143,7 +143,7 @@ class MockLdapTestCase(BaseCase):
         g.save()
         self.assertEquals(g.gid, 1010)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcgroup_create(self):
         grp_dict = dict(
                 name='createtestgrp',
@@ -153,7 +153,7 @@ class MockLdapTestCase(BaseCase):
         g = RcLdapGroup.objects.create(**grp_dict)
         self.assertEquals(g.gid, 1010)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcgroup_read(self):
         g = RcLdapGroup.objects.get(name='testgrp')
         
@@ -164,7 +164,7 @@ class MockLdapTestCase(BaseCase):
         self.assertRaises(RcLdapGroup.DoesNotExist, RcLdapGroup.objects.get,
                         name='does_not_exist')
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcgroup_update(self):
         g = RcLdapGroup.objects.get(name='testgrp')
         g.name = 'testedgrp'
@@ -183,7 +183,7 @@ class IdTrackerTestCase(BaseCase):
         )
         idt.save()
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_get_next_id(self):
         idt = IdTracker.objects.get(category='posix')
         self.assertEquals(idt.next_id, 1001)
@@ -192,7 +192,7 @@ class IdTrackerTestCase(BaseCase):
         self.assertEquals(next_id, 1001)
         self.assertEquals(idt.next_id, 1002)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_get_next_id_no_initial_value(self):
         idt = IdTracker.objects.get(category='posix')
         idt.next_id = None
@@ -201,7 +201,7 @@ class IdTrackerTestCase(BaseCase):
         self.assertEquals(next_id, 1001)
         self.assertEquals(idt.next_id, 1002)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_get_next_id_conflict(self):
         idt = IdTracker.objects.get(category='posix')
         idt.next_id = 1000
@@ -222,14 +222,14 @@ class AccountCreationTestCase(BaseCase):
         )
         idt.save()
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_create_user_from_request(self):
         user_dict = {
             'username': 'requestuser',
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
-            'organization': 'ucb'
+            'organization': 'cu'
         }
         u = RcLdapUser.objects.create_user_from_request(**user_dict)
         
@@ -255,14 +255,14 @@ class AccountCreationTestCase(BaseCase):
         for grp in [pgrp,sgrp]:
             self.assertEquals(grp.members, ['requestuser'])
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_create_user_from_request_missing_fields(self):
         user_dict = {
             'username': 'requestuser',
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
-            'organization': 'ucb'
+            'organization': 'cu'
         }
         
         for k in user_dict.keys():
@@ -292,7 +292,7 @@ class AccountRequestTestCase(BaseCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'ucb'
+            'organization': 'cu'
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
     
@@ -300,7 +300,7 @@ class AccountRequestTestCase(BaseCase):
         ar = AccountRequest.objects.get(username='testuser')
         self.assertDictContainsSubset(self.ar_dict,ar._loaded_values)
     
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_update_account_request(self):
         ar = AccountRequest.objects.get(username='testuser')
         self.assertEquals(ar.status,'p')
@@ -310,7 +310,7 @@ class AccountRequestTestCase(BaseCase):
         self.assertIsNone(ar.approved_on)
     
     @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_approve_account_request(self):
         ar = AccountRequest.objects.get(username='testuser')
         self.assertEquals(ar.status,'p')

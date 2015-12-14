@@ -39,8 +39,8 @@ class OrgSelectTestCase(CbvCase):
         self.assertEquals(
             context['organizations'],
             (
-                ('ucb','University of Colorado Boulder'),
-                ('csu','Colorado State University'),
+                ('cu','University of Colorado Boulder'),
+                # ('csu','Colorado State University'),
                 ('xsede','XSEDE'),
             )
         )
@@ -54,7 +54,7 @@ class AccountRequestReviewTestCase(CbvCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'ucb'
+            'organization': 'cu'
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
     
@@ -75,7 +75,7 @@ class AccountRequestReviewTestCase(CbvCase):
 # This test case covers the CU account request page.
 class CuAccountRequestTestCase(CuBaseCase,CbvCase):
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/cu',
@@ -93,7 +93,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.organization,'cu')
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_missing_username(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/cu',
@@ -114,7 +114,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
             )
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=False))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_invalid_creds(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/cu',

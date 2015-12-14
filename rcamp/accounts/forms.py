@@ -1,5 +1,6 @@
 from django import forms
 from accounts.models import CuLdapUser
+from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 
 
@@ -16,6 +17,10 @@ class CuAuthForm(forms.Form):
                 'An account request has already been submitted for {}'.format(un)
             )
         try:
+            if RcLdapUser.objects.filter(username=un).count() > 0:
+                raise forms.ValidationError(
+                    'An account already exists with username {}'.format(un)
+                )
             user = CuLdapUser.objects.get(username=un)
             authed = user.authenticate(pw)
             if not authed:

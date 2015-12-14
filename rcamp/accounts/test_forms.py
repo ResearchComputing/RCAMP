@@ -8,6 +8,7 @@ from django.conf import settings
 
 from accounts.forms import CuAuthForm
 from accounts.models import CuLdapUser
+from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
 
 
@@ -42,7 +43,7 @@ class CuBaseCase(BaseCase):
 
 # Cursory test to ensure mock LDAP is properly configured
 class MockCuLdapTestCase(CuBaseCase):
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_cuuser_read(self):
         u = CuLdapUser.objects.get(username='testuser')
         
@@ -54,11 +55,11 @@ class MockCuLdapTestCase(CuBaseCase):
 
 # This test case covers the functionality of the CU auth form
 # delivered to the user during account request. MagicMock is
-# used as a stopgap while the custom LdapObject used for auth
+# used as a stopgap while authentication against CU LDAP
 # remains untestable.
 class CuAuthFormTestCase(CuBaseCase):
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_form_valid(self):
         form_data = {
             'username': 'testuser',
@@ -68,7 +69,7 @@ class CuAuthFormTestCase(CuBaseCase):
         self.assertTrue(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_form_invalid_bad_user(self):
         form_data = {
             'username': 'wronguser',
@@ -78,7 +79,7 @@ class CuAuthFormTestCase(CuBaseCase):
         self.assertFalse(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=False))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_form_invalid_bad_password(self):
         form_data = {
             'username': 'testuser',
@@ -88,7 +89,7 @@ class CuAuthFormTestCase(CuBaseCase):
         self.assertFalse(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['accounts.router.TestLdapRouter',])
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_form_invalid_missing_fields(self):
         form_data = {
             'username': 'testuser',
@@ -101,3 +102,33 @@ class CuAuthFormTestCase(CuBaseCase):
         }
         form = CuAuthForm(data=form_data)
         self.assertFalse(form.is_valid())
+
+class CuAuthFormRcLdapTestCase(BaseCase):
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_invalid_user_exists(self):
+        form_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+        }
+        form = CuAuthForm(data=form_data)
+        self.assertFalse(form.is_valid())
+    
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_invalid_accountrequest_exists(self):
+        ar_dict = {
+            'username': 'testuser',
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': 'tu@tu.org',
+            'organization': 'cu'
+        }
+        ar = AccountRequest.objects.create(**ar_dict)
+        form_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+        }
+        form = CuAuthForm(data=form_data)
+        self.assertFalse(form.is_valid())
+        
