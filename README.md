@@ -7,6 +7,8 @@ Research Computing Administrative &amp; Management Portal
 
 **mailer** - The mailer app contains all code for sending emails from app-wide signals.
 
+**endpoints** - The endpoints app exposes a selection of RESTful endpoints for accessing RCAMP data.
+
 **lib** - The lib app contains shared code for the rest of the app.
 
 **rcamp** - The rcamp directory contains site code and, most importantly, settings.

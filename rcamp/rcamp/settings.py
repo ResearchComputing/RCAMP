@@ -39,6 +39,9 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
+    'crispy_forms',
+    'rest_framework',
+    
     'ldapdb',
     'lib',
     'mailer',

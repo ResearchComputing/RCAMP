@@ -22,5 +22,6 @@ from mailer import receivers
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^api/', include('endpoints.urls')),
     url(r'^accounts/', include('accounts.urls')),
 ]
