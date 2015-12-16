@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
-from accounts.forms import CuAuthForm
+from accounts.forms import CuAccountRequestForm
 from mailer.signals import account_request_received
 
 
@@ -24,19 +24,25 @@ class OrgSelectView(TemplateView):
 
 class CuAccountRequestCreateView(FormView):
     template_name = 'cu-account-request-create.html'
-    form_class = CuAuthForm
-    # success_url = reverse_lazy('account-request-review')
+    form_class = CuAccountRequestForm
     
     def form_valid(self, form):
         # Authenticate here
         un = form.cleaned_data.get('username')
         user = CuLdapUser.objects.get(username=un)
+        
+        res_list = []
+        for k in ['shared_compute','gpu','condo','petalibrary',]:
+            if form.cleaned_data.get(k):
+                res_list.append(k)
+        
         ar_dict = {
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
             'organization': 'cu',
+            'resources_requested': ','.join(res_list),
         }
         ar = AccountRequest.objects.get_or_create(**ar_dict)
         account_request_received.send(sender=ar.__class__,account_request=ar)

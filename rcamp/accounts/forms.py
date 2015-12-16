@@ -4,12 +4,17 @@ from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 
 
-class CuAuthForm(forms.Form):
+class CuAccountRequestForm(forms.Form):
     username = forms.CharField(max_length=12,required=True)
     password = forms.CharField(max_length=32, widget=forms.PasswordInput)
     
+    shared_compute = forms.BooleanField(required=False)
+    gpu = forms.BooleanField(required=False)
+    condo = forms.BooleanField(required=False)
+    petalibrary = forms.BooleanField(required=False)
+    
     def clean(self):
-        cleaned_data = super(CuAuthForm,self).clean()
+        cleaned_data = super(CuAccountRequestForm,self).clean()
         un = cleaned_data.get('username')
         pw = cleaned_data.get('password')
         if AccountRequest.objects.filter(username=un).count() > 0:

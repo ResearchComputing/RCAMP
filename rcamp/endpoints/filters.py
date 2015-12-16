@@ -15,6 +15,7 @@ class AccountRequestFilter(rest_framework.filters.FilterSet):
             'last_name',
             'email',
             'organization',
+            'resources_requested',
             'status',
             'approved_on',
             'request_date',

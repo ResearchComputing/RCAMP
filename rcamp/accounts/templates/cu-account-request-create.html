@@ -43,7 +43,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 <form class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
     {% csrf_token %}
     <fieldset>
-        <legend>CU Login</legend>
+        <legend>CU Identikey Login</legend>
         {% if form.username.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
@@ -80,6 +80,39 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
                 </div>
                 {% endif %}
             </div>
+        </div>
+    </fieldset>
+    
+    <fieldset>
+        <legend>Which resources do you intend to use?</legend>
+        
+        <div class="checkbox">
+            <label>
+                <input id="id_shared_compute" type="checkbox" name="shared_compute" 
+                {% if form.shared_compute.value %}checked{% endif %}/>
+                Shared compute infrastructure
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input id="id_gpu" type="checkbox" name="gpu" 
+                {% if form.gpu.value %}checked{% endif %}/>
+                GPUs
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input id="id_condo" type="checkbox" name="condo" 
+                {% if form.condo.value %}checked{% endif %}/>
+                Condo cluster
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input id="id_petalibrary" type="checkbox" name="petalibrary" 
+                {% if form.petalibrary.value %}checked{% endif %}/>
+                PetaLibrary
+            </label>
         </div>
     </fieldset>
     

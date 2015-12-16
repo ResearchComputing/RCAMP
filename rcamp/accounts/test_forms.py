@@ -6,7 +6,7 @@ import datetime
 
 from django.conf import settings
 
-from accounts.forms import CuAuthForm
+from accounts.forms import CuAccountRequestForm
 from accounts.models import CuLdapUser
 from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
@@ -53,11 +53,11 @@ class MockCuLdapTestCase(CuBaseCase):
         self.assertRaises(CuLdapUser.DoesNotExist, CuLdapUser.objects.get,
                         username='does_not_exist')
 
-# This test case covers the functionality of the CU auth form
+# This test case covers the functionality of the CU account request form
 # delivered to the user during account request. MagicMock is
 # used as a stopgap while authentication against CU LDAP
 # remains untestable.
-class CuAuthFormTestCase(CuBaseCase):
+class CuAccountRequestFormTestCase(CuBaseCase):
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_form_valid(self):
@@ -65,7 +65,7 @@ class CuAuthFormTestCase(CuBaseCase):
             'username': 'testuser',
             'password': 'testpass',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertTrue(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
@@ -75,7 +75,7 @@ class CuAuthFormTestCase(CuBaseCase):
             'username': 'wronguser',
             'password': 'testpass',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=False))
@@ -85,7 +85,7 @@ class CuAuthFormTestCase(CuBaseCase):
             'username': 'testuser',
             'password': 'testpass',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
@@ -94,16 +94,16 @@ class CuAuthFormTestCase(CuBaseCase):
         form_data = {
             'username': 'testuser',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
         
         form_data = {
             'password': 'testpass',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
 
-class CuAuthFormRcLdapTestCase(BaseCase):
+class CuAccountRequestFormRcLdapTestCase(BaseCase):
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_form_invalid_user_exists(self):
@@ -111,7 +111,7 @@ class CuAuthFormRcLdapTestCase(BaseCase):
             'username': 'testuser',
             'password': 'testpass',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
@@ -129,6 +129,6 @@ class CuAuthFormRcLdapTestCase(BaseCase):
             'username': 'testuser',
             'password': 'testpass',
         }
-        form = CuAuthForm(data=form_data)
+        form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
         

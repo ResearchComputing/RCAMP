@@ -79,7 +79,12 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
     def test_request_create(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/cu',
-                data={'username':'testuser','password':'testpass'}
+                data={
+                    'username':'testuser',
+                    'password':'testpass',
+                    'shared_compute':True,
+                    'condo':True,
+                }
             )
         view = CuAccountRequestCreateView.as_view()
         response = view(request)
@@ -90,6 +95,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.first_name,'test')
         self.assertEquals(ar.last_name,'user')
         self.assertEquals(ar.email,'testuser@test.org')
+        self.assertEquals(ar.resources_requested,'shared_compute,condo')
         self.assertEquals(ar.organization,'cu')
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))

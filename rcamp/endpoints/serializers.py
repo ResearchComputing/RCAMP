@@ -11,6 +11,7 @@ class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
             'last_name',
             'email',
             'organization',
+            'resources_requested',
             'status',
             'approved_on',
             'request_date',

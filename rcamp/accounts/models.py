@@ -29,7 +29,8 @@ class AccountRequest(models.Model):
     first_name = models.CharField(max_length=128,blank=False,null=False)
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
-
+    
+    resources_requested = models.CharField(max_length=256,blank=True,null=True)
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
 
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
