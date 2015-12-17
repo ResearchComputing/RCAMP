@@ -41,7 +41,7 @@ class AccountRequest(models.Model):
 
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
-    notes = models.TextField()
+    notes = models.TextField(default='')
 
     request_date = models.DateTimeField(auto_now_add=True)
 
