@@ -22,7 +22,7 @@
                 <h4 class="modal-title">Acknowledge Contact Email</h4>
             </div>
             <div class="modal-body">
-                <form action="#">
+                <form id="ack_form">
                     <div class="checkbox">
                         <label>
                             <input id="email_ack" type="checkbox"> I acknowledge that confirmation of my account request
@@ -83,9 +83,13 @@ $(document).ready(function() {
         keyboard: false,
         backdrop: 'static'
     });
+    $('#ack_form').submit(false);
     $('#email_ack').click(function() {
         $('#submit_ack').attr("disabled", !this.checked);
     });
+    // $('ack_form').onSubmit(function() {
+        
+    // });
     $('#submit_ack').click(function() {
         $('#helpmodal').modal('hide');
     });
