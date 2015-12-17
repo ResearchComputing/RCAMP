@@ -41,6 +41,13 @@
 {% endblock %}
 
 {% block container %}
+<div class="mailto-help">
+    Questions about your request? 
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Submitted%20Request%20(%23{{account_request.id}})">
+        Contact us.
+    </a>
+</div>
+
 <h2 class="sub-header">Request Details</h2>
     <div class="table-responsive">
         <table id="allocation-request-table" class="table table-striped">
@@ -87,9 +94,6 @@ $(document).ready(function() {
     $('#email_ack').click(function() {
         $('#submit_ack').attr("disabled", !this.checked);
     });
-    // $('ack_form').onSubmit(function() {
-        
-    // });
     $('#submit_ack').click(function() {
         $('#helpmodal').modal('hide');
     });
