@@ -229,7 +229,8 @@ class AccountCreationTestCase(BaseCase):
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
-            'organization': 'cu'
+            'organization': 'cu',
+            'login_shell': '/bin/bash',
         }
         u = RcLdapUser.objects.create_user_from_request(**user_dict)
         
@@ -262,7 +263,8 @@ class AccountCreationTestCase(BaseCase):
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
-            'organization': 'cu'
+            'organization': 'cu',
+            'login_shell': '/bin/bash',
         }
         
         for k in user_dict.keys():
@@ -292,7 +294,8 @@ class AccountRequestTestCase(BaseCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'cu'
+            'organization': 'cu',
+            'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
     

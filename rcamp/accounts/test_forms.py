@@ -64,6 +64,7 @@ class CuAccountRequestFormTestCase(CuBaseCase):
         form_data = {
             'username': 'testuser',
             'password': 'testpass',
+            'login_shell': '/bin/bash',
         }
         form = CuAccountRequestForm(data=form_data)
         self.assertTrue(form.is_valid())
@@ -122,12 +123,14 @@ class CuAccountRequestFormRcLdapTestCase(BaseCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'cu'
+            'organization': 'cu',
+            'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**ar_dict)
         form_data = {
             'username': 'testuser',
             'password': 'testpass',
+            'login_shell': '/bin/bash',
         }
         form = CuAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())

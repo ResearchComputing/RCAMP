@@ -2,16 +2,20 @@ from django import forms
 from accounts.models import CuLdapUser
 from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
+from accounts.models import SHELL_CHOICES
 
 
 class CuAccountRequestForm(forms.Form):
     username = forms.CharField(max_length=12,required=True)
     password = forms.CharField(max_length=32, widget=forms.PasswordInput)
     
-    shared_compute = forms.BooleanField(required=False)
-    gpu = forms.BooleanField(required=False)
-    condo = forms.BooleanField(required=False)
-    petalibrary = forms.BooleanField(required=False)
+    login_shell = forms.ChoiceField(required=False,choices=SHELL_CHOICES)
+    
+    blanca = forms.BooleanField(required=False)
+    janus = forms.BooleanField(required=False)
+    summit = forms.BooleanField(required=False)
+    petalibrary_active = forms.BooleanField(required=False)
+    petalibrary_archive = forms.BooleanField(required=False)
     
     def clean(self):
         cleaned_data = super(CuAccountRequestForm,self).clean()

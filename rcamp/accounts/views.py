@@ -30,9 +30,10 @@ class CuAccountRequestCreateView(FormView):
         # Authenticate here
         un = form.cleaned_data.get('username')
         user = CuLdapUser.objects.get(username=un)
+        login_shell = form.cleaned_data.get('login_shell')
         
         res_list = []
-        for k in ['shared_compute','gpu','condo','petalibrary',]:
+        for k in ['blanca','janus','summit','petalibrary_active','petalibrary_archive',]:
             if form.cleaned_data.get(k):
                 res_list.append(k)
         
@@ -42,6 +43,7 @@ class CuAccountRequestCreateView(FormView):
             'last_name': user.last_name,
             'email': user.email,
             'organization': 'cu',
+            'login_shell': login_shell,
             'resources_requested': ','.join(res_list),
         }
         ar = AccountRequest.objects.get_or_create(**ar_dict)

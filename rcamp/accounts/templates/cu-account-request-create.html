@@ -84,34 +84,64 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     </fieldset>
     
     <fieldset>
+        <legend>What is your preferred login shell?</legend>
+        {% if form.login_shell.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_login_shell">Preferred login shell</label>
+            <div class="col-sm-8">
+                <select name="login_shell" id="id_login_shell" class="form-control">
+                    <option value="/bin/bash">bash</option>
+                    <option value="/bin/tcsh">tcsh</option>
+                </select>
+                {% if form.login_shell.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.login_shell.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+    
+    <fieldset>
         <legend>Which resources do you intend to use?</legend>
         
         <div class="checkbox">
             <label>
-                <input id="id_shared_compute" type="checkbox" name="shared_compute" 
-                {% if form.shared_compute.value %}checked{% endif %}/>
-                Shared compute infrastructure
+                <input id="id_blanca" type="checkbox" name="blanca" 
+                {% if form.blanca.value %}checked{% endif %}/>
+                Blanca
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_gpu" type="checkbox" name="gpu" 
-                {% if form.gpu.value %}checked{% endif %}/>
-                GPUs
+                <input id="id_janus" type="checkbox" name="janus" 
+                {% if form.janus.value %}checked{% endif %}/>
+                Janus
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_condo" type="checkbox" name="condo" 
-                {% if form.condo.value %}checked{% endif %}/>
-                Condo cluster
+                <input id="id_summit" type="checkbox" name="summit" 
+                {% if form.summit.value %}checked{% endif %}/>
+                Summit
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_petalibrary" type="checkbox" name="petalibrary" 
-                {% if form.petalibrary.value %}checked{% endif %}/>
-                PetaLibrary
+                <input id="id_petalibrary_active" type="checkbox" name="petalibrary_active" 
+                {% if form.petalibrary_active.value %}checked{% endif %}/>
+                PetaLibrary - Active
+            </label>
+        </div>
+        <div class="checkbox">
+            <label>
+                <input id="id_petalibrary_archive" type="checkbox" name="petalibrary_archive" 
+                {% if form.petalibrary_archive.value %}checked{% endif %}/>
+                PetaLibrary - Archive
             </label>
         </div>
     </fieldset>

@@ -17,6 +17,11 @@ ORGANIZATIONS = (
     ('xsede','XSEDE'),
 )
 
+SHELL_CHOICES = (
+    ('/bin/bash','bash'),
+    ('/bin/tcsh','tcsh'),
+)
+
 class AccountRequest(models.Model):
     STATUSES = (
         ('p','Pending'),
@@ -30,6 +35,7 @@ class AccountRequest(models.Model):
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
     
+    login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
 
@@ -60,7 +66,8 @@ class AccountRequest(models.Model):
                 first_name=self.first_name,
                 last_name=self.last_name,
                 email=self.email,
-                organization=self.organization
+                organization=self.organization,
+                login_shell=self.login_shell
             )
             account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
@@ -121,7 +128,8 @@ class RcLdapUserManager(models.Manager):
         last_name = kwargs.get('last_name')
         email = kwargs.get('email')
         organization = kwargs.get('organization')
-        if not all([username,first_name,last_name,email,organization]):
+        login_shell = kwargs.get('login_shell')
+        if not all([username,first_name,last_name,email,organization,login_shell]):
             raise TypeError('Missing required field.')
         
         id_tracker = IdTracker.objects.get(category='posix')
@@ -136,6 +144,7 @@ class RcLdapUserManager(models.Manager):
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         user_fields['home_directory'] = '/home/%s' % user_fields['username']
+        user_fields['login_shell'] = login_shell
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,

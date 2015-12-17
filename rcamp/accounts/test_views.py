@@ -82,8 +82,9 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
                 data={
                     'username':'testuser',
                     'password':'testpass',
-                    'shared_compute':True,
-                    'condo':True,
+                    'login_shell': '/bin/bash',
+                    'summit':True,
+                    'petalibrary_archive':True,
                 }
             )
         view = CuAccountRequestCreateView.as_view()
@@ -95,7 +96,8 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.first_name,'test')
         self.assertEquals(ar.last_name,'user')
         self.assertEquals(ar.email,'testuser@test.org')
-        self.assertEquals(ar.resources_requested,'shared_compute,condo')
+        self.assertEquals(ar.login_shell,'/bin/bash')
+        self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
         self.assertEquals(ar.organization,'cu')
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
