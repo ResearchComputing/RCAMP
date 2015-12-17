@@ -13,6 +13,33 @@
 {% block jumbotron_button %}
 {% endblock %}
 
+{% block modal %}
+<!-- Modal -->
+<div class="modal fade" id="helpmodal" tabindex="-1" role="dialog" aria-labelledby="helpmodallabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Acknowledge Contact Email</h4>
+            </div>
+            <div class="modal-body">
+                <form action="#">
+                    <div class="checkbox">
+                        <label>
+                            <input id="email_ack" type="checkbox"> I acknowledge that confirmation of my account request
+                            will be sent to <strong>{{ account_request.email }}</strong>.
+                        </label>
+                    </div>
+                    <button id="submit_ack" type="submit" class="btn btn-primary" disabled>Complete Account Request</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+{% endblock %}
+
 {% block container %}
 <h2 class="sub-header">Request Details</h2>
     <div class="table-responsive">
@@ -47,4 +74,21 @@
             </tr>
         </table>
     </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#helpmodal').modal({
+        keyboard: false,
+        backdrop: 'static'
+    });
+    $('#email_ack').click(function() {
+        $('#submit_ack').attr("disabled", !this.checked);
+    });
+    $('#submit_ack').click(function() {
+        $('#helpmodal').modal('hide');
+    });
+});
+</script>
 {% endblock %}
