@@ -100,13 +100,15 @@ class IdTracker(models.Model):
                 uid += 1
 
 class LdapUser(ldapdb.models.Model):
+    rdn_key = 'username'
+    
     # inetOrgPerson
     first_name = ldap_fields.CharField(db_column='givenName')
     last_name = ldap_fields.CharField(db_column='sn')
     full_name = ldap_fields.CharField(db_column='cn')
     email = ldap_fields.CharField(db_column='mail')
     # posixAccount
-    username = ldap_fields.CharField(db_column='uid', primary_key=True)
+    username = ldap_fields.CharField(db_column='uid')
     # ldap specific
     modified_date = ldap_fields.DateTimeField(db_column='modifytimestamp',blank=True)
 
@@ -184,7 +186,7 @@ class RcLdapUser(LdapUser):
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
     object_classes = ['top','person','inetorgperson','posixaccount']
     uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
-    gid = ldap_fields.IntegerField(db_column='gidNumber')
+    gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     gecos =  ldap_fields.CharField(db_column='gecos')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
@@ -235,11 +237,12 @@ class CuLdapUser(LdapUser):
         return authed
 
 class RcLdapGroup(ldapdb.models.Model):
+    rdn_key = 'name'
     base_dn =  settings.LDAPCONFS['rcldap']['group_dn']
     object_classes = ['top','posixGroup']
     # posixGroup attributes
     gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
-    name = ldap_fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    name = ldap_fields.CharField(db_column='cn', max_length=200)
     members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
     def __str__(self):
