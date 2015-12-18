@@ -25,6 +25,8 @@ groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount'], 'ou': ['people']})
+cu_people = ('ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'objectClass': ['top','person','inetorgperson','posixaccount'], 'ou': ['people']})
 test_user = (
     'uid=testuser,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
         'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount'],
@@ -36,6 +38,22 @@ test_user = (
         'modifytimestamp': ['20151106034324Z'],
         'uidNumber': ['1000'],
         'gidNumber': ['1000'],
+        'gecos': [''],
+        'homeDirectory': ['/home/testuser'],
+        'loginShell': ['/bin/bash']
+    }
+)
+test_cu_user = (
+    'uid=testcuuser,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
+        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount'],
+        'cn': ['user, test'],
+        'givenName': ['test'],
+        'sn': ['user'],
+        'mail': ['testuser@test.org'],
+        'uid': ['testcuuser'],
+        'modifytimestamp': ['20151106034324Z'],
+        'uidNumber': ['1200'],
+        'gidNumber': ['1200'],
         'gecos': [''],
         'homeDirectory': ['/home/testuser'],
         'loginShell': ['/bin/bash']
@@ -57,7 +75,7 @@ test_group = (
 # DATABASE_ROUTERS setting will need to be overridden
 # with the LDAP router for test.
 class BaseCase(TestCase):
-    directory = dict([admin, groups, people, test_user, test_group])
+    directory = dict([admin, groups, people, cu_people, test_user, test_cu_user, test_group])
 
     @classmethod
     def setUpClass(cls):
@@ -91,11 +109,38 @@ class MockLdapTestCase(BaseCase):
                         username='does_not_exist')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_rcuser_init(self):
+        u = RcLdapUser.objects.get(username='testcuuser')
+        self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.org, 'ou=cu')
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_rcuser_set_base_dn(self):
+        u = RcLdapUser.objects.get(username='testuser')
+        u._set_base_dn('cu')
+        
+        self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.org, 'ou=cu')
+        
+        self.assertRaises(ValueError, u._set_base_dn, 'fake')
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_update(self):
         u = RcLdapUser.objects.get(username='testuser')
         u.first_name = 'Tested'
         u.save()
         self.assertEquals(u.first_name, 'Tested')
+    
+    # @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    # def test_rcuser_update_new_base_dn(self):
+    #     u = RcLdapUser.objects.get(username='testuser')
+    #     u.first_name = 'Tested'
+    #     u.save(organization='cu')
+        
+    #     u = RcLdapUser.objects.get(username='testuser')
+    #     self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+    #     self.assertEquals(u.org, 'ou=cu')
+    #     self.assertEquals(u.first_name, 'Tested')
     
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_save(self):
@@ -234,6 +279,7 @@ class AccountCreationTestCase(BaseCase):
         }
         u = RcLdapUser.objects.create_user_from_request(**user_dict)
         
+        self.assertEquals(u.dn, 'uid=requestuser,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(u.username, 'requestuser')
         self.assertEquals(u.first_name, 'Request')
         self.assertEquals(u.last_name, 'User')

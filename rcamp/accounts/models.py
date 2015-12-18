@@ -14,7 +14,9 @@ logger = logging.getLogger(__name__)
 # Create your models here.
 ORGANIZATIONS = (
     ('cu','University of Colorado Boulder'),
+    ('csu','Colorado State University'),
     ('xsede','XSEDE'),
+    ('internal','Internal'),
 )
 
 SHELL_CHOICES = (
@@ -122,6 +124,13 @@ class LdapUser(ldapdb.models.Model):
         abstract=True
 
 class RcLdapUserManager(models.Manager):
+    def create(self,*args,**kwargs):
+        org = kwargs.pop('organization', None)
+        obj = self.model(**kwargs)
+        self._for_write = True
+        obj.save(force_insert=True,using=self.db,organization=org)
+        return obj
+    
     def create_user_from_request(self,**kwargs):
         username = kwargs.get('username')
         first_name = kwargs.get('first_name')
@@ -145,6 +154,7 @@ class RcLdapUserManager(models.Manager):
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         user_fields['home_directory'] = '/home/%s' % user_fields['username']
         user_fields['login_shell'] = login_shell
+        user_fields['organization'] = organization
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,
@@ -160,6 +170,15 @@ class RcLdapUserManager(models.Manager):
         return user
 
 class RcLdapUser(LdapUser):
+    def __init__(self,*args,**kwargs):
+        super(RcLdapUser,self).__init__(*args,**kwargs)
+        rdn = self.dn.lower().replace(self.base_dn.lower(), '')
+        rdn_list = rdn.split(',')
+        self.org = ''
+        if len(rdn_list) > 2:
+            self.org = rdn_list[-2]
+            self.base_dn = ','.join([self.org,self.base_dn])
+    
     objects = RcLdapUserManager()
     
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
@@ -169,9 +188,36 @@ class RcLdapUser(LdapUser):
     gecos =  ldap_fields.CharField(db_column='gecos')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
+    
+    @property
+    def organization(self):
+        return self.org
+    
+    def _set_base_dn(self,org):
+        if org in [o[0] for o in ORGANIZATIONS]:
+            ou = 'ou={}'.format(org)
+            self.org = ou
+            self.base_dn = ','.join([ou,self.base_dn])
+        else:
+            raise ValueError('Invalid organization specified: {}'.format(org))
+    
+    def save(self,*args,**kwargs):
+        org = kwargs.pop('organization', None)
+        if org:
+            self._set_base_dn(org)
+        super(RcLdapUser,self).save(*args,**kwargs)
 
-    # def active(self):
-    #     return 'deactivated-' not in self.radius_name
+# class CuUser(RcLdapUser):
+#     base_dn = settings.LDAPCONFS['rcldap']['cu_dn']
+
+# class CsuUser(RcLdapUser):
+#     base_dn = settings.LDAPCONFS['rcldap']['csu_dn']
+
+# class XsedeUser(RcLdapUser):
+#     base_dn = settings.LDAPCONFS['rcldap']['xsede_dn']
+
+# class InternalUser(RcLdapUser):
+#     base_dn = settings.LDAPCONFS['rcldap']['internal_dn']
 
 class CuLdapUser(LdapUser):
     base_dn = settings.LDAPCONFS['culdap']['people_dn']

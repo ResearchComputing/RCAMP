@@ -5,6 +5,7 @@ from accounts.models import CuLdapUser
 from accounts.models import RcLdapGroup
 from accounts.models import IdTracker
 from accounts.models import AccountRequest
+from accounts.models import ORGANIZATIONS
 
 
 @admin.register(AccountRequest)
@@ -28,11 +29,45 @@ class AccountRequestAdmin(admin.ModelAdmin):
         'username'
     ]
 
+class RcLdapUserForm(forms.ModelForm):
+    def __init__(self,*args,**kwargs):
+        instance = kwargs.get('instance')
+        if instance:
+            self.base_fields['organization'].initial = instance.org.split('=')[-1].lower()
+            self.base_fields['dn'].widget.attrs['readonly'] = True
+            self.base_fields['organization'].widget.attrs['disabled'] = True
+        super(RcLdapUserForm,self).__init__(*args,**kwargs)
+    
+    organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
+    
+    class Meta:
+        model = RcLdapUser
+        fields = [
+            'dn',
+            'organization',
+            'username',
+            'full_name',
+            'first_name',
+            'last_name',
+            'email',
+            'uid',
+            'gid',
+            'gecos',
+            'home_directory',
+            'login_shell',
+            'modified_date',
+        ]
+
 @admin.register(RcLdapUser)
 class RcLdapUserAdmin(admin.ModelAdmin):
-    list_display = ['username', 'first_name', 'last_name', 'email', 'uid',]
+    list_display = ['username', 'first_name', 'last_name', 'email', 'uid','organization']
     search_fields = ['first_name', 'last_name', 'full_name', 'username']
     ordering = ('last_name',)
+    form = RcLdapUserForm
+    
+    def save_model(self, request, obj, form, change):
+        org = form.cleaned_data['organization'] or None
+        obj.save(organization=org)
 
 # Overrides default admin form for RcLdapGroups to allow
 # for filtered multiselect widget.
