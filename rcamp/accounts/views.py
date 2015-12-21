@@ -16,14 +16,14 @@ class OrgSelectView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(OrgSelectView,self).get_context_data(**kwargs)
         context['organizations'] = (
-            ('cu','University of Colorado Boulder'),
+            ('ucb','University of Colorado Boulder'),
             # ('csu','Colorado State University'),
             ('xsede','XSEDE'),
         )
         return context
 
 class CuAccountRequestCreateView(FormView):
-    template_name = 'cu-account-request-create.html'
+    template_name = 'ucb-account-request-create.html'
     form_class = CuAccountRequestForm
     
     def form_valid(self, form):
@@ -42,7 +42,7 @@ class CuAccountRequestCreateView(FormView):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
-            'organization': 'cu',
+            'organization': 'ucb',
             'login_shell': login_shell,
             'resources_requested': ','.join(res_list),
         }

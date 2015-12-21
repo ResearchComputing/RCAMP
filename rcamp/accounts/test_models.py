@@ -25,7 +25,7 @@ groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
-cu_people = ('ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
+cu_people = ('ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
 xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
@@ -46,7 +46,7 @@ test_user = (
     }
 )
 test_cu_user = (
-    'uid=testcuuser,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'uid=testcuuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
         'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson'],
         'cn': ['user, test'],
         'givenName': ['test'],
@@ -113,16 +113,16 @@ class MockLdapTestCase(BaseCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_init(self):
         u = RcLdapUser.objects.get(username='testcuuser')
-        self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ou=cu')
+        self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.org, 'ou=ucb')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_set_base_dn(self):
         u = RcLdapUser.objects.get(username='testuser')
-        u._set_base_dn('cu')
+        u._set_base_dn('ucb')
         
-        self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ou=cu')
+        self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.org, 'ou=ucb')
         
         self.assertRaises(ValueError, u._set_base_dn, 'fake')
 
@@ -174,14 +174,14 @@ class MockLdapTestCase(BaseCase):
                 uid=1010,
                 gid=1010,
                 gecos='c u,,,',
-                home_directory='/home/cu/createtest'
+                home_directory='/home/ucb/createtest'
             )
         u = RcLdapUser(**user_dict)
-        u.save(organization='cu')
+        u.save(organization='ucb')
         self.assertEquals(u.uid, 1010)
-        self.assertEquals(u.dn, 'uid=createtest,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ou=cu')
-        self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.dn, 'uid=createtest,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.org, 'ou=ucb')
+        self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
     
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_create(self):
@@ -212,11 +212,11 @@ class MockLdapTestCase(BaseCase):
                 uid=1010,
                 gid=1010,
                 gecos='c u,,,',
-                home_directory='/home/cu/createtest'
+                home_directory='/home/ucb/createtest'
             )
         u = RcLdapUser(**user_dict)
-        u.save(organization='cu')
-        self.assertEquals(u.dn, 'uid=createtest,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        u.save(organization='ucb')
+        self.assertEquals(u.dn, 'uid=createtest,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
         
         user_dict['uid'] = 1011
         user_dict['gid'] = 1011
@@ -322,12 +322,12 @@ class AccountCreationTestCase(BaseCase):
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
-            'organization': 'cu',
+            'organization': 'ucb',
             'login_shell': '/bin/bash',
         }
         u = RcLdapUser.objects.create_user_from_request(**user_dict)
         
-        self.assertEquals(u.dn, 'uid=requestuser,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.dn, 'uid=requestuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(u.username, 'requestuser')
         self.assertEquals(u.first_name, 'Request')
         self.assertEquals(u.last_name, 'User')
@@ -336,7 +336,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.uid, 1001)
         self.assertEquals(u.gid, 1001)
         self.assertEquals(u.gecos, 'Request User,,,')
-        self.assertEquals(u.home_directory, '/home/cu/requestuser')
+        self.assertEquals(u.home_directory, '/home/ucb/requestuser')
         self.assertEquals(u.login_shell, '/bin/bash')
         
         idt = IdTracker.objects.get(category='posix')
@@ -357,7 +357,7 @@ class AccountCreationTestCase(BaseCase):
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
-            'organization': 'cu',
+            'organization': 'ucb',
             'login_shell': '/bin/bash',
         }
         
@@ -388,7 +388,7 @@ class AccountRequestTestCase(BaseCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'cu',
+            'organization': 'ucb',
             'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**self.ar_dict)

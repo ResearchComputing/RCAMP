@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 # Create your models here.
 ORGANIZATIONS = (
-    ('cu','University of Colorado Boulder'),
+    ('ucb','University of Colorado Boulder'),
     ('csu','Colorado State University'),
     ('xsede','XSEDE'),
     ('internal','Internal'),

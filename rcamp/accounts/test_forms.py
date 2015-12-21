@@ -123,7 +123,7 @@ class CuAccountRequestFormRcLdapTestCase(BaseCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'cu',
+            'organization': 'ucb',
             'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**ar_dict)

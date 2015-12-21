@@ -39,7 +39,7 @@ class OrgSelectTestCase(CbvCase):
         self.assertEquals(
             context['organizations'],
             (
-                ('cu','University of Colorado Boulder'),
+                ('ucb','University of Colorado Boulder'),
                 # ('csu','Colorado State University'),
                 ('xsede','XSEDE'),
             )
@@ -54,7 +54,7 @@ class AccountRequestReviewTestCase(CbvCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
-            'organization': 'cu'
+            'organization': 'ucb'
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
     
@@ -78,7 +78,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create(self):
         request = RequestFactory().post(
-                '/accounts/account-request/create/cu',
+                '/accounts/account-request/create/ucb',
                 data={
                     'username':'testuser',
                     'password':'testpass',
@@ -98,13 +98,13 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.email,'testuser@test.org')
         self.assertEquals(ar.login_shell,'/bin/bash')
         self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
-        self.assertEquals(ar.organization,'cu')
+        self.assertEquals(ar.organization,'ucb')
     
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_missing_username(self):
         request = RequestFactory().post(
-                '/accounts/account-request/create/cu',
+                '/accounts/account-request/create/ucb',
                 data={'username':'wronguser','password':'testpass'}
             )
         view = CuAccountRequestCreateView.as_view()
@@ -125,7 +125,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_invalid_creds(self):
         request = RequestFactory().post(
-                '/accounts/account-request/create/cu',
+                '/accounts/account-request/create/ucb',
                 data={'username':'testuser','password':'testpass'}
             )
         view = CuAccountRequestCreateView.as_view()
