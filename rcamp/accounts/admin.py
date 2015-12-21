@@ -19,6 +19,7 @@ class AccountRequestAdmin(admin.ModelAdmin):
         'first_name',
         'last_name',
         'email',
+        'role',
         'organization',
         'request_date',
         'status'
@@ -26,7 +27,8 @@ class AccountRequestAdmin(admin.ModelAdmin):
     search_fields = [
         'first_name',
         'last_name',
-        'username'
+        'username',
+        'role',
     ]
 
 class RcLdapUserForm(forms.ModelForm):
@@ -50,6 +52,8 @@ class RcLdapUserForm(forms.ModelForm):
             'first_name',
             'last_name',
             'email',
+            'role',
+            'affiliation',
             'uid',
             'gid',
             'gecos',
@@ -60,8 +64,24 @@ class RcLdapUserForm(forms.ModelForm):
 
 @admin.register(RcLdapUser)
 class RcLdapUserAdmin(admin.ModelAdmin):
-    list_display = ['username', 'first_name', 'last_name', 'email', 'uid','organization']
-    search_fields = ['first_name', 'last_name', 'full_name', 'username']
+    list_display = [
+        'username',
+        'first_name',
+        'last_name',
+        'email',
+        'uid',
+        'organization',
+        'role',
+        'affiliation',
+    ]
+    search_fields = [
+        'first_name',
+        'last_name',
+        'full_name',
+        'username',
+        'role',
+        'affiliation',
+    ]
     ordering = ('last_name',)
     form = RcLdapUserForm
     

@@ -18,6 +18,17 @@ ORGANIZATIONS = (
     ('xsede','XSEDE'),
     ('internal','Internal'),
 )
+REQUEST_ROLES = (
+    ('student','Student',),
+    ('postdoc','Post Doc',),
+    ('faculty','Faculty',),
+    ('staff','Staff',),
+)
+
+ROLES = REQUEST_ROLES + (
+    ('pi','Principal Investigator',),
+    ('admin','Admin',),
+)
 
 SHELL_CHOICES = (
     ('/bin/bash','bash'),
@@ -40,6 +51,7 @@ class AccountRequest(models.Model):
     login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
+    role = models.CharField(max_length=24,choices=REQUEST_ROLES,default='student')
 
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
@@ -154,7 +166,7 @@ class RcLdapUserManager(models.Manager):
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
-        user_fields['home_directory'] = '/home/%s' % user_fields['username']
+        user_fields['home_directory'] = '/home/%s/%s' % (organization,user_fields['username'])
         user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
         user = self.create(**user_fields)
@@ -184,7 +196,7 @@ class RcLdapUser(LdapUser):
     objects = RcLdapUserManager()
     
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
-    object_classes = ['top','person','inetorgperson','posixaccount']
+    object_classes = ['top','person','inetorgperson','posixaccount','curcPerson']
     # uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
     # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber')
@@ -192,6 +204,9 @@ class RcLdapUser(LdapUser):
     gecos =  ldap_fields.CharField(db_column='gecos')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
+    #curcPerson attributes
+    role = ldap_fields.ListField(db_column='curcRole',blank=True,null=True)
+    affiliation = ldap_fields.ListField(db_column='curcAffiliation',blank=True,null=True)
     
     @property
     def organization(self):
@@ -210,18 +225,6 @@ class RcLdapUser(LdapUser):
         if org:
             self._set_base_dn(org)
         super(RcLdapUser,self).save(*args,**kwargs)
-
-# class CuUser(RcLdapUser):
-#     base_dn = settings.LDAPCONFS['rcldap']['cu_dn']
-
-# class CsuUser(RcLdapUser):
-#     base_dn = settings.LDAPCONFS['rcldap']['csu_dn']
-
-# class XsedeUser(RcLdapUser):
-#     base_dn = settings.LDAPCONFS['rcldap']['xsede_dn']
-
-# class InternalUser(RcLdapUser):
-#     base_dn = settings.LDAPCONFS['rcldap']['internal_dn']
 
 class CuLdapUser(LdapUser):
     base_dn = settings.LDAPCONFS['culdap']['people_dn']

@@ -24,14 +24,14 @@ admin = ('cn=admin', {'userPassword': ['test']})
 groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount'], 'ou': ['people']})
+    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
 cu_people = ('ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount'], 'ou': ['people']})
+    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
 xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount'], 'ou': ['people']})
+    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
 test_user = (
     'uid=testuser,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount'],
+        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson'],
         'cn': ['user, test'],
         'givenName': ['test'],
         'sn': ['user'],
@@ -47,7 +47,7 @@ test_user = (
 )
 test_cu_user = (
     'uid=testcuuser,ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount'],
+        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson'],
         'cn': ['user, test'],
         'givenName': ['test'],
         'sn': ['user'],
@@ -57,7 +57,7 @@ test_cu_user = (
         'uidNumber': ['1200'],
         'gidNumber': ['1200'],
         'gecos': [''],
-        'homeDirectory': ['/home/testuser'],
+        'homeDirectory': ['/home/cu/testuser'],
         'loginShell': ['/bin/bash']
     }
 )
@@ -174,7 +174,7 @@ class MockLdapTestCase(BaseCase):
                 uid=1010,
                 gid=1010,
                 gecos='c u,,,',
-                home_directory='/home/createtest'
+                home_directory='/home/cu/createtest'
             )
         u = RcLdapUser(**user_dict)
         u.save(organization='cu')
@@ -212,7 +212,7 @@ class MockLdapTestCase(BaseCase):
                 uid=1010,
                 gid=1010,
                 gecos='c u,,,',
-                home_directory='/home/createtest'
+                home_directory='/home/cu/createtest'
             )
         u = RcLdapUser(**user_dict)
         u.save(organization='cu')
@@ -220,6 +220,7 @@ class MockLdapTestCase(BaseCase):
         
         user_dict['uid'] = 1011
         user_dict['gid'] = 1011
+        user_dict['home_directory'] = '/home/xsede/createtest'
         v = RcLdapUser(**user_dict)
         v.save(organization='xsede')
         self.assertEquals(v.dn, 'uid=createtest,ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
@@ -335,7 +336,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.uid, 1001)
         self.assertEquals(u.gid, 1001)
         self.assertEquals(u.gecos, 'Request User,,,')
-        self.assertEquals(u.home_directory, '/home/requestuser')
+        self.assertEquals(u.home_directory, '/home/cu/requestuser')
         self.assertEquals(u.login_shell, '/bin/bash')
         
         idt = IdTracker.objects.get(category='posix')
