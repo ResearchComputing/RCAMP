@@ -185,8 +185,10 @@ class RcLdapUser(LdapUser):
     
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
     object_classes = ['top','person','inetorgperson','posixaccount']
-    uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
-    gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
+    # uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
+    # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
+    uid = ldap_fields.IntegerField(db_column='uidNumber')
+    gid = ldap_fields.IntegerField(db_column='gidNumber')
     gecos =  ldap_fields.CharField(db_column='gecos')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
@@ -241,7 +243,8 @@ class RcLdapGroup(ldapdb.models.Model):
     base_dn =  settings.LDAPCONFS['rcldap']['group_dn']
     object_classes = ['top','posixGroup']
     # posixGroup attributes
-    gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
+    # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
+    gid = ldap_fields.IntegerField(db_column='gidNumber')
     name = ldap_fields.CharField(db_column='cn', max_length=200)
     members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
