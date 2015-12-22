@@ -210,7 +210,7 @@ class RcLdapUser(LdapUser):
     # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber')
     gid = ldap_fields.IntegerField(db_column='gidNumber')
-    gecos =  ldap_fields.CharField(db_column='gecos')
+    gecos =  ldap_fields.CharField(db_column='gecos',default='')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
     #curcPerson attributes

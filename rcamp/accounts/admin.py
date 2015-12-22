@@ -40,6 +40,8 @@ class RcLdapUserForm(forms.ModelForm):
             self.base_fields['dn'].widget.attrs['readonly'] = True
             self.base_fields['organization'].widget.attrs['disabled'] = True
         super(RcLdapUserForm,self).__init__(*args,**kwargs)
+        self.fields['dn'].required = False
+        self.fields['gecos'].required = False
     
     organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
     # role = CsvField(required=False,max_length=1024)
