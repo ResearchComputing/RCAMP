@@ -322,6 +322,7 @@ class AccountCreationTestCase(BaseCase):
             'first_name': 'Request',
             'last_name': 'User',
             'email': 'requser@requests.org',
+            'role': 'faculty',
             'organization': 'ucb',
             'login_shell': '/bin/bash',
         }
@@ -338,6 +339,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.gecos, 'Request User,,,')
         self.assertEquals(u.home_directory, '/home/ucb/requestuser')
         self.assertEquals(u.login_shell, '/bin/bash')
+        self.assertEquals(u.role, ['pi','faculty'])
         
         idt = IdTracker.objects.get(category='posix')
         self.assertEquals(idt.next_id, 1003)
@@ -388,6 +390,7 @@ class AccountRequestTestCase(BaseCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
+            'role': 'faculty',
             'organization': 'ucb',
             'login_shell': '/bin/bash',
         }

@@ -81,7 +81,8 @@ class AccountRequest(models.Model):
                 last_name=self.last_name,
                 email=self.email,
                 organization=self.organization,
-                login_shell=self.login_shell
+                login_shell=self.login_shell,
+                role=self.role
             )
             account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
@@ -169,6 +170,14 @@ class RcLdapUserManager(models.Manager):
         user_fields['home_directory'] = '/home/%s/%s' % (organization,user_fields['username'])
         user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
+        
+        role = kwargs.get('role')
+        if role:
+            if role == 'faculty':
+                user_fields['role'] = ['pi',role]
+            else:
+                user_fields['role'] = [].append(role)
+        
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,

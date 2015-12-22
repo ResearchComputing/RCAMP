@@ -54,6 +54,7 @@ class AccountRequestReviewTestCase(CbvCase):
             'first_name': 'Test',
             'last_name': 'User',
             'email': 'tu@tu.org',
+            'role': 'faculty',
             'organization': 'ucb'
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
@@ -83,6 +84,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
                     'username':'testuser',
                     'password':'testpass',
                     'login_shell': '/bin/bash',
+                    'role': 'faculty',
                     'summit':True,
                     'petalibrary_archive':True,
                 }
@@ -96,6 +98,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.first_name,'test')
         self.assertEquals(ar.last_name,'user')
         self.assertEquals(ar.email,'testuser@test.org')
+        self.assertEquals(ar.role, 'faculty')
         self.assertEquals(ar.login_shell,'/bin/bash')
         self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
         self.assertEquals(ar.organization,'ucb')

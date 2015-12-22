@@ -64,6 +64,7 @@ class CuAccountRequestFormTestCase(CuBaseCase):
         form_data = {
             'username': 'testuser',
             'password': 'testpass',
+            'role': 'faculty',
             'login_shell': '/bin/bash',
         }
         form = CuAccountRequestForm(data=form_data)
@@ -124,12 +125,14 @@ class CuAccountRequestFormRcLdapTestCase(BaseCase):
             'last_name': 'User',
             'email': 'tu@tu.org',
             'organization': 'ucb',
+            'role': 'faculty',
             'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**ar_dict)
         form_data = {
             'username': 'testuser',
             'password': 'testpass',
+            'role': 'faculty',
             'login_shell': '/bin/bash',
         }
         form = CuAccountRequestForm(data=form_data)

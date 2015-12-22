@@ -3,12 +3,14 @@ from accounts.models import CuLdapUser
 from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 from accounts.models import SHELL_CHOICES
+from accounts.models import REQUEST_ROLES
 
 
 class CuAccountRequestForm(forms.Form):
     username = forms.CharField(max_length=12,required=True)
     password = forms.CharField(max_length=32, widget=forms.PasswordInput)
     
+    role = forms.ChoiceField(choices=REQUEST_ROLES)
     login_shell = forms.ChoiceField(required=False,choices=SHELL_CHOICES)
     
     blanca = forms.BooleanField(required=False)

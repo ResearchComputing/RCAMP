@@ -31,6 +31,7 @@ class CuAccountRequestCreateView(FormView):
         un = form.cleaned_data.get('username')
         user = CuLdapUser.objects.get(username=un)
         login_shell = form.cleaned_data.get('login_shell')
+        role = form.cleaned_data.get('role')
         
         res_list = []
         for k in ['blanca','janus','summit','petalibrary_active','petalibrary_archive',]:
@@ -42,6 +43,7 @@ class CuAccountRequestCreateView(FormView):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'email': user.email,
+            'role': role,
             'organization': 'ucb',
             'login_shell': login_shell,
             'resources_requested': ','.join(res_list),

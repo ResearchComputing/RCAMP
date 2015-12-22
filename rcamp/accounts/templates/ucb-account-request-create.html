@@ -90,6 +90,30 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     </fieldset>
     
     <fieldset>
+        <legend>What is your role?</legend>
+        {% if form.role.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_role">Role</label>
+            <div class="col-sm-8">
+                <select name="role" id="id_role" class="form-control">
+                    {% for value, disp in form.role.field.choices %}
+                    <option value="{{ value }}">{{ disp }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.role.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.role.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+    
+    <fieldset>
         <legend>What is your preferred login shell?</legend>
         {% if form.login_shell.errors %}
         <div class="form-group has-error has-feedback">
@@ -99,8 +123,9 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
             <label class="col-sm-2 control-label" for="id_login_shell">Preferred login shell</label>
             <div class="col-sm-8">
                 <select name="login_shell" id="id_login_shell" class="form-control">
-                    <option value="/bin/bash">bash</option>
-                    <option value="/bin/tcsh">tcsh</option>
+                    {% for value, disp in form.login_shell.field.choices %}
+                    <option value="{{ value }}">{{ disp }}</option>
+                    {% endfor %}
                 </select>
                 {% if form.login_shell.errors %}
                 <div class="alert alert-danger alert-dismissable">

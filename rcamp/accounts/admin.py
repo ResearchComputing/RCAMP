@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django import forms
+from lib.fields import CsvField
 from accounts.models import RcLdapUser
 from accounts.models import CuLdapUser
 from accounts.models import RcLdapGroup
@@ -41,6 +42,8 @@ class RcLdapUserForm(forms.ModelForm):
         super(RcLdapUserForm,self).__init__(*args,**kwargs)
     
     organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
+    # role = CsvField(required=False,max_length=1024)
+    # affiliation = CsvField(required=False,max_length=1024)
     
     class Meta:
         model = RcLdapUser
@@ -79,8 +82,8 @@ class RcLdapUserAdmin(admin.ModelAdmin):
         'last_name',
         'full_name',
         'username',
-        'role',
-        'affiliation',
+        # 'role',
+        # 'affiliation',
     ]
     ordering = ('last_name',)
     form = RcLdapUserForm
