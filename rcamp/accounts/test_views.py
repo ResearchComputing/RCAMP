@@ -11,7 +11,7 @@ from django.conf import settings
 from accounts.test_forms import CuBaseCase
 from accounts.views import ReasonView
 from accounts.views import AccountRequestReviewView
-from accounts.views import CuAccountRequestCreateView
+from accounts.views import AccountRequestCreateView
 from accounts.models import AccountRequest
 
 
@@ -66,14 +66,15 @@ class AccountRequestReviewTestCase(CbvCase):
         view = AccountRequestReviewTestCase.setup_view(view,request,request_id=1010101)
         self.assertRaises(Http404,view.get_context_data,**{'request_id':1010101})
 
-# This test case covers the CU account request page.
-class CuAccountRequestTestCase(CuBaseCase,CbvCase):
+# This test case covers the general account request page.
+class AccountRequestTestCase(CuBaseCase,CbvCase):
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create(self):
         request = RequestFactory().post(
-                '/accounts/account-request/create/ucb',
+                '/accounts/account-request/create/general',
                 data={
+                    'organization':'ucb',
                     'username':'testuser',
                     'password':'testpass',
                     'login_shell': '/bin/bash',
@@ -82,7 +83,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
                     'petalibrary_archive':True,
                 }
             )
-        view = CuAccountRequestCreateView.as_view()
+        view = AccountRequestCreateView.as_view()
         response = view(request)
 
         self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
@@ -100,10 +101,14 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_missing_username(self):
         request = RequestFactory().post(
-                '/accounts/account-request/create/ucb',
-                data={'username':'wronguser','password':'testpass'}
+                '/accounts/account-request/create/general',
+                data={
+                    'organization':'ucb',
+                    'username':'wronguser',
+                    'password':'testpass'
+                }
             )
-        view = CuAccountRequestCreateView.as_view()
+        view = AccountRequestCreateView.as_view()
         response = view(request)
 
         self.assertEquals(
@@ -122,9 +127,13 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
     def test_request_create_invalid_creds(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/ucb',
-                data={'username':'testuser','password':'testpass'}
+                data={
+                    'organization':'ucb',
+                    'username':'testuser',
+                    'password':'testpass'
+                }
             )
-        view = CuAccountRequestCreateView.as_view()
+        view = AccountRequestCreateView.as_view()
         response = view(request)
 
         self.assertEquals(

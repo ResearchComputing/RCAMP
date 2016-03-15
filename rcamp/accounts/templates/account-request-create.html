@@ -11,7 +11,7 @@
 <p>Request an account on the Janus supercomputer at the University of Colorado Boulder.</p>
 {% endblock %}
 {% block jumbotron_button %}
-<p><a data-toggle="modal" href="#helpmodal" 
+<p><a data-toggle="modal" href="#helpmodal"
 class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;</a></p>
 {% endblock %}
 
@@ -21,10 +21,11 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block modal_body %}
 <ul class="list-group">
     <li class="list-group-item">
-        <strong>UCB username/password</strong>
-        <p>The identikey username and password you use to access UCB resources,
-            such as Desire2Learn or myCUinfo. You can manage your CU Boulder Identity 
-            through <a href="https://cuidm.colorado.edu/">CU Identity Management</a>.
+        <strong>Organization Credentials</strong>
+        <p>The request form requires that you successfully authenticate against
+          the organization with which you are affiliated to verify your identity.
+          The organization credentials should be the username/password pair you
+          to access your organization's resources.
         </p>
     </li>
 </ul>
@@ -32,8 +33,8 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
 {% block container %}
 <div class="mailto-help">
-    Questions about the account request process? 
-    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20CU%20Account%20Request%20Process">
+    Questions about the account request process?
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request%20Process">
         Contact us.
     </a>
 </div>
@@ -48,14 +49,39 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
 <form class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
     {% csrf_token %}
+
     <fieldset>
-        <legend>CU Identikey Login</legend>
+        <legend>Select your organization</legend>
+        {% if form.organization.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_organization">Organization</label>
+            <div class="col-sm-8">
+                <select name="organization" id="id_organization" class="form-control">
+                    {% for value, disp in form.organization.field.choices %}
+                    <option value="{{ value }}">{{ disp }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.organization.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.organization.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Login With Organization Credentials</legend>
         {% if form.username.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_username">CU username</label>
+            <label class="col-sm-2 control-label" for="id_username">Username</label>
             <div class="col-sm-8">
                 <input id="id_username" type="text" name="username" class="form-control"
                 {% if form.username.value %}value={{ form.username.value }}{% endif %}
@@ -68,13 +94,13 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
                 {% endif %}
             </div>
         </div>
-        
+
         {% if form.password.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_password">CU password</label>
+            <label class="col-sm-2 control-label" for="id_password">Password</label>
             <div class="col-sm-8">
                 <input id="id_password" type="password" name="password" class="form-control"
                 {% if form.password.value %}value={{ form.password.value }}{% endif %}
@@ -88,7 +114,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
             </div>
         </div>
     </fieldset>
-    
+
     <fieldset>
         <legend>What is your role?</legend>
         {% if form.role.errors %}
@@ -112,7 +138,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
             </div>
         </div>
     </fieldset>
-    
+
     <fieldset>
         <legend>What is your preferred login shell?</legend>
         {% if form.login_shell.errors %}
@@ -136,49 +162,49 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
             </div>
         </div>
     </fieldset>
-    
+
     <fieldset>
         <legend>Which resources do you intend to use?</legend>
-        
+
         <div class="checkbox">
             <label>
-                <input id="id_blanca" type="checkbox" name="blanca" 
+                <input id="id_blanca" type="checkbox" name="blanca"
                 {% if form.blanca.value %}checked{% endif %}/>
-                Blanca
+                Blanca, condo compute cluster
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_janus" type="checkbox" name="janus" 
+                <input id="id_janus" type="checkbox" name="janus"
                 {% if form.janus.value %}checked{% endif %}/>
-                Janus
+                Janus, parallel HPC cluster (2011)
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_summit" type="checkbox" name="summit" 
+                <input id="id_summit" type="checkbox" name="summit"
                 {% if form.summit.value %}checked{% endif %}/>
-                Summit
+                Summit, parallel HPC cluster (2016)
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_petalibrary_active" type="checkbox" name="petalibrary_active" 
+                <input id="id_petalibrary_active" type="checkbox" name="petalibrary_active"
                 {% if form.petalibrary_active.value %}checked{% endif %}/>
-                PetaLibrary - Active
+                PetaLibrary/active, active-use disk storage
             </label>
         </div>
         <div class="checkbox">
             <label>
-                <input id="id_petalibrary_archive" type="checkbox" name="petalibrary_archive" 
+                <input id="id_petalibrary_archive" type="checkbox" name="petalibrary_archive"
                 {% if form.petalibrary_archive.value %}checked{% endif %}/>
-                PetaLibrary - Archive
+                PetaLibrary/archive, long-term disk+tape storage
             </label>
         </div>
     </fieldset>
-    
-    <div class="col-sm-2 col-sm-offset-5">
-        <button type="submit" class="btn btn-primary btn-lg btn-block">Submit Request</button>
+
+    <div class="col-sm-2 col-sm-offset-5 request-submit">
+        <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
     </div>
 </form>
 {% endblock %}

@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
-from accounts.forms import CuAccountRequestForm
+from accounts.forms import AccountRequestForm
 from mailer.signals import account_request_received
 
 
@@ -17,14 +17,19 @@ class ReasonView(TemplateView):
         context = super(ReasonView,self).get_context_data(**kwargs)
         return context
 
-class CuAccountRequestCreateView(FormView):
-    template_name = 'ucb-account-request-create.html'
-    form_class = CuAccountRequestForm
+class AccountRequestCreateView(FormView):
+    template_name = 'account-request-create.html'
+    form_class = AccountRequestForm
 
     def form_valid(self, form):
-        # Authenticate here
+        org = form.cleaned_data.get('organization')
         un = form.cleaned_data.get('username')
-        user = CuLdapUser.objects.get(username=un)
+        if org == 'ucb':
+            user = CuLdapUser.objects.get(username=un)
+        elif org == 'csu':
+            pass
+        elif org =='xsede':
+            pass
         login_shell = form.cleaned_data.get('login_shell')
         role = form.cleaned_data.get('role')
 
@@ -39,7 +44,7 @@ class CuAccountRequestCreateView(FormView):
             'last_name': user.last_name,
             'email': user.email,
             'role': role,
-            'organization': 'ucb',
+            'organization': org,
             'login_shell': login_shell,
             'resources_requested': ','.join(res_list),
         }
@@ -47,7 +52,7 @@ class CuAccountRequestCreateView(FormView):
         account_request_received.send(sender=ar.__class__,account_request=ar)
 
         self.success_url = reverse_lazy('account-request-review', kwargs={'request_id':ar[0].id})
-        return super(CuAccountRequestCreateView,self).form_valid(form)
+        return super(AccountRequestCreateView,self).form_valid(form)
 
 class AccountRequestReviewView(TemplateView):
     template_name = 'account-request-review.html'

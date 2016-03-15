@@ -6,21 +6,28 @@ from accounts.models import SHELL_CHOICES
 from accounts.models import REQUEST_ROLES
 
 
-class CuAccountRequestForm(forms.Form):
+
+class AccountRequestForm(forms.Form):
+    ORGS = (
+        ('ucb','University of Colorado Boulder'),
+        # ('csu','Colorado State University'),
+        # ('xsede','XSEDE'),
+    )
+    organization = forms.ChoiceField(choices=ORGS,required=True)
     username = forms.CharField(max_length=12,required=True)
-    password = forms.CharField(max_length=32, widget=forms.PasswordInput)
-    
+    password = forms.CharField(max_length=32,widget=forms.PasswordInput)
+
     role = forms.ChoiceField(choices=REQUEST_ROLES)
     login_shell = forms.ChoiceField(required=False,choices=SHELL_CHOICES)
-    
+
     blanca = forms.BooleanField(required=False)
     janus = forms.BooleanField(required=False)
     summit = forms.BooleanField(required=False)
     petalibrary_active = forms.BooleanField(required=False)
     petalibrary_archive = forms.BooleanField(required=False)
-    
+
     def clean(self):
-        cleaned_data = super(CuAccountRequestForm,self).clean()
+        cleaned_data = super(AccountRequestForm,self).clean()
         un = cleaned_data.get('username')
         pw = cleaned_data.get('password')
         if AccountRequest.objects.filter(username=un).count() > 0:
@@ -32,11 +39,19 @@ class CuAccountRequestForm(forms.Form):
                 raise forms.ValidationError(
                     'An account already exists with username {}'.format(un)
                 )
-            user = CuLdapUser.objects.get(username=un)
+            org = cleaned_data.get('organization')
+            if org == 'ucb':
+                user = CuLdapUser.objects.get(username=un)
+            elif org == 'csu':
+                pass
+            elif org == 'xsede':
+                pass
             authed = user.authenticate(pw)
             if not authed:
                 raise forms.ValidationError('Invalid password')
             return cleaned_data
+        except UnboundLocalError:
+            raise forms.ValidationError('Invalid organization')
         except CuLdapUser.DoesNotExist:
             raise forms.ValidationError('Invalid username')
         except TypeError:
