@@ -7,6 +7,7 @@ from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
 from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
+from accounts.forms import ClassAccountRequestForm
 from mailer.signals import account_request_received
 
 
@@ -73,6 +74,23 @@ class SponsoredAccountRequestCreateView(AccountRequestCreateView):
             self.ar_dict = {}
         self.ar_dict['sponsor_email'] = sponsor_email
         return super(SponsoredAccountRequestCreateView,self).form_valid(form)
+
+class ClassAccountRequestCreateView(AccountRequestCreateView):
+    template_name = 'class-account-request-create.html'
+    form_class = ClassAccountRequestForm
+
+    def get_initial(self,**kwargs):
+        initial = super(ClassAccountRequestCreateView,self).get_initial(**kwargs)
+        initial['organization'] = 'ucb'
+        initial['role'] = 'student'
+        return initial
+
+    def form_valid(self, form):
+        course_number = form.cleaned_data.get('course_number')
+        if not hasattr(self, 'ar_dict'):
+            self.ar_dict = {}
+        self.ar_dict['course_number'] = course_number
+        return super(ClassAccountRequestCreateView,self).form_valid(form)
 
 class AccountRequestReviewView(TemplateView):
     template_name = 'account-request-review.html'

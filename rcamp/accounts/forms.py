@@ -65,3 +65,12 @@ class SponsoredAccountRequestForm(AccountRequestForm):
             'organization',
             'role',
         )
+
+class ClassAccountRequestForm(AccountRequestForm):
+    course_number = forms.CharField(max_length=32,required=True)
+
+    class Meta:
+        exclude = (
+            'organization',
+            'role',
+        )

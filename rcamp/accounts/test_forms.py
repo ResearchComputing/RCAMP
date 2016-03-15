@@ -8,6 +8,7 @@ from django.conf import settings
 
 from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
+from accounts.forms import ClassAccountRequestForm
 from accounts.models import CuLdapUser
 from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
@@ -164,7 +165,7 @@ class SponsoredAccountRequestFormTestCase(CuBaseCase):
             'sponsor_email': 'sponsor@colorado.edu',
             'login_shell': '/bin/bash',
         }
-        form = AccountRequestForm(data=form_data)
+        form = SponsoredAccountRequestForm(data=form_data)
         self.assertTrue(form.is_valid())
 
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
@@ -175,7 +176,7 @@ class SponsoredAccountRequestFormTestCase(CuBaseCase):
             'username': 'testuser',
             'password': 'testpass',
         }
-        form = AccountRequestForm(data=form_data)
+        form = SponsoredAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
 
         form_data = {
@@ -183,5 +184,41 @@ class SponsoredAccountRequestFormTestCase(CuBaseCase):
             'password': 'testpass',
             'sponsor_email': 'sponsor@colorado.edu',
         }
-        form = AccountRequestForm(data=form_data)
+        form = SponsoredAccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+# This test case covers the functionality of the class account request form
+# delivered to the user during account request.
+class ClassAccountRequestFormTestCase(CuBaseCase):
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid(self):
+        form_data = {
+            'organization': 'ucb',
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'student',
+            'course_number': 'CSCI4000',
+            'login_shell': '/bin/bash',
+        }
+        form = ClassAccountRequestForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_invalid_missing_fields(self):
+        form_data = {
+            'organization': 'ucb',
+            'username': 'testuser',
+            'password': 'testpass',
+        }
+        form = ClassAccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+        form_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+            'course_number': 'CSCI4000',
+        }
+        form = ClassAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())

@@ -50,6 +50,7 @@ class AccountRequest(models.Model):
     email = models.EmailField(unique=True)
 
     sponsor_email = models.EmailField(null=True,blank=True)
+    course_number = models.CharField(max_length=128,null=True,blank=True)
 
     login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)
@@ -59,6 +60,7 @@ class AccountRequest(models.Model):
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField(default='')
+    id_verified_by = models.CharField(max_length=128,blank=True,null=True)
 
     request_date = models.DateTimeField(auto_now_add=True)
 

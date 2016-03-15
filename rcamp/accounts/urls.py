@@ -2,6 +2,7 @@ from django.conf.urls import include, url
 from accounts.views import ReasonView
 from accounts.views import AccountRequestCreateView
 from accounts.views import SponsoredAccountRequestCreateView
+from accounts.views import ClassAccountRequestCreateView
 from accounts.views import AccountRequestReviewView
 
 
@@ -18,7 +19,7 @@ urlpatterns = [
     ),
     url(
         r'^account-request/create/class$',
-        AccountRequestCreateView.as_view(),
+        ClassAccountRequestCreateView.as_view(),
         name='class-account-request-create'
     ),
     url(

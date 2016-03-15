@@ -13,6 +13,7 @@ from accounts.views import ReasonView
 from accounts.views import AccountRequestReviewView
 from accounts.views import AccountRequestCreateView
 from accounts.views import SponsoredAccountRequestCreateView
+from accounts.views import ClassAccountRequestCreateView
 from accounts.models import AccountRequest
 
 
@@ -193,4 +194,49 @@ class SponsoredAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.sponsor_email, 'sponsor@colorado.edu')
         self.assertEquals(ar.login_shell,'/bin/bash')
         self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
+        self.assertEquals(ar.organization,'ucb')
+
+
+#This test case covers the class account request page.
+class ClassAccountRequestTestCase(CuBaseCase,CbvCase):
+    def test_initial(self):
+        request = RequestFactory().get('/accounts/account-request/create/class')
+        view = ClassAccountRequestCreateView()
+        view = ClassAccountRequestTestCase.setup_view(view,request)
+        initial = view.get_initial()
+
+        self.assertDictContainsSubset(
+            {
+                'organization':'ucb',
+                'role': 'student',
+            },
+            initial
+        )
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_request_create(self):
+        request = RequestFactory().post(
+                '/accounts/account-request/create/class',
+                data={
+                    'organization':'ucb',
+                    'username':'testuser',
+                    'password':'testpass',
+                    'login_shell': '/bin/bash',
+                    'course_number': 'CSCI4000',
+                    'role': 'student',
+                }
+            )
+        view = ClassAccountRequestCreateView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
+
+        ar = AccountRequest.objects.get(username='testuser')
+        self.assertEquals(ar.first_name,'test')
+        self.assertEquals(ar.last_name,'user')
+        self.assertEquals(ar.email,'testuser@test.org')
+        self.assertEquals(ar.role, 'student')
+        self.assertEquals(ar.course_number, 'CSCI4000')
+        self.assertEquals(ar.login_shell,'/bin/bash')
         self.assertEquals(ar.organization,'ucb')
