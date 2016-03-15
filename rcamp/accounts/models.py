@@ -23,6 +23,7 @@ REQUEST_ROLES = (
     ('postdoc','Post Doc',),
     ('faculty','Faculty',),
     ('staff','Staff',),
+    ('sponsored','Sponsored Affiliate',)
 )
 
 ROLES = REQUEST_ROLES + (
@@ -42,12 +43,14 @@ class AccountRequest(models.Model):
         ('d','Denied'),
         ('i','Incomplete'),
     )
-    
+
     username = models.CharField(max_length=12, unique=True)
     first_name = models.CharField(max_length=128,blank=False,null=False)
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
-    
+
+    sponsor_email = models.EmailField(null=True,blank=True)
+
     login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
@@ -68,7 +71,7 @@ class AccountRequest(models.Model):
         # Store original field values on the instance
         instance._loaded_values = dict(zip(field_names,values))
         return instance
-    
+
     def save(self,*args,**kwargs):
         # Check for change in approval status
         if (self.status == 'a') and (self._loaded_values['status'] != 'a'):
@@ -114,7 +117,7 @@ class IdTracker(models.Model):
 
 class LdapUser(ldapdb.models.Model):
     rdn_key = 'username'
-    
+
     # inetOrgPerson
     first_name = ldap_fields.CharField(db_column='givenName')
     last_name = ldap_fields.CharField(db_column='sn')
@@ -145,7 +148,7 @@ class RcLdapUserManager(models.Manager):
         self._for_write = True
         obj.save(force_insert=True,using=self.db,organization=org)
         return obj
-    
+
     def create_user_from_request(self,**kwargs):
         username = kwargs.get('username')
         first_name = kwargs.get('first_name')
@@ -155,7 +158,7 @@ class RcLdapUserManager(models.Manager):
         login_shell = kwargs.get('login_shell')
         if not all([username,first_name,last_name,email,organization,login_shell]):
             raise TypeError('Missing required field.')
-        
+
         id_tracker = IdTracker.objects.get(category='posix')
         uid = id_tracker.get_next_id()
         user_fields = {}
@@ -170,14 +173,14 @@ class RcLdapUserManager(models.Manager):
         user_fields['home_directory'] = '/home/%s/%s' % (organization,user_fields['username'])
         user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
-        
+
         role = kwargs.get('role')
         if role:
             if role == 'faculty':
                 user_fields['role'] = ['pi',role]
             else:
                 user_fields['role'] = [].append(role)
-        
+
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,
@@ -201,9 +204,9 @@ class RcLdapUser(LdapUser):
         if len(rdn_list) > 2:
             self.org = rdn_list[-2]
             self.base_dn = ','.join([self.org,self.base_dn])
-    
+
     objects = RcLdapUserManager()
-    
+
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
     object_classes = ['top','person','inetorgperson','posixaccount','curcPerson']
     # uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
@@ -216,11 +219,11 @@ class RcLdapUser(LdapUser):
     #curcPerson attributes
     role = ldap_fields.ListField(db_column='curcRole',blank=True,null=True)
     affiliation = ldap_fields.ListField(db_column='curcAffiliation',blank=True,null=True)
-    
+
     @property
     def organization(self):
         return self.org
-    
+
     def _set_base_dn(self,org):
         if org in [o[0] for o in ORGANIZATIONS]:
             ou = 'ou={}'.format(org)
@@ -228,7 +231,7 @@ class RcLdapUser(LdapUser):
             self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
-    
+
     def save(self,*args,**kwargs):
         org = kwargs.pop('organization', None)
         if org:
@@ -244,7 +247,7 @@ class CuLdapUser(LdapUser):
     edu_primary_affiliation = ldap_fields.CharField(db_column='eduPersonPrimaryAffiliation')
     cu_primary_major = ldap_fields.CharField(db_column='cuEduPersonPrimaryMajor1')
     cu_home_department = ldap_fields.CharField(db_column='cuEduPersonHomeDepartment')
-    
+
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
         authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
@@ -265,7 +268,7 @@ class RcLdapGroup(ldapdb.models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
     def save(self,*args,**kwargs):
         force_insert = kwargs.pop('force_insert',None)
         super(RcLdapGroup,self).save(*args,**kwargs)

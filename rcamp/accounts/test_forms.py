@@ -7,6 +7,7 @@ import datetime
 from django.conf import settings
 
 from accounts.forms import AccountRequestForm
+from accounts.forms import SponsoredAccountRequestForm
 from accounts.models import CuLdapUser
 from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
@@ -145,6 +146,42 @@ class AccountRequestFormRcLdapTestCase(BaseCase):
             'password': 'testpass',
             'role': 'faculty',
             'login_shell': '/bin/bash',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+# This test case covers the functionality of the sponsored account request form
+# delivered to the user during account request.
+class SponsoredAccountRequestFormTestCase(CuBaseCase):
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid(self):
+        form_data = {
+            'organization': 'ucb',
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'sponsored',
+            'sponsor_email': 'sponsor@colorado.edu',
+            'login_shell': '/bin/bash',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_invalid_missing_fields(self):
+        form_data = {
+            'organization': 'ucb',
+            'username': 'testuser',
+            'password': 'testpass',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+        form_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+            'sponsor_email': 'sponsor@colorado.edu',
         }
         form = AccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())

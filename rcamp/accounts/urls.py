@@ -1,6 +1,7 @@
 from django.conf.urls import include, url
 from accounts.views import ReasonView
 from accounts.views import AccountRequestCreateView
+from accounts.views import SponsoredAccountRequestCreateView
 from accounts.views import AccountRequestReviewView
 
 
@@ -27,7 +28,7 @@ urlpatterns = [
     ),
     url(
         r'^account-request/create/sponsored$',
-        AccountRequestCreateView.as_view(),
+        SponsoredAccountRequestCreateView.as_view(),
         name='sponsored-account-request-create'
     ),
     url(

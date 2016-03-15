@@ -12,6 +12,7 @@ from accounts.test_forms import CuBaseCase
 from accounts.views import ReasonView
 from accounts.views import AccountRequestReviewView
 from accounts.views import AccountRequestCreateView
+from accounts.views import SponsoredAccountRequestCreateView
 from accounts.models import AccountRequest
 
 
@@ -146,3 +147,50 @@ class AccountRequestTestCase(CuBaseCase,CbvCase):
                 AccountRequest.objects.get,
                 **{'username':'testuser'}
             )
+
+#This test case covers the sponsored account request page.
+class SponsoredAccountRequestTestCase(CuBaseCase,CbvCase):
+    def test_initial(self):
+        request = RequestFactory().get('/accounts/account-request/create/sponsored')
+        view = SponsoredAccountRequestCreateView()
+        view = SponsoredAccountRequestTestCase.setup_view(view,request)
+        initial = view.get_initial()
+
+        self.assertDictContainsSubset(
+            {
+                'organization':'ucb',
+                'role': 'sponsored',
+            },
+            initial
+        )
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_request_create(self):
+        request = RequestFactory().post(
+                '/accounts/account-request/create/sponsored',
+                data={
+                    'organization':'ucb',
+                    'username':'testuser',
+                    'password':'testpass',
+                    'login_shell': '/bin/bash',
+                    'sponsor_email': 'sponsor@colorado.edu',
+                    'role': 'sponsored',
+                    'summit':True,
+                    'petalibrary_archive':True,
+                }
+            )
+        view = SponsoredAccountRequestCreateView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
+
+        ar = AccountRequest.objects.get(username='testuser')
+        self.assertEquals(ar.first_name,'test')
+        self.assertEquals(ar.last_name,'user')
+        self.assertEquals(ar.email,'testuser@test.org')
+        self.assertEquals(ar.role, 'sponsored')
+        self.assertEquals(ar.sponsor_email, 'sponsor@colorado.edu')
+        self.assertEquals(ar.login_shell,'/bin/bash')
+        self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
+        self.assertEquals(ar.organization,'ucb')

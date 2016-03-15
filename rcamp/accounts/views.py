@@ -6,6 +6,7 @@ from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
 from accounts.forms import AccountRequestForm
+from accounts.forms import SponsoredAccountRequestForm
 from mailer.signals import account_request_received
 
 
@@ -38,7 +39,9 @@ class AccountRequestCreateView(FormView):
             if form.cleaned_data.get(k):
                 res_list.append(k)
 
-        ar_dict = {
+        if not hasattr(self, 'ar_dict'):
+            self.ar_dict = {}
+        self.ar_dict.update({
             'username': user.username,
             'first_name': user.first_name,
             'last_name': user.last_name,
@@ -47,12 +50,29 @@ class AccountRequestCreateView(FormView):
             'organization': org,
             'login_shell': login_shell,
             'resources_requested': ','.join(res_list),
-        }
-        ar = AccountRequest.objects.get_or_create(**ar_dict)
+        })
+        ar = AccountRequest.objects.get_or_create(**self.ar_dict)
         account_request_received.send(sender=ar.__class__,account_request=ar)
 
         self.success_url = reverse_lazy('account-request-review', kwargs={'request_id':ar[0].id})
         return super(AccountRequestCreateView,self).form_valid(form)
+
+class SponsoredAccountRequestCreateView(AccountRequestCreateView):
+    template_name = 'sponsored-account-request-create.html'
+    form_class = SponsoredAccountRequestForm
+
+    def get_initial(self,**kwargs):
+        initial = super(SponsoredAccountRequestCreateView,self).get_initial(**kwargs)
+        initial['organization'] = 'ucb'
+        initial['role'] = 'sponsored'
+        return initial
+
+    def form_valid(self, form):
+        sponsor_email = form.cleaned_data.get('sponsor_email')
+        if not hasattr(self, 'ar_dict'):
+            self.ar_dict = {}
+        self.ar_dict['sponsor_email'] = sponsor_email
+        return super(SponsoredAccountRequestCreateView,self).form_valid(form)
 
 class AccountRequestReviewView(TemplateView):
     template_name = 'account-request-review.html'

@@ -1,0 +1,7 @@
+.jumbotron {
+  background-image:url("/static/img/memory-heatmap-cmp.jpg");
+}
+
+div.request-submit {
+  margin-top: 20px;
+}

@@ -56,3 +56,12 @@ class AccountRequestForm(forms.Form):
             raise forms.ValidationError('Invalid username')
         except TypeError:
             raise forms.ValidationError('Missing field(s)')
+
+class SponsoredAccountRequestForm(AccountRequestForm):
+    sponsor_email = forms.EmailField(required=True)
+
+    class Meta:
+        exclude = (
+            'organization',
+            'role',
+        )

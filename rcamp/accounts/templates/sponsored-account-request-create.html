@@ -21,12 +21,11 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block modal_body %}
 <ul class="list-group">
     <li class="list-group-item">
-        <strong>Organization Credentials</strong>
-        <p>The request form requires that you successfully authenticate against
-          the organization with which you are affiliated to verify your identity.
-          The organization credentials should be the username/password pair you
-          to access your organization's resources.
-        </p>
+      <strong>UCB username/password</strong>
+      <p>The identikey username and password you use to access UCB resources,
+          such as Desire2Learn or myCUinfo. You can manage your CU Boulder Identity
+          through <a href="https://cuidm.colorado.edu/">CU Identity Management</a>.
+      </p>
     </li>
 </ul>
 {% endblock %}
@@ -34,7 +33,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block container %}
 <div class="mailto-help">
     Questions about the account request process?
-    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request%20Process">
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Sponsored%20Account%20Request%20Process">
         Contact us.
     </a>
 </div>
@@ -51,31 +50,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     {% csrf_token %}
 
     <fieldset>
-        <legend>Select your organization</legend>
-        {% if form.organization.errors %}
-        <div class="form-group has-error has-feedback">
-        {% else %}
-        <div class="form-group">
-        {% endif %}
-            <label class="col-sm-2 control-label" for="id_organization">Organization</label>
-            <div class="col-sm-8">
-                <select name="organization" id="id_organization" class="form-control">
-                    {% for value, disp in form.organization.field.choices %}
-                    <option value="{{ value }}">{{ disp }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.organization.errors %}
-                <div class="alert alert-danger alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.organization.errors }}</strong>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend>Login With Organization Credentials</legend>
+        <legend>Login With CU Identikey</legend>
         {% if form.username.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
@@ -116,23 +91,21 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     </fieldset>
 
     <fieldset>
-        <legend>What is your role?</legend>
-        {% if form.role.errors %}
+        <legend>What is your sponsor's email?</legend>
+        {% if form.sponsor_email.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_role">Role</label>
+            <label class="col-sm-2 control-label" for="id_sponsor_email">Sponsor's Email</label>
             <div class="col-sm-8">
-                <select name="role" id="id_role" class="form-control">
-                    {% for value, disp in form.role.field.choices %}
-                    <option value="{{ value }}">{{ disp }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.role.errors %}
+                <input id="id_sponsor_email" type="email" name="sponsor_email" class="form-control"
+                {% if form.sponsor_email.value %}value={{ form.sponsor_email.value }}{% endif %}
+                maxlength="256" />
+                {% if form.sponsor_email.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.role.errors }}</strong>
+                    <strong>{{ form.sponsor_email.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
