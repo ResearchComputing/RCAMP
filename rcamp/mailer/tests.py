@@ -152,6 +152,7 @@ class ARReceivedTestCase(TestCase):
         self.mn1 = MailNotifier.objects.create(**mn1_dict)
         self.mn2 = MailNotifier.objects.create(**mn2_dict)
     
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_account_requested_received(self):
         account_request_received.send(
             sender='AccountRequest',
@@ -198,6 +199,7 @@ class ARApprovedTestCase(TestCase):
         self.mn1 = MailNotifier.objects.create(**mn1_dict)
         self.mn2 = MailNotifier.objects.create(**mn2_dict)
     
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_account_requested_received(self):
         account_created_from_request.send(
             sender='RcLdapUser',
