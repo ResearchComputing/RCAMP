@@ -9,7 +9,7 @@ import datetime
 from django.conf import settings
 
 from accounts.test_forms import CuBaseCase
-from accounts.views import OrgSelectView
+from accounts.views import ReasonView
 from accounts.views import AccountRequestReviewView
 from accounts.views import CuAccountRequestCreateView
 from accounts.models import AccountRequest
@@ -27,23 +27,16 @@ class CbvCase(TestCase):
         view.kwargs = kwargs
         return view
 
-# This test case covers the organization select page in the account
+# This test case covers the reason select page in the account
 # request process.
-class OrgSelectTestCase(CbvCase):
+class ReasonTestCase(CbvCase):
     def test_get(self):
         request = RequestFactory().get('/accounts/account-request/create')
-        view = OrgSelectView()
-        view = OrgSelectTestCase.setup_view(view,request)
+        view = ReasonView()
+        view = ReasonTestCase.setup_view(view,request)
         context = view.get_context_data()
-        
-        self.assertEquals(
-            context['organizations'],
-            (
-                ('ucb','University of Colorado Boulder'),
-                # ('csu','Colorado State University'),
-                ('xsede','XSEDE'),
-            )
-        )
+
+        self.assertIsNotNone(context)
 
 # This test case covers the account request review page.
 class AccountRequestReviewTestCase(CbvCase):
@@ -58,7 +51,7 @@ class AccountRequestReviewTestCase(CbvCase):
             'organization': 'ucb'
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
-    
+
     def test_get(self):
         ar = AccountRequest.objects.get()
         request = RequestFactory().get('/accounts/account-request/review/%s'%ar.id)
@@ -66,7 +59,7 @@ class AccountRequestReviewTestCase(CbvCase):
         view = AccountRequestReviewTestCase.setup_view(view,request,request_id=ar.id)
         context = view.get_context_data(request_id=ar.id)
         self.assertEquals(context['account_request'],ar)
-    
+
     def test_get_invalid(self):
         request = RequestFactory().get('/accounts/account-request/review/1010101')
         view = AccountRequestReviewView()
@@ -91,9 +84,9 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
             )
         view = CuAccountRequestCreateView.as_view()
         response = view(request)
-        
+
         self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
-        
+
         ar = AccountRequest.objects.get(username='testuser')
         self.assertEquals(ar.first_name,'test')
         self.assertEquals(ar.last_name,'user')
@@ -102,7 +95,7 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.login_shell,'/bin/bash')
         self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
         self.assertEquals(ar.organization,'ucb')
-    
+
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_missing_username(self):
@@ -112,18 +105,18 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
             )
         view = CuAccountRequestCreateView.as_view()
         response = view(request)
-        
+
         self.assertEquals(
                 response.context_data['form'].errors['__all__'],
                 [u'Invalid username']
             )
-        
+
         self.assertRaises(
                 AccountRequest.DoesNotExist,
                 AccountRequest.objects.get,
                 **{'username':'wronguser'}
             )
-    
+
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=False))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_invalid_creds(self):
@@ -133,12 +126,12 @@ class CuAccountRequestTestCase(CuBaseCase,CbvCase):
             )
         view = CuAccountRequestCreateView.as_view()
         response = view(request)
-        
+
         self.assertEquals(
                 response.context_data['form'].errors['__all__'],
                 [u'Invalid password']
             )
-        
+
         self.assertRaises(
                 AccountRequest.DoesNotExist,
                 AccountRequest.objects.get,
