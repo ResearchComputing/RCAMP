@@ -15,6 +15,8 @@ class AccountRequestFilter(rest_framework.filters.FilterSet):
             'last_name',
             'email',
             'organization',
+            'course_number',
+            'sponsor_email',
             'resources_requested',
             'status',
             'approved_on',
