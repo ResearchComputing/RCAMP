@@ -6,6 +6,7 @@ from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
+import datetime
 from mailer.signals import account_created_from_request
 
 logger = logging.getLogger(__name__)
@@ -178,6 +179,10 @@ class RcLdapUserManager(models.Manager):
 
         role = kwargs.get('role')
         if role:
+            if role == 'sponsored':
+                today = datetime.datetime.today()
+                expiration_date = today.replace(year=today.year+1)
+                user_fields['expires'] = expiration_date
             if role == 'faculty':
                 user_fields['role'] = ['pi',role]
             else:
@@ -211,8 +216,7 @@ class RcLdapUser(LdapUser):
 
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
     object_classes = ['top','person','inetorgperson','posixaccount','curcPerson']
-    # uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
-    # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
+    expires = ldap_fields.DateTimeField(db_column='shadowExpire',blank=True,null=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber')
     gid = ldap_fields.IntegerField(db_column='gidNumber')
     gecos =  ldap_fields.CharField(db_column='gecos',default='')

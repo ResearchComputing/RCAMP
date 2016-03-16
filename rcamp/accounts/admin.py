@@ -42,11 +42,11 @@ class RcLdapUserForm(forms.ModelForm):
         super(RcLdapUserForm,self).__init__(*args,**kwargs)
         self.fields['dn'].required = False
         self.fields['gecos'].required = False
-    
+
     organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
     # role = CsvField(required=False,max_length=1024)
     # affiliation = CsvField(required=False,max_length=1024)
-    
+
     class Meta:
         model = RcLdapUser
         fields = [
@@ -65,6 +65,7 @@ class RcLdapUserForm(forms.ModelForm):
             'home_directory',
             'login_shell',
             'modified_date',
+            'expires',
         ]
 
 @admin.register(RcLdapUser)
@@ -78,6 +79,7 @@ class RcLdapUserAdmin(admin.ModelAdmin):
         'organization',
         'role',
         'affiliation',
+        'expires',
     ]
     search_fields = [
         'first_name',
@@ -89,7 +91,7 @@ class RcLdapUserAdmin(admin.ModelAdmin):
     ]
     ordering = ('last_name',)
     form = RcLdapUserForm
-    
+
     def save_model(self, request, obj, form, change):
         org = form.cleaned_data['organization'] or None
         obj.save(organization=org)
@@ -99,9 +101,9 @@ class RcLdapUserAdmin(admin.ModelAdmin):
 class RcLdapGroupForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(RcLdapGroupForm,self).__init__(*args,**kwargs)
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name)) 
+        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
             for u in RcLdapUser.objects.all().order_by('username'))
-        
+
         self.fields['gid'].required = False
         self.fields['members'].required = False
         self.fields['members'].widget = admin.widgets.FilteredSelectMultiple(
@@ -117,4 +119,3 @@ class RcLdapGroupAdmin(admin.ModelAdmin):
     list_display = ['name','gid','members']
     search_fields = ['name']
     form = RcLdapGroupForm
-
