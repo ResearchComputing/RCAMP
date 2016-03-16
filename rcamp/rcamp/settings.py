@@ -38,10 +38,10 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
     'crispy_forms',
     'rest_framework',
-    
+
     'ldapdb',
     'lib',
     'mailer',
@@ -105,6 +105,11 @@ DATABASES = {
 DATABASE_ROUTERS = ['lib.router.LdapRouter',]
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+    'lib.pam_backend.PamBackend',
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

@@ -13,5 +13,6 @@ mock==1.3.0
 mockldap==0.2.6
 pbr==1.8.1
 python-ldap==2.4.22
+python-pam==1.8.2
 six==1.10.0
 wsgiref==0.1.2
