@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Login{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/login.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block container %}
+<div class="alert alert-success" role="alert">
+  <p>You have been logged out of the portal.</p>
+</div>
+
+<form action="/login" method="POST" id="login-form">
+  {% csrf_token %}
+  <h2 class="form-signin-heading">Login in again</h2>
+  <div class="form-group">
+    <label for="id_username">RC Username</label>
+    <input
+      id="id_username"
+      class="form-control"
+      placeholder="RC Username"
+      maxlength="254"
+      name="username"
+      type="text">
+  </div>
+  <div class="form-group">
+    <label for="id_password">RC Two-Factor Password</label>
+    <input
+      id="id_password"
+      class="form-control"
+      placeholder="RC Two-Factor Password"
+      name="password"
+      type="password">
+  </div>
+  <button type="submit" class="btn btn-primary btn-lg btn-block">Login</button>
+</form>
+{% endblock %}

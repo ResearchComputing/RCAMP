@@ -1,3 +1,7 @@
+.jumbotron {
+  background-image:url("/static/img/coolaisle-blue-cmp.jpg");
+}
+
 div.mailto-help {
     margin-top: -15px;
     margin-bottom:30px;

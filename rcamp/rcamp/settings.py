@@ -111,6 +111,10 @@ AUTHENTICATION_BACKENDS = (
     'lib.pam_backend.PamBackend',
 )
 
+LOGIN_URL = '/login'
+
+LOGIN_REDIRECT_URL = '/'
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
 

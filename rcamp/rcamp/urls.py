@@ -15,12 +15,17 @@ Including another URLconf
 """
 from django.conf.urls import include, url
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
 # Make sure signals/receivers get loaded.
 from mailer import receivers
 
 
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
+    url(r'^$', TemplateView.as_view(template_name='index.html'), name='index'),
+    url(r'^login', auth_views.login, {'template_name':'login.html'}),
+    url(r'^logout', auth_views.logout, {'template_name':'logout.html'}),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('endpoints.urls')),
     url(r'^accounts/', include('accounts.urls')),
