@@ -34,14 +34,24 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 <div class="mailto-help">
     Questions about the account request process?
     <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Sponsored%20Account%20Request%20Process">
-        Contact us.
+        Contact us
+    </a>
+    or view our
+    <a href="https://www.rc.colorado.edu/support/getting-started.html">
+      Getting Started Guide.
     </a>
 </div>
 
 {% if form.errors %}
 <div class="alert alert-danger alert-dismissable">
     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-    <p><strong>Could not submit request.</strong> Please resolve the errors below.</p>
+    <p>
+      <strong>Could not submit request.</strong>
+      Please resolve the errors below, or
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request%20Process">
+          contact us.
+      </a>
+    </p>
     {{ form.non_field_errors }}
 </div>
 {% endif %}
