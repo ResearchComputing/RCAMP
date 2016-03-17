@@ -46,7 +46,7 @@ INSTALLED_APPS = (
     'lib',
     'mailer',
     'accounts',
-    # 'projects',
+    'projects',
 )
 
 MIDDLEWARE_CLASSES = (
