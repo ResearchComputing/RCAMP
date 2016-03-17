@@ -20,7 +20,7 @@ class Project(models.Model):
         ('xsede','XSEDE'),
     )
 
-    principal_investigators = fields.ListField()
+    pi_emails = fields.ListField()
     managers = fields.ListField()
     collaborators = fields.ListField()
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS)
@@ -28,12 +28,12 @@ class Project(models.Model):
     description = models.TextField()
 
     project_id = models.CharField(max_length=24,unique=True)
-    is_startup = models.BooleanField(default=False)
+    # is_startup = models.BooleanField(default=False)
     created_on = models.DateField(auto_now_add=True)
     notes = models.TextField()
 
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
-    deactivated = models.BooleanField(default=False)
+    # deactivated = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.project_id
