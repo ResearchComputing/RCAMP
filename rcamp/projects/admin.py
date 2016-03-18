@@ -7,51 +7,63 @@ from projects.models import Project
 
 # Overrides default admin form for Projects to allow
 # for filtered multiselect widget.
-# class ProjectForm(forms.ModelForm):
-#     def __init__(self,*args,**kwargs):
-#         super(ProjectForm,self).__init__(*args,**kwargs)
-#         pi_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-#             for u in RcLdapUser.objects.all().order_by('username'))
-#
-#         self.fields['principal_investigators'].required = False
-#         self.fields['principal_investigators'].widget = forms.widgets.Select(
-#                                         choices=pi_tuple)
-#
-#     class Meta:
-#         model = Project
-#         fields = [
-#             'project_id',
-#             'principal_investigators',
-#             'organization',
-#             'title',
-#             'qos_addenda',
-#             'notes',
-#             'allocations',
-#             'deactivate_project',
-#         ]
-#
-# @admin.register(Project)
-# class ProjectAdmin(admin.ModelAdmin):
-#     filter_horizontal = ('allocations',)
-#     list_display = [
-#         'project_id',
-#         'principal_investigator',
-#         'affiliation',
-#         'title',
-#         'created_on',
-#         'qos_addenda',
-#         'current_limit',
-#     ]
-#     search_fields = [
-#         'project_id',
-#         'principal_investigator',
-#         'affiliation',
-#         'title',
-#         'qos_addenda',
-#         'allocations',
-#         'created_on',
-#     ]
-#     form = ProjectForm
+class ProjectAdminForm(forms.ModelForm):
+    def __init__(self,*args,**kwargs):
+        super(ProjectAdminForm,self).__init__(*args,**kwargs)
+        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
+            for u in RcLdapUser.objects.all().order_by('username'))
+        self.fields['managers'].required = False
+        self.fields['managers'].widget = admin.widgets.FilteredSelectMultiple(
+                                        choices=user_tuple,
+                                        verbose_name='Managers',
+                                        is_stacked=False)
+
+        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
+            for u in RcLdapUser.objects.all().order_by('username'))
+        self.fields['collaborators'].required = False
+        self.fields['collaborators'].widget = admin.widgets.FilteredSelectMultiple(
+                                        choices=user_tuple,
+                                        verbose_name='Collaborators',
+                                        is_stacked=False)
+
+    class Meta:
+        model = Project
+        fields = [
+            'project_id',
+            'description',
+            'title',
+            'pi_emails',
+            'managers',
+            'collaborators',
+            'organization',
+            # 'created_on',
+            'notes',
+            'qos_addenda',
+            'deactivated',
+        ]
+
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    # filter_horizontal = ('allocations',)
+    list_display = [
+        'project_id',
+        'pi_emails',
+        'organization',
+        'title',
+        'created_on',
+        'qos_addenda',
+        'deactivated',
+        # 'current_limit',
+    ]
+    search_fields = [
+        'project_id',
+        'pi_emails',
+        'organization',
+        'title',
+        'qos_addenda',
+        'created_on',
+    ]
+    form = ProjectAdminForm
 
 # Overrides default admin form for Allocations to allow
 # for filtered multiselect widget.

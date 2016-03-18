@@ -17,7 +17,7 @@ class ProjectListView(ListView, LoginRequiredMixin):
     def get_queryset(self):
         user = self.request.user.username
         return Project.objects.filter(
-            Q(collaborators__in=user) | Q(managers__in=user)
+            Q(collaborators__contains=user) | Q(managers__contains=user)
         )
 
     def get_context_data(self, **kwargs):
@@ -36,7 +36,7 @@ class ProjectListView(ListView, LoginRequiredMixin):
 class ProjectDetailView(DetailView, LoginRequiredMixin):
     model = Project
     template_name = 'project-detail.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super(ProjectDetailView, self).get_context_data(**kwargs)
         return context

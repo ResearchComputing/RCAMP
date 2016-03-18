@@ -12,7 +12,7 @@
   <legend>My Projects</legend>
   <ul class="list-group">
     {% for project in object_list %}
-    <a href="{% url 'project-detail' project.id %}" class="list-group-item">
+    <a href="{% url 'project-detail' project.pk %}" class="list-group-item">
       <h4 class="list-group-item-heading">{{ project.project_id }}</h4>
       <p class="list-group-item-text">{{ project.title }}</p>
     </a>
