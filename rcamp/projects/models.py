@@ -33,7 +33,7 @@ class Project(models.Model):
     notes = models.TextField()
 
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
-    # deactivated = models.BooleanField(default=False)
+    deactivated = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.project_id

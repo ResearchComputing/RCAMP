@@ -1,14 +1,15 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.db.models import Q
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
-from project.models import Project
+from lib.auth_mixin import LoginRequiredMixin
+from projects.models import Project
 
 
 
-@login_required
-class ProjectListView(ListView):
+class ProjectListView(ListView, LoginRequiredMixin):
     model = Project
     template_name = "project-list.html"
 
