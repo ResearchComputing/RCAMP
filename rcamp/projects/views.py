@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView
+from django.views.generic import DetailView
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
@@ -11,7 +12,7 @@ from projects.models import Project
 
 class ProjectListView(ListView, LoginRequiredMixin):
     model = Project
-    template_name = "project-list.html"
+    template_name = 'project-list.html'
 
     def get_queryset(self):
         user = self.request.user.username
@@ -30,4 +31,12 @@ class ProjectListView(ListView, LoginRequiredMixin):
         # except Project.DoesNotExist:
         #     startup = None
         # context['startup'] = startup
+        return context
+
+class ProjectDetailView(DetailView, LoginRequiredMixin):
+    model = Project
+    template_name = 'project-detail.html'
+    
+    def get_context_data(self, **kwargs):
+        context = super(ProjectDetailView, self).get_context_data(**kwargs)
         return context
