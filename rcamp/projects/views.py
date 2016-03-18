@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from django.views.generic import ListView
 from django.views.generic import DetailView
+from django.views.generic.edit import FormView
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
 from lib.auth_mixin import LoginRequiredMixin
 from projects.models import Project
+from projects.forms import ProjectForm
 
 
 
@@ -40,3 +42,12 @@ class ProjectDetailView(DetailView, LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetailView, self).get_context_data(**kwargs)
         return context
+
+class ProjectCreateView(FormView, LoginRequiredMixin):
+    template_name = 'project-create.html'
+    form_class = ProjectForm
+
+    def form_valid(self, form):
+        print form
+        self.success_url = '/'
+        return super(ProjectCreateView,self).form_valid(form)
