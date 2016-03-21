@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django import forms
-from lib.fields import CsvField
+from lib.fields import LdapCsvField
 from accounts.models import RcLdapUser
 from accounts.models import CuLdapUser
 from accounts.models import RcLdapGroup
@@ -40,12 +40,20 @@ class RcLdapUserForm(forms.ModelForm):
             self.base_fields['dn'].widget.attrs['readonly'] = True
             self.base_fields['organization'].widget.attrs['disabled'] = True
         super(RcLdapUserForm,self).__init__(*args,**kwargs)
+        try:
+            self.initial['role'] = ','.join(self.instance.role)
+        except TypeError:
+            pass
+        try:
+            self.initial['affiliation'] = ','.join(self.instance.affiliation)
+        except TypeError:
+            pass
         self.fields['dn'].required = False
         self.fields['gecos'].required = False
 
     organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
-    # role = CsvField(required=False,max_length=1024)
-    # affiliation = CsvField(required=False,max_length=1024)
+    role = LdapCsvField(required=False)
+    affiliation = LdapCsvField(required=False)
 
     class Meta:
         model = RcLdapUser

@@ -74,11 +74,11 @@ test_group = (
 
 class AdminTestCase(BaseCase):
     fixtures = ['test_users.json']
-    
+
     def setUp(self):
         super(AdminTestCase,self).setUp()
         self.client.login(username="test_user", password="password")
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_index(self):
         response = self.client.get('/admin/accounts/')
@@ -93,7 +93,7 @@ class AdminRcLdapGroupTestCase(AdminTestCase):
         self.assertContains(response, "Rc ldap groups")
         self.assertContains(response, "testgrp")
         self.assertContains(response, "1000")
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_detail(self):
         response = self.client.get(
@@ -104,14 +104,14 @@ class AdminRcLdapGroupTestCase(AdminTestCase):
         # Filter select field loaded:
         self.assertContains(response, "testuser")
         self.assertContains(response, "testcuuser")
-    
+
     # @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     # def test_group_search(self):
     #     response = self.client.get('/admin/accounts/rcldapgroup/?q=test')
     #     self.assertContains(response, "Rc ldap groups")
     #     self.assertContains(response, "testgrp")
     #     self.assertContains(response, "1000")
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_add(self):
         response = self.client.post('/admin/accounts/rcldapgroup/add/',
@@ -119,7 +119,7 @@ class AdminRcLdapGroupTestCase(AdminTestCase):
         self.assertRedirects(response, '/admin/accounts/rcldapgroup/')
         grp = RcLdapGroup.objects.get(name='creategrp')
         self.assertEquals(grp.dn, 'cn=creategrp,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_delete(self):
         response = self.client.post(
@@ -139,7 +139,7 @@ class AdminRcLdapUserTestCase(AdminTestCase):
         self.assertContains(response, "1000")
         self.assertContains(response, "testcuuser")
         self.assertContains(response, "1200")
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_user_detail(self):
         response = self.client.get(
@@ -149,7 +149,7 @@ class AdminRcLdapUserTestCase(AdminTestCase):
         self.assertContains(response, "testcuuser")
         self.assertContains(response, "1200")
         self.assertContains(response, "University of Colorado Boulder")
-    
+
     # @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     # def test_user_search(self):
     #     response = self.client.get('/admin/accounts/rcldapuser/?q=testcu')
@@ -157,7 +157,7 @@ class AdminRcLdapUserTestCase(AdminTestCase):
     #     self.assertContains(response, "testcuuser")
     #     self.assertContains(response, "1200")
     #     self.assertNotContains(response, "testuser")
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_user_add(self):
         user_dict = dict(
@@ -170,13 +170,13 @@ class AdminRcLdapUserTestCase(AdminTestCase):
             gid=1010,
             home_directory='/home/ucb/createuser',
             login_shell='/bin/bash',
-            organization='ucb'
+            organization='ucb',
         )
         response = self.client.post('/admin/accounts/rcldapuser/add/',user_dict)
         self.assertRedirects(response, '/admin/accounts/rcldapuser/')
         u = RcLdapUser.objects.get(username='createuser')
         self.assertEquals(u.dn, 'uid=createuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-    
+
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_user_delete(self):
         response = self.client.post(
