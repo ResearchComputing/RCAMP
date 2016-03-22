@@ -3,12 +3,7 @@
 {% block title %}Research Computing - Create Project{% endblock %}
 
 {% block extra_style %}
-<link href="/static/admin/css/widgets.css" type="text/css" media="all" rel="stylesheet">
-<style>
-  .selector {
-
-  }
-</style>
+<link href="/static/css/project-create.css" type="text/css" media="all" rel="stylesheet">
 {% endblock %}
 
 {% block jumbotron_heading %}<h1>Create a new project</h1>{% endblock %}
@@ -109,7 +104,7 @@
   </fieldset>
 
   <fieldset>
-    <legend>Project membership</legend>
+    <legend>Primary Investigators</legend>
     {% if form.pi_emails.errors %}
     <div class="form-group has-error has-feedback">
     {% else %}
@@ -128,10 +123,16 @@
             {% endif %}
         </div>
     </div>
-    <div class="col-sm-8 col-sm-offset-1">
-      {{ form.managers }}
-      {{ form.collaborators }}
-    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Project Managers</legend>
+    {{ form.managers }}
+  </fieldset>
+
+  <fieldset>
+    <legend>Project Collaborators</legend>
+    {{ form.collaborators }}
   </fieldset>
 
   <div class="col-sm-2 col-sm-offset-5 request-submit">
