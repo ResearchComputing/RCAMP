@@ -5,6 +5,7 @@ from django.views.generic.edit import FormView
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse_lazy
 
 from lib.auth_mixin import LoginRequiredMixin
 from projects.models import Project
@@ -47,7 +48,10 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
     template_name = 'project-create.html'
     form_class = ProjectForm
 
-    def form_valid(self, form):
-        print form
-        self.success_url = '/'
+    def form_valid(self,form):
+        proj = Project.objects.create(**form.cleaned_data)
+        self.success_url = reverse_lazy(
+            'project-detail',
+            kwargs={'pk':proj.pk}
+        )
         return super(ProjectCreateView,self).form_valid(form)

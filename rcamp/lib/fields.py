@@ -16,21 +16,25 @@ class ListField(models.TextField):
         if not value:
             return []
         else:
-            return ast.literal_eval(value)
+            return value.split(',')
 
     def to_python(self, value):
         if not value:
             return []
-        # elif isinstance(value, list):
-        #     return value
-        # else:
-        #     return ast.literal_eval(value)
+        elif isinstance(value, list):
+            return value
         else:
-            return value.split(',')
+            try:
+                val = ast.literal_eval(value)
+                return val
+            except SyntaxError,ValueError:
+                return value.split(',')
 
     def get_prep_value(self, value):
-        # return str(value)
-        return ','.join(value)
+        if isinstance(value, list):
+            return ','.join(value)
+        else:
+            return ','.join(ast.literal_eval(value))
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)

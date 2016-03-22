@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.admin import widgets
 
+from lib.fields import MultiEmailField
 from accounts.models import RcLdapUser
 from projects.models import Project
 
@@ -24,6 +25,8 @@ class ProjectForm(forms.ModelForm):
                                         choices=user_tuple,
                                         verbose_name='Collaborators',
                                         is_stacked=False)
+
+    pi_emails = MultiEmailField(required=True)
 
     class Meta:
         model = Project

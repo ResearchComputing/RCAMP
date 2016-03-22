@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django import forms
+from lib.fields import CsvField
 from accounts.models import RcLdapUser
 from projects.models import Project
 
@@ -25,6 +26,12 @@ class ProjectAdminForm(forms.ModelForm):
                                         choices=user_tuple,
                                         verbose_name='Collaborators',
                                         is_stacked=False)
+        try:
+            self.initial['pi_emails'] = ','.join(self.instance.pi_emails)
+        except TypeError:
+            pass
+
+    pi_emails = CsvField(required=True)
 
     class Meta:
         model = Project
@@ -53,6 +60,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'created_on',
         'qos_addenda',
         'deactivated',
+        'collaborators',
         # 'current_limit',
     ]
     search_fields = [

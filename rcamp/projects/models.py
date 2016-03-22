@@ -27,16 +27,35 @@ class Project(models.Model):
     title = models.CharField(max_length=256)
     description = models.TextField()
 
-    project_id = models.CharField(max_length=24,unique=True)
+    project_id = models.CharField(max_length=24,unique=True,blank=True,null=True)
     # is_startup = models.BooleanField(default=False)
     created_on = models.DateField(auto_now_add=True)
-    notes = models.TextField()
+    notes = models.TextField(blank=True,null=True)
 
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     deactivated = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.project_id
+
+    def save(self,*args,**kwargs):
+        if (not self.project_id) or (self.project_id == ''):
+            # Assign new id to project.
+            org = self.organization
+            projects = Project.objects.filter(
+                    project_id__startswith=org
+                ).order_by(
+                    '-project_id'
+                )
+            if projects.count() == 0:
+                next_id = '{}{}'.format(org.lower(),'1')
+            else:
+                last_id = projects[0].project_id
+                last_id = last_id.replace(org,'')
+                next_id = int(last_id) + 1
+                next_id = '{}{}'.format(org.lower(),str(next_id))
+            self.project_id = next_id
+        super(Project,self).save(*args,**kwargs)
 
     # @property
     # def current_limit(self):
