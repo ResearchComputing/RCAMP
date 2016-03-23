@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 
 from lib.auth_mixin import LoginRequiredMixin
+from mailer.signals import project_created_by_user
 from projects.models import Project
 from projects.forms import ProjectForm
 
@@ -50,6 +51,7 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
 
     def form_valid(self,form):
         proj = Project.objects.create(**form.cleaned_data)
+        project_created_by_user.send(sender=proj.__class__,project=proj)
         self.success_url = reverse_lazy(
             'project-detail',
             kwargs={'pk':proj.pk}

@@ -19,3 +19,12 @@ def notify_account_created_from_request(sender, **kwargs):
     for notifier in notifiers:
         ctx = {'account':account}
         msg = notifier.send(context=ctx)
+
+@receiver(project_created_by_user)
+def notify_project_created_by_user(sender, **kwargs):
+    project = kwargs.get('project')
+
+    notifiers = MailNotifier.objects.filter(event='project_created_by_user')
+    for notifier in notifiers:
+        ctx = {'project':project}
+        msg = notifier.send(context=ctx)
