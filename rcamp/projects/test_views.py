@@ -43,7 +43,17 @@ class ProjectListTestCase(CbvCase):
 
 # This test case covers the project creation page.
 class ProjectCreateTestCase(CbvCase):
+    def setUp(self):
+        super(ProjectCreateTestCase,self).setUp()
+        self.user = User.objects.create(**{
+            'username': 'testrequester',
+            'email': 'testr@test.org',
+            'first_name': 'Test',
+            'last_name': 'Requester',
+        })
+
     def test_project_create(self):
+
         request = RequestFactory().post(
                 '/projects/create',
                 data={
@@ -56,6 +66,7 @@ class ProjectCreateTestCase(CbvCase):
                     'organization':'ucb',
                 }
             )
+        request.user = self.user
         view = ProjectCreateView.as_view()
         response = view(request)
 
@@ -65,7 +76,7 @@ class ProjectCreateTestCase(CbvCase):
         self.assertEquals(proj.title,'Test Project')
         self.assertEquals(proj.description,'A test project')
         self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu'])
-        self.assertEquals(proj.managers,['testuser','testcuuser'])
+        self.assertEquals(proj.managers,['testuser','testcuuser','testrequester'])
         self.assertEquals(proj.collaborators,['testuser','testcuuser'])
         self.assertEquals(proj.organization,'ucb')
 
@@ -80,6 +91,7 @@ class ProjectCreateTestCase(CbvCase):
         }
 
         request = RequestFactory().post('/projects/create',data)
+        request.user = self.user
         view = ProjectCreateView.as_view()
         response = view(request)
         self.assertTrue(response.url.startswith('/projects/list/'))
@@ -87,6 +99,7 @@ class ProjectCreateTestCase(CbvCase):
         self.assertEqual(proj.count(),1)
 
         request = RequestFactory().post('/projects/create',data)
+        request.user = self.user
         view = ProjectCreateView.as_view()
         response = view(request)
         self.assertTrue(response.url.startswith('/projects/list/'))
@@ -95,6 +108,7 @@ class ProjectCreateTestCase(CbvCase):
 
         data.update({'organization':'csu'})
         request = RequestFactory().post('/projects/create',data)
+        request.user = self.user
         view = ProjectCreateView.as_view()
         response = view(request)
         self.assertTrue(response.url.startswith('/projects/list/'))
@@ -112,6 +126,7 @@ class ProjectCreateTestCase(CbvCase):
                     'organization':'ucb',
                 }
             )
+        request.user = self.user
         view = ProjectCreateView.as_view()
         response = view(request)
 
@@ -138,6 +153,7 @@ class ProjectCreateTestCase(CbvCase):
                     'organization':'ucb',
                 }
             )
+        request.user = self.user
         view = ProjectCreateView.as_view()
         response = view(request)
 

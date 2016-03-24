@@ -20,7 +20,9 @@
       </a>
   </div>
 
-  <legend>Project: {{ object.project_id}} <a href="#" class="project-edit-link">(edit project)</a></legend>
+  <legend>Project: {{ object.project_id }}
+    {% if user.username in object.managers %}<a href="#" class="project-edit-link">(edit project)</a>{% endif %}
+  </legend>
   <div class="table-responsive">
     <table class="table table-striped">
       <tr>

@@ -42,11 +42,13 @@ class Project(models.Model):
         if (not self.project_id) or (self.project_id == ''):
             # Assign new id to project.
             org = self.organization
+            prefix_offset = len(org) + 1
             projects = Project.objects.filter(
-                    project_id__startswith=org
-                ).order_by(
-                    '-project_id'
-                )
+                project_id__startswith=org
+            ).extra(
+                select={'proj_int': 'CAST(SUBSTR(project_id, %s) AS UNSIGNED)'},
+                select_params=(prefix_offset,),
+            ).order_by('-proj_int')
             if projects.count() == 0:
                 next_id = '{}{}'.format(org.lower(),'1')
             else:

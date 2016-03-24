@@ -6,6 +6,7 @@ from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
+import ast
 
 from lib.auth_mixin import LoginRequiredMixin
 from mailer.signals import project_created_by_user
@@ -49,7 +50,17 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
     template_name = 'project-create.html'
     form_class = ProjectForm
 
+    def post(self, request, *args, **kwargs):
+        self.user = request.user
+        return super(ProjectCreateView,self).post(request,*args,**kwargs)
+
     def form_valid(self,form):
+        managers = form.cleaned_data['managers']
+        if self.user.username not in managers:
+            managers = ast.literal_eval(managers)
+            managers.append(self.user.username)
+            managers = str(managers)
+            form.cleaned_data.update({'managers':managers})
         proj = Project.objects.create(**form.cleaned_data)
         project_created_by_user.send(sender=proj.__class__,project=proj)
         self.success_url = reverse_lazy(
