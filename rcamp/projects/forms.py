@@ -38,3 +38,28 @@ class ProjectForm(forms.ModelForm):
             'collaborators',
             'organization',
         ]
+
+class ProjectEditForm(forms.Form):
+    def __init__(self,*args,**kwargs):
+        super(ProjectEditForm,self).__init__(*args,**kwargs)
+        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
+            for u in RcLdapUser.objects.all().order_by('username'))
+        self.fields['managers'].required = False
+        self.fields['managers'].widget = widgets.FilteredSelectMultiple(
+                                        choices=user_tuple,
+                                        verbose_name='Managers',
+                                        is_stacked=False)
+
+        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
+            for u in RcLdapUser.objects.all().order_by('username'))
+        self.fields['collaborators'].required = False
+        self.fields['collaborators'].widget = widgets.FilteredSelectMultiple(
+                                        choices=user_tuple,
+                                        verbose_name='Collaborators',
+                                        is_stacked=False)
+
+    title = forms.CharField(max_length=256,required=True)
+    description = forms.CharField(widget=forms.Textarea,required=True)
+    pi_emails = MultiEmailField(required=True)
+    managers = forms.CharField(max_length=2048)
+    collaborators = forms.CharField(max_length=2048)

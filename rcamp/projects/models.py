@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Func, F
+from django.db.models.functions import Substr, Lower
 from lib import fields
 
 
@@ -12,6 +14,10 @@ from lib import fields
 #
 #     def __unicode__(self):
 #         return self.allocation_id
+
+class Cast (Func):
+    function = 'CAST'
+    template = '%(function)s(%(expressions)s as %(target_type)s)'
 
 class Project(models.Model):
     ORGANIZATIONS = (
@@ -43,12 +49,13 @@ class Project(models.Model):
             # Assign new id to project.
             org = self.organization
             prefix_offset = len(org) + 1
+
             projects = Project.objects.filter(
                 project_id__startswith=org
-            ).extra(
-                select={'proj_int': 'CAST(SUBSTR(project_id, %s) AS UNSIGNED)'},
-                select_params=(prefix_offset,),
-            ).order_by('-proj_int')
+            ).annotate(
+                project_number_int=Cast(Substr('project_id', prefix_offset), target_type='UNSIGNED')
+            ).order_by('-project_number_int')
+
             if projects.count() == 0:
                 next_id = '{}{}'.format(org.lower(),'1')
             else:

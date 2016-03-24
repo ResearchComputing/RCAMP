@@ -6,12 +6,15 @@ from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
 import ast
 
 from lib.auth_mixin import LoginRequiredMixin
 from mailer.signals import project_created_by_user
 from projects.models import Project
 from projects.forms import ProjectForm
+from projects.forms import ProjectEditForm
 
 
 
@@ -50,15 +53,12 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
     template_name = 'project-create.html'
     form_class = ProjectForm
 
-    def post(self, request, *args, **kwargs):
-        self.user = request.user
-        return super(ProjectCreateView,self).post(request,*args,**kwargs)
-
-    def form_valid(self,form):
+    def form_valid(self, form):
+        user = self.request.user
         managers = form.cleaned_data['managers']
-        if self.user.username not in managers:
+        if user.username not in managers:
             managers = ast.literal_eval(managers)
-            managers.append(self.user.username)
+            managers.append(user.username)
             managers = str(managers)
             form.cleaned_data.update({'managers':managers})
         proj = Project.objects.create(**form.cleaned_data)
@@ -68,3 +68,57 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
             kwargs={'pk':proj.pk}
         )
         return super(ProjectCreateView,self).form_valid(form)
+
+class ProjectEditView(FormView, LoginRequiredMixin):
+    template_name = 'project-edit.html'
+    form_class = ProjectEditForm
+
+    def get(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        self.object = get_object_or_404(Project,pk=pk)
+        if request.user.username not in self.object.managers:
+            return redirect('project-detail-view', pk=pk)
+        else:
+            return super(ProjectEditView,self).get(request,*args,**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        path_cmp = self.request.path.split('/')
+        pk = int(path_cmp[-2])
+        self.object = get_object_or_404(Project,pk=pk)
+        if request.user.username not in self.object.managers:
+            return redirect('project-detail-view', pk=pk)
+        else:
+            return super(ProjectEditView,self).post(request,*args,**kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectEditView, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        return context
+
+    def get_initial(self):
+        initial = super(ProjectEditView,self).get_initial()
+        initial['title'] = self.object.title
+        initial['description'] = self.object.description
+        initial['pi_emails'] = ','.join(self.object.pi_emails)
+        initial['managers'] = self.object.managers
+        initial['collaborators'] = self.object.collaborators
+        return initial
+
+    def form_valid(self, form):
+        user = self.request.user
+        managers = form.cleaned_data['managers']
+        if user.username not in managers:
+            managers = ast.literal_eval(managers)
+            managers.append(user.username)
+            managers = str(managers)
+            form.cleaned_data.update({'managers':managers})
+        proj = Project.objects.filter(
+                pk=self.object.pk
+            ).update(
+                **form.cleaned_data
+            )
+        self.success_url = reverse_lazy(
+            'project-detail',
+            kwargs={'pk':self.object.pk}
+        )
+        return super(ProjectEditView,self).form_valid(form)

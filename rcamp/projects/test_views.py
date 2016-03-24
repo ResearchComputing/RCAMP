@@ -6,6 +6,7 @@ from accounts.test_views import CbvCase
 from projects.models import Project
 from projects.views import ProjectListView
 from projects.views import ProjectCreateView
+from projects.views import ProjectEditView
 
 
 
@@ -170,4 +171,99 @@ class ProjectCreateTestCase(CbvCase):
                 Project.DoesNotExist,
                 Project.objects.get,
                 **{}
+            )
+
+# This test case covers the project edit page.
+class ProjectEditTestCase(CbvCase):
+    def setUp(self):
+        super(ProjectEditTestCase,self).setUp()
+        self.user = User.objects.create(**{
+            'username': 'testuser',
+            'email': 'testr@test.org',
+            'first_name': 'Test',
+            'last_name': 'Requester',
+        })
+        self.proj = Project.objects.create(**{
+            'project_id': 'ucb1',
+            'title': 'Test Project',
+            'description': 'A test project',
+            'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
+            'managers': ['testuser','testcuuser'],
+            'collaborators': ['testuser','testcuuser'],
+            'organization':'ucb',
+        })
+
+    def test_project_update(self):
+        request = RequestFactory().post(
+                '/projects/list/{}/edit'.format(self.proj.pk),
+                data={
+                    'title': 'Test Project Updated',
+                    'description': 'A test project',
+                    'pi_emails': 'testuser@test.org,cuuser@cu.edu,test@test.org',
+                    'managers': ['testuser','testcuuser','testrequester'],
+                    'collaborators': ['testuser','testcuuser'],
+                }
+            )
+        request.user = self.user
+        view = ProjectEditView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
+
+        proj = Project.objects.get(project_id='ucb1')
+        self.assertEquals(proj.title,'Test Project Updated')
+        self.assertEquals(proj.description,'A test project')
+        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
+        self.assertEquals(proj.managers,['testuser','testcuuser','testrequester'])
+        self.assertEquals(proj.collaborators,['testuser','testcuuser'])
+        self.assertEquals(proj.organization,'ucb')
+
+    def test_project_update_removed_self(self):
+        request = RequestFactory().post(
+                '/projects/list/{}/edit'.format(self.proj.pk),
+                data={
+                    'title': 'Test Project Updated',
+                    'description': 'A test project',
+                    'pi_emails': 'testuser@test.org,cuuser@cu.edu,test@test.org',
+                    'managers': ['testcuuser','testrequester'],
+                    'collaborators': ['testuser','testcuuser'],
+                }
+            )
+        request.user = self.user
+        view = ProjectEditView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
+
+        proj = Project.objects.get(project_id='ucb1')
+        self.assertEquals(proj.title,'Test Project Updated')
+        self.assertEquals(proj.description,'A test project')
+        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
+        self.assertEquals(proj.managers,['testcuuser','testrequester','testuser'])
+        self.assertEquals(proj.collaborators,['testuser','testcuuser'])
+        self.assertEquals(proj.organization,'ucb')
+
+    def test_project_update_missing_fields(self):
+        request = RequestFactory().post(
+                '/projects/list/{}/edit'.format(self.proj.pk),
+                data={
+                    'managers': ['testcuuser','testrequester'],
+                    'collaborators': ['testuser','testcuuser'],
+                }
+            )
+        request.user = self.user
+        view = ProjectEditView.as_view()
+        response = view(request)
+
+        self.assertEquals(
+                response.context_data['form'].errors['title'],
+                [u'This field is required.']
+            )
+        self.assertEquals(
+                response.context_data['form'].errors['description'],
+                [u'This field is required.']
+            )
+        self.assertEquals(
+                response.context_data['form'].errors['pi_emails'],
+                [u'This field is required.']
             )

@@ -20,8 +20,17 @@
       </a>
   </div>
 
+  {% if edit_warning %}
+  <div class="alert alert-danger" role="alert">
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+    <p><strong>No edit permissions for {{ object.project_id }}!</strong> You must be a project manager to edit.</p>
+  </div>
+  {% endif %}
+
   <legend>Project: {{ object.project_id }}
-    {% if user.username in object.managers %}<a href="#" class="project-edit-link">(edit project)</a>{% endif %}
+    {% if user.username in object.managers %}<a href="{% url 'project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
   </legend>
   <div class="table-responsive">
     <table class="table table-striped">
