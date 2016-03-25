@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Add Reference{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/projects.css" type="text/css" media="all" rel="stylesheet">
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Add a new reference</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Add a new reference to project {{ project.project_id }}</p>
+{% endblock %}
+
+{% block container %}
+<div class="mailto-help">
+  Questions about references?
+  <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20References">
+    Contact us
+  </a>
+  or view our
+  <a href="https://www.rc.colorado.edu/support/getting-started.html">
+    Getting Started Guide.
+  </a>
+</div>
+
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissable">
+  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+  <p>
+    <strong>Could not create reference.</strong>
+    Please resolve the errors below, or
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Adding%20A%20Reference">
+      Contact us
+    </a>
+  </p>
+  {{ form.non_field_errors }}
+</div>
+{% endif %}
+
+<form class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <fieldset>
+    <legend>Describe your reference</legend>
+    {% if form.description.errors %}
+    <div class="form-group has-error has-feedback">
+    {% else %}
+    <div class="form-group">
+    {% endif %}
+        <label class="col-sm-2 control-label" for="id_description">Description</label>
+        <div class="col-sm-8">
+          <textarea id="id_description" name="description" class="form-control" rows="10" cols="40"/>{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+          {% if form.description.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.description.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Where can it be accessed?</legend>
+    {% if form.link.errors %}
+    <div class="form-group has-error has-feedback">
+    {% else %}
+    <div class="form-group">
+    {% endif %}
+        <label class="col-sm-2 control-label" for="id_link">Link</label>
+        <div class="col-sm-8">
+          <textarea id="id_link" name="link" class="form-control" rows="10" cols="40"/>{% if form.link.value %}{{ form.link.value }}{% endif %}</textarea>
+          {% if form.link.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.link.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+    </div>
+  </fieldset>
+
+  <div class="col-sm-6 col-sm-offset-4 request-submit">
+    <a href="{% url 'project-detail' project.pk %}" class="btn btn-warning btn-lg" role="button">Cancel Edit</a>
+    <button type="submit" class="btn btn-primary btn-lg">Add Reference</button>
+  </div>
+</form>
+{% endblock %}

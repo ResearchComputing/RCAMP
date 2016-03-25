@@ -77,7 +77,7 @@
 
   <legend>References and publications for {{ object.project_id }}</legend>
   <ul class="list-group">
-    <a href="#" id="reference-add-link" class="list-group-item" disabled>
+    <a href="{% url 'reference-create' project_pk=object.pk %}" id="reference-add-link" class="list-group-item" disabled>
       <h4 class="list-group-item-heading">Create new</h4>
       <p class="list-group-item-text">
         Create a new publication or reference for this project.

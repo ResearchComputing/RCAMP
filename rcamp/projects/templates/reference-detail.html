@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - My Projects{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/projects.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>References for {{ project.project_id }}</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Review and manage your references.</p>
+{% endblock %}
+
+{% block container %}
+<div class="row">
+  <div class="mailto-help">
+      Questions about this reference?
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Reference%20(%23{{object.pk}})">
+          Contact us.
+      </a>
+  </div>
+
+  <legend>Reference
+    {% if user.username in project.managers %}<a href="{% url 'reference-edit' project_pk=project.pk pk=object.pk %}" class="project-edit-link">(edit reference)</a>{% endif %}
+  </legend>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <tr>
+        <td><strong>Reference ID</strong></td>
+        <td>{{ object.pk }}</td>
+      </tr>
+      <tr>
+        <td><strong>Description</strong></td>
+        <td>{{ object.description }}</td>
+      </tr>
+      <tr>
+        <td><strong>Link</strong></td>
+        <td>{{ object.link }}</td>
+      </tr>
+      <tr>
+        <td><strong>Created On</strong></td>
+        <td>{{ object.created_on }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+{% endblock %}

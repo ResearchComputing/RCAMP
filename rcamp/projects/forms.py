@@ -63,3 +63,7 @@ class ProjectEditForm(forms.Form):
     pi_emails = MultiEmailField(required=True)
     managers = forms.CharField(max_length=2048)
     collaborators = forms.CharField(max_length=2048)
+
+class ReferenceForm(forms.Form):
+    description = forms.CharField(widget=forms.Textarea,required=True)
+    link = forms.CharField(widget=forms.Textarea,required=True)
