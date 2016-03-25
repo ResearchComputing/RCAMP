@@ -49,6 +49,8 @@ class ProjectDetailView(DetailView, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ProjectDetailView, self).get_context_data(**kwargs)
+        references = Reference.objects.filter(project=self.object)
+        context['references'] = references
         return context
 
 class ProjectCreateView(FormView, LoginRequiredMixin):
