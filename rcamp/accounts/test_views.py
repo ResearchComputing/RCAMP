@@ -14,7 +14,9 @@ from accounts.views import AccountRequestReviewView
 from accounts.views import AccountRequestCreateView
 from accounts.views import SponsoredAccountRequestCreateView
 from accounts.views import ClassAccountRequestCreateView
+from accounts.views import ProjectAccountRequestCreateView
 from accounts.models import AccountRequest
+from projects.models import Project
 
 
 # Adds method for returning Class-Based View instance, so that
@@ -238,5 +240,56 @@ class ClassAccountRequestTestCase(CuBaseCase,CbvCase):
         self.assertEquals(ar.email,'testuser@test.org')
         self.assertEquals(ar.role, 'student')
         self.assertEquals(ar.course_number, 'CSCI4000')
+        self.assertEquals(ar.login_shell,'/bin/bash')
+        self.assertEquals(ar.organization,'ucb')
+
+#This test case covers the project account request page.
+class ProjectAccountRequestTestCase(CuBaseCase,CbvCase):
+    def setUp(self):
+        proj_dict = {
+            'pi_emails': ['testpiuser@test.org'],
+            'managers': ['testpiuser'],
+            'collaborators': ['testpiuser'],
+            'organization': 'ucb',
+            'project_id': 'ucb1',
+            'title': 'Test project',
+            'description': 'Test project.',
+        }
+        Project.objects.create(**proj_dict)
+        proj_dict.update({
+            'project_id': 'ucb2',
+            'title': 'Test project 2',
+            'description': 'Test project 2.',
+        })
+        Project.objects.create(**proj_dict)
+        super(ProjectAccountRequestTestCase,self).setUp()
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_request_create(self):
+        request = RequestFactory().post(
+                '/accounts/account-request/create/project',
+                data={
+                    'projects': [proj.pk for proj in Project.objects.all()],
+                    'organization':'ucb',
+                    'username':'testuser',
+                    'password':'testpass',
+                    'login_shell': '/bin/bash',
+                    'role': 'student',
+                }
+            )
+        view = ProjectAccountRequestCreateView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
+
+        ar = AccountRequest.objects.get(username='testuser')
+        ar_list = [p.pk for p in ar.projects.all()]
+        expected_list = [p.pk for p in Project.objects.all()]
+        self.assertEquals(ar_list,expected_list)
+        self.assertEquals(ar.first_name,'test')
+        self.assertEquals(ar.last_name,'user')
+        self.assertEquals(ar.email,'testuser@test.org')
+        self.assertEquals(ar.role, 'student')
         self.assertEquals(ar.login_shell,'/bin/bash')
         self.assertEquals(ar.organization,'ucb')

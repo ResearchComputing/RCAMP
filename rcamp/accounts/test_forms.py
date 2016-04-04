@@ -9,9 +9,11 @@ from django.conf import settings
 from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
 from accounts.forms import ClassAccountRequestForm
+from accounts.forms import ProjectAccountRequestForm
 from accounts.models import CuLdapUser
 from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
+from projects.models import Project
 
 
 #Mock CU LDAP
@@ -221,4 +223,53 @@ class ClassAccountRequestFormTestCase(CuBaseCase):
             'course_number': 'CSCI4000',
         }
         form = ClassAccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+# This test case covers the functionality of the project account request form
+# delivered to the user during account request.
+class ProjectAccountRequestFormTestCase(CuBaseCase):
+    def setUp(self):
+        proj_dict = {
+            'pi_emails': ['testpiuser@test.org'],
+            'managers': ['testpiuser'],
+            'collaborators': ['testpiuser'],
+            'organization': 'ucb',
+            'project_id': 'ucb1',
+            'title': 'Test project',
+            'description': 'Test project.',
+        }
+        Project.objects.create(**proj_dict)
+        proj_dict.update({
+            'project_id': 'ucb2',
+            'title': 'Test project 2',
+            'description': 'Test project 2.',
+        })
+        Project.objects.create(**proj_dict)
+        super(ProjectAccountRequestFormTestCase,self).setUp()
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid(self):
+        form_data = {
+            'projects': [proj.pk for proj in Project.objects.all()],
+            'organization': 'ucb',
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'student',
+            'login_shell': '/bin/bash',
+        }
+        form = ProjectAccountRequestForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid_missing_fields(self):
+        form_data = {
+            'organization': 'ucb',
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'student',
+            'login_shell': '/bin/bash',
+        }
+        form = ProjectAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())

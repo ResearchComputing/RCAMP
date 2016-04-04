@@ -1,9 +1,11 @@
 from django import forms
+from django.contrib.admin.widgets import FilteredSelectMultiple
 from accounts.models import CuLdapUser
 from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 from accounts.models import SHELL_CHOICES
 from accounts.models import REQUEST_ROLES
+from projects.models import Project
 
 
 
@@ -73,4 +75,22 @@ class ClassAccountRequestForm(AccountRequestForm):
         exclude = (
             'organization',
             'role',
+        )
+
+class ProjectAccountRequestForm(AccountRequestForm):
+    projects = forms.ModelMultipleChoiceField(
+        queryset=Project.objects.all(),
+        required=True,
+        widget=FilteredSelectMultiple(
+            'Projects',
+            False,
+        ))
+
+    class Meta:
+        exclude = (
+            'blanca',
+            'janus',
+            'summit',
+            'petalibrary_active',
+            'petalibrary_archive',
         )

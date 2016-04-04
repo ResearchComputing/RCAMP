@@ -56,7 +56,7 @@ window.SelectFilter = {
 
         filter_p.appendChild(document.createTextNode(' '));
 
-        var filter_input = quickElement('input', filter_p, '', 'type', 'text', 'class', 'form-control', 'placeholder', gettext('Search users'));
+        var filter_input = quickElement('input', filter_p, '', 'type', 'text', 'class', 'form-control', 'placeholder', interpolate(gettext('Search %s'), [field_name]));
         filter_input.id = field_id + '_input';
 
         selector_available.appendChild(from_box);

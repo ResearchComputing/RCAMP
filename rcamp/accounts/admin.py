@@ -7,7 +7,19 @@ from accounts.models import RcLdapGroup
 from accounts.models import IdTracker
 from accounts.models import AccountRequest
 from accounts.models import ORGANIZATIONS
+from projects.models import Project
 
+
+
+class AccountRequestForm(forms.ModelForm):
+    projects = forms.ModelMultipleChoiceField(
+        queryset=Project.objects.all(),
+        required=False,
+        widget=admin.widgets.FilteredSelectMultiple(
+            'projects',
+            False,
+        )
+    )
 
 @admin.register(AccountRequest)
 class AccountRequestAdmin(admin.ModelAdmin):
@@ -31,6 +43,7 @@ class AccountRequestAdmin(admin.ModelAdmin):
         'username',
         'role',
     ]
+    form = AccountRequestForm
 
 class RcLdapUserForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):

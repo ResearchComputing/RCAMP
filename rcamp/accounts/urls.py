@@ -3,6 +3,7 @@ from accounts.views import ReasonView
 from accounts.views import AccountRequestCreateView
 from accounts.views import SponsoredAccountRequestCreateView
 from accounts.views import ClassAccountRequestCreateView
+from accounts.views import ProjectAccountRequestCreateView
 from accounts.views import AccountRequestReviewView
 
 
@@ -23,14 +24,14 @@ urlpatterns = [
         name='class-account-request-create'
     ),
     url(
-        r'^account-request/create/project$',
-        AccountRequestCreateView.as_view(),
-        name='project-account-request-create'
-    ),
-    url(
         r'^account-request/create/sponsored$',
         SponsoredAccountRequestCreateView.as_view(),
         name='sponsored-account-request-create'
+    ),
+    url(
+        r'^account-request/create/project$',
+        ProjectAccountRequestCreateView.as_view(),
+        name='project-account-request-create'
     ),
     url(
         r'^account-request/review/(?P<request_id>\d+)',

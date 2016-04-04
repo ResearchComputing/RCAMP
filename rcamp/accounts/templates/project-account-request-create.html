@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Request Account{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/account-request.css" rel="stylesheet"/>
+<link href="/static/css/selector.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Request an account on the Janus supercomputer at the University of Colorado Boulder.</p>
+{% endblock %}
+{% block jumbotron_button %}
+<p><a data-toggle="modal" href="#helpmodal"
+class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;</a></p>
+{% endblock %}
+
+{% block modal_title %}
+<h4 class="modal-title">Definitions &amp; Form Help</h4>
+{% endblock %}
+{% block modal_body %}
+<ul class="list-group">
+    <li class="list-group-item">
+        <strong>Organization Credentials</strong>
+        <p>The request form requires that you successfully authenticate against
+          the organization with which you are affiliated to verify your identity.
+          The organization credentials should be the username/password pair you
+          to access your organization's resources.
+        </p>
+    </li>
+</ul>
+{% endblock %}
+
+{% block container %}
+<div class="mailto-help">
+    Questions about the account request process?
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Account%20Request%20Process">
+        Contact us
+    </a>
+    or view our
+    <a href="https://www.rc.colorado.edu/support/getting-started.html">
+      Getting Started Guide.
+    </a>
+</div>
+
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <p>
+      <strong>Could not submit request.</strong>
+      Please resolve the errors below, or
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Account%20Request%20Process">
+          contact us.
+      </a>
+    </p>
+    {{ form.non_field_errors }}
+</div>
+{% endif %}
+
+<form class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <fieldset>
+      <legend>Which Project(s) will you be working on?</legend>
+      {{ form.projects }}
+    </fieldset>
+
+    <fieldset>
+        <legend>Select your organization</legend>
+        {% if form.organization.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_organization">Organization</label>
+            <div class="col-sm-8">
+                <select name="organization" id="id_organization" class="form-control">
+                    {% for value, disp in form.organization.field.choices %}
+                    <option value="{{ value }}">{{ disp }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.organization.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.organization.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Login With Organization Credentials</legend>
+        {% if form.username.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_username">Username</label>
+            <div class="col-sm-8">
+                <input id="id_username" type="text" name="username" class="form-control"
+                {% if form.username.value %}value={{ form.username.value }}{% endif %}
+                maxlength="256" />
+                {% if form.username.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.username.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if form.password.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_password">Password</label>
+            <div class="col-sm-8">
+                <input id="id_password" type="password" name="password" class="form-control"
+                {% if form.password.value %}value={{ form.password.value }}{% endif %}
+                maxlength="256" />
+                {% if form.password.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.password.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>What is your role?</legend>
+        {% if form.role.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_role">Role</label>
+            <div class="col-sm-8">
+                <select name="role" id="id_role" class="form-control">
+                    {% for value, disp in form.role.field.choices %}
+                    <option value="{{ value }}">{{ disp }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.role.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.role.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>What is your preferred login shell?</legend>
+        {% if form.login_shell.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_login_shell">Preferred login shell</label>
+            <div class="col-sm-8">
+                <select name="login_shell" id="id_login_shell" class="form-control">
+                    {% for value, disp in form.login_shell.field.choices %}
+                    <option value="{{ value }}">{{ disp }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.login_shell.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.login_shell.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="col-sm-2 col-sm-offset-5 request-submit">
+        <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
+<script type="text/javascript" src="/static/js/SelectFilter2.js"></script>
+<script type="text/javascript" src="/static/js/jsi18n.js"></script>
+<script type="text/javascript">
+    addEvent(window, "load", function(e) { window.SelectFilter.init("id_projects", "projects", 0, "/static/admin/"); });
+</script>
+{% endblock %}
