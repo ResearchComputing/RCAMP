@@ -196,13 +196,15 @@ class RcLdapUserManager(models.Manager):
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,
                 gid=user_fields['gid'],
-                members=[username]
+                members=[username],
+                organization=organization
             )
         sgrp_gid = id_tracker.get_next_id()
         sgrp = RcLdapGroup.objects.create(
                 name='%sgrp'%username,
                 gid=sgrp_gid,
-                members=[username]
+                members=[username],
+                organization=organization
             )
         return user
 
@@ -263,7 +265,26 @@ class CuLdapUser(LdapUser):
         authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
         return authed
 
+class RcLdapGroupManager(models.Manager):
+    def create(self,*args,**kwargs):
+        org = kwargs.pop('organization', None)
+        obj = self.model(**kwargs)
+        self._for_write = True
+        obj.save(force_insert=True,using=self.db,organization=org)
+        return obj
+
 class RcLdapGroup(ldapdb.models.Model):
+    def __init__(self,*args,**kwargs):
+        super(RcLdapGroup,self).__init__(*args,**kwargs)
+        rdn = self.dn.lower().replace(self.base_dn.lower(), '')
+        rdn_list = rdn.split(',')
+        self.org = ''
+        if len(rdn_list) > 2:
+            self.org = rdn_list[-2]
+            self.base_dn = ','.join([self.org,self.base_dn])
+
+    objects = RcLdapGroupManager()
+
     rdn_key = 'name'
     base_dn =  settings.LDAPCONFS['rcldap']['group_dn']
     object_classes = ['top','posixGroup']
@@ -279,6 +300,21 @@ class RcLdapGroup(ldapdb.models.Model):
     def __unicode__(self):
         return self.name
 
+    @property
+    def organization(self):
+        return self.org
+
+    def _set_base_dn(self,org):
+        if org in [o[0] for o in ORGANIZATIONS]:
+            ou = 'ou={}'.format(org)
+            self.org = ou
+            self.base_dn = ','.join([ou,self.base_dn])
+        else:
+            raise ValueError('Invalid organization specified: {}'.format(org))
+
     def save(self,*args,**kwargs):
+        org = kwargs.pop('organization', None)
+        if org:
+            self._set_base_dn(org)
         force_insert = kwargs.pop('force_insert',None)
         super(RcLdapGroup,self).save(*args,**kwargs)

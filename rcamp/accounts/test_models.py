@@ -25,6 +25,8 @@ groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
+cu_groups = ('ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 cu_people = ('ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
 xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
@@ -62,7 +64,7 @@ test_cu_user = (
     }
 )
 test_group = (
-    'cn=testgrp,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'cn=testgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
         'objectClass': ['top','posixGroup'],
         'cn': ['testgrp'],
         'gidNumber': ['1000'],
@@ -77,7 +79,7 @@ test_group = (
 # DATABASE_ROUTERS setting will need to be overridden
 # with the LDAP router for test.
 class BaseCase(TestCase):
-    directory = dict([admin, groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group])
+    directory = dict([admin, groups, cu_groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group])
 
     @classmethod
     def setUpClass(cls):
@@ -233,7 +235,8 @@ class MockLdapTestCase(BaseCase):
                 members=['createtest']
             )
         g = RcLdapGroup(**grp_dict)
-        g.save()
+        g.save(organization='ucb')
+        self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(g.gid, 1010)
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
@@ -241,15 +244,18 @@ class MockLdapTestCase(BaseCase):
         grp_dict = dict(
                 name='createtestgrp',
                 gid=1010,
-                members=['createtest']
+                members=['createtest'],
+                organization='ucb',
             )
         g = RcLdapGroup.objects.create(**grp_dict)
+        self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(g.gid, 1010)
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcgroup_read(self):
         g = RcLdapGroup.objects.get(name='testgrp')
 
+        self.assertEquals(g.dn, 'cn=testgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(g.name, 'testgrp')
         self.assertEquals(g.gid, 1000)
         self.assertEquals(g.members, ['testuser'])
@@ -262,6 +268,7 @@ class MockLdapTestCase(BaseCase):
         g = RcLdapGroup.objects.get(name='testgrp')
         g.name = 'testedgrp'
         g.save()
+        self.assertEquals(g.dn, 'cn=testedgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(g.name, 'testedgrp')
 
 # This test case covers IdTracker functionality
@@ -347,7 +354,9 @@ class AccountCreationTestCase(BaseCase):
         pgrp = RcLdapGroup.objects.get(name='requestuserpgrp')
         sgrp = RcLdapGroup.objects.get(name='requestusergrp')
 
+        self.assertEquals(pgrp.dn, 'cn=requestuserpgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(pgrp.gid, 1001)
+        self.assertEquals(sgrp.dn, 'cn=requestusergrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(sgrp.gid, 1002)
         for grp in [pgrp,sgrp]:
             self.assertEquals(grp.members, ['requestuser'])

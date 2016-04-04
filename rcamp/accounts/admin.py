@@ -121,6 +121,11 @@ class RcLdapUserAdmin(admin.ModelAdmin):
 # for filtered multiselect widget.
 class RcLdapGroupForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
+        instance = kwargs.get('instance')
+        if instance:
+            self.base_fields['organization'].initial = instance.org.split('=')[-1].lower()
+            self.base_fields['dn'].widget.attrs['readonly'] = True
+            self.base_fields['organization'].widget.attrs['disabled'] = True
         super(RcLdapGroupForm,self).__init__(*args,**kwargs)
         user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
             for u in RcLdapUser.objects.all().order_by('username'))
@@ -131,12 +136,26 @@ class RcLdapGroupForm(forms.ModelForm):
                                         choices=user_tuple,
                                         verbose_name='Members',
                                         is_stacked=False)
+        self.fields['dn'].required = False
+
+    organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
+
     class Meta:
         model = RcLdapGroup
-        fields = ['name','gid','members',]
+        fields = [
+            'dn',
+            'organization',
+            'name',
+            'gid',
+            'members',
+        ]
 
 @admin.register(RcLdapGroup)
 class RcLdapGroupAdmin(admin.ModelAdmin):
-    list_display = ['name','gid','members']
+    list_display = ['name','gid','members','organization',]
     search_fields = ['name']
     form = RcLdapGroupForm
+
+    def save_model(self, request, obj, form, change):
+        org = form.cleaned_data['organization'] or None
+        obj.save(organization=org)

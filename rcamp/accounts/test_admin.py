@@ -97,7 +97,7 @@ class AdminRcLdapGroupTestCase(AdminTestCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_detail(self):
         response = self.client.get(
-            '/admin/accounts/rcldapgroup/cn_3Dtestgrp_2Cou_3Dgroups_2Cdc_3Drc_2Cdc_3Dint_2Cdc_3Dcolorado_2Cdc_3Dedu/'
+            '/admin/accounts/rcldapgroup/cn_3Dtestgrp_2Cou_3Ducb_2Cou_3Dgroups_2Cdc_3Drc_2Cdc_3Dint_2Cdc_3Dcolorado_2Cdc_3Dedu/'
         )
         self.assertContains(response, "testgrp")
         self.assertContains(response, "1000")
@@ -115,15 +115,19 @@ class AdminRcLdapGroupTestCase(AdminTestCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_add(self):
         response = self.client.post('/admin/accounts/rcldapgroup/add/',
-                                    {'gid': '1002', 'name': 'creategrp'})
+                                    {
+                                        'organization': 'ucb',
+                                        'gid': '1002',
+                                        'name': 'creategrp'
+                                    })
         self.assertRedirects(response, '/admin/accounts/rcldapgroup/')
         grp = RcLdapGroup.objects.get(name='creategrp')
-        self.assertEquals(grp.dn, 'cn=creategrp,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(grp.dn, 'cn=creategrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_delete(self):
         response = self.client.post(
-            '/admin/accounts/rcldapgroup/cn_3Dtestgrp_2Cou_3Dgroups_2Cdc_3Drc_2Cdc_3Dint_2Cdc_3Dcolorado_2Cdc_3Dedu/delete/',
+            '/admin/accounts/rcldapgroup/cn_3Dtestgrp_2Cou_3Ducb_2Cou_3Dgroups_2Cdc_3Drc_2Cdc_3Dint_2Cdc_3Dcolorado_2Cdc_3Dedu/delete/',
             {'yes': 'post'}
         )
         self.assertRedirects(response, '/admin/accounts/rcldapgroup/')
