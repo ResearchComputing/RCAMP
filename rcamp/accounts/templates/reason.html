@@ -59,14 +59,14 @@ class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a><
 <legend>What is your reason for requesting an account?</legend>
 
 <div class="list-group">
-  <a href="{% url 'project-account-request-create' %}" class="list-group-item">
+  <a href="{% url 'accounts:project-account-request-create' %}" class="list-group-item">
     <h4 class="list-group-item-heading">I am joining an existing project</h4>
     <p class="list-group-item-text">
       Select this option if you are requesting an account in order to join
       or manage an existing project on Research Computing resources.
     </p>
   </a>
-  <a href="{% url 'class-account-request-create' %}" class="list-group-item">
+  <a href="{% url 'accounts:class-account-request-create' %}" class="list-group-item">
     <h4 class="list-group-item-heading">I am enrolled in a class</h4>
     <p class="list-group-item-text">
       Select this option if you are requesting an account because you are
@@ -74,14 +74,14 @@ class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a><
       resources.
     </p>
   </a>
-  <a href="{% url 'sponsored-account-request-create' %}" class="list-group-item">
+  <a href="{% url 'accounts:sponsored-account-request-create' %}" class="list-group-item">
     <h4 class="list-group-item-heading">I am a sponsored affiliate</h4>
     <p class="list-group-item-text">
       Select this option if you are a sponsored affiliate of the University of
       Colorado Boulder.
     </p>
   </a>
-  <a href="{% url 'account-request-create' %}" class="list-group-item">
+  <a href="{% url 'accounts:account-request-create' %}" class="list-group-item">
     <h4 class="list-group-item-heading">I want to create a new project</h4>
     <p class="list-group-item-text">
       Select this option if you are requesting an account in order to create

@@ -30,7 +30,7 @@
   {% endif %}
 
   <legend>Project: {{ object.project_id }}
-    {% if user.username in object.managers %}<a href="{% url 'project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
+    {% if user.username in object.managers %}<a href="{% url 'projects:project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
   </legend>
   <div class="table-responsive">
     <table class="table table-striped">
@@ -78,14 +78,14 @@
   <legend>References and publications for {{ object.project_id }}</legend>
   <ul class="list-group">
     {% for reference in references %}
-    <a href="{% url 'reference-detail' project_pk=object.pk pk=reference.pk %}" class="list-group-item">
+    <a href="{% url 'projects:reference-detail' project_pk=object.pk pk=reference.pk %}" class="list-group-item">
       <h4 class="list-group-item-heading">{{ reference.description }}</h4>
       <p class="list-group-item-text">
         {{ reference.link }}
       </p>
     </a>
     {% endfor %}
-    <a href="{% url 'reference-create' project_pk=object.pk %}" id="reference-add-link" class="list-group-item">
+    <a href="{% url 'projects:reference-create' project_pk=object.pk %}" id="reference-add-link" class="list-group-item">
       <h4 class="list-group-item-heading">Create new</h4>
       <p class="list-group-item-text">
         Create a new publication or reference for this project.

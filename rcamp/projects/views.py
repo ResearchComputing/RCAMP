@@ -68,7 +68,7 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
         proj = Project.objects.create(**form.cleaned_data)
         project_created_by_user.send(sender=proj.__class__,project=proj)
         self.success_url = reverse_lazy(
-            'project-detail',
+            'projects:project-detail',
             kwargs={'pk':proj.pk}
         )
         return super(ProjectCreateView,self).form_valid(form)
@@ -81,7 +81,7 @@ class ProjectEditView(FormView, LoginRequiredMixin):
         pk = kwargs.get('pk')
         self.object = get_object_or_404(Project,pk=pk)
         if request.user.username not in self.object.managers:
-            return redirect('project-detail', pk=pk)
+            return redirect('projects:project-detail', pk=pk)
         else:
             return super(ProjectEditView,self).get(request,*args,**kwargs)
 
@@ -90,7 +90,7 @@ class ProjectEditView(FormView, LoginRequiredMixin):
         pk = int(path_cmp[-2])
         self.object = get_object_or_404(Project,pk=pk)
         if request.user.username not in self.object.managers:
-            return redirect('project-detail', pk=pk)
+            return redirect('projects:project-detail', pk=pk)
         else:
             return super(ProjectEditView,self).post(request,*args,**kwargs)
 
@@ -122,7 +122,7 @@ class ProjectEditView(FormView, LoginRequiredMixin):
                 **form.cleaned_data
             )
         self.success_url = reverse_lazy(
-            'project-detail',
+            'projects:project-detail',
             kwargs={'pk':self.object.pk}
         )
         return super(ProjectEditView,self).form_valid(form)
@@ -149,7 +149,7 @@ class ReferenceCreateView(FormView, LoginRequiredMixin):
         project_pk = kwargs.get('project_pk')
         self.project = get_object_or_404(Project,pk=project_pk)
         if request.user.username not in self.project.managers:
-            return redirect('project-detail', pk=project_pk)
+            return redirect('projects:project-detail', pk=project_pk)
         else:
             return super(ReferenceCreateView,self).get(request,*args,**kwargs)
 
@@ -158,7 +158,7 @@ class ReferenceCreateView(FormView, LoginRequiredMixin):
         project_pk = int(path_cmp[-3])
         self.project = get_object_or_404(Project,pk=project_pk)
         if request.user.username not in self.project.managers:
-            return redirect('project-detail', pk=project_pk)
+            return redirect('projects:project-detail', pk=project_pk)
         else:
             return super(ReferenceCreateView,self).post(request,*args,**kwargs)
 
@@ -174,7 +174,7 @@ class ReferenceCreateView(FormView, LoginRequiredMixin):
         ref_dict.update(form.cleaned_data)
         ref = Reference.objects.create(**ref_dict)
         self.success_url = reverse_lazy(
-            'reference-detail',
+            'projects:reference-detail',
             kwargs={
                 'project_pk':self.project.pk,
                 'pk':ref.pk,
@@ -192,7 +192,7 @@ class ReferenceEditView(FormView, LoginRequiredMixin):
         self.project = get_object_or_404(Project,pk=project_pk)
         self.object = get_object_or_404(Reference,pk=ref_pk)
         if request.user.username not in self.project.managers:
-            return redirect('project-detail', pk=project_pk)
+            return redirect('projects:project-detail', pk=project_pk)
         else:
             return super(ReferenceEditView,self).get(request,*args,**kwargs)
 
@@ -203,7 +203,7 @@ class ReferenceEditView(FormView, LoginRequiredMixin):
         self.project = get_object_or_404(Project,pk=project_pk)
         self.object = get_object_or_404(Reference,pk=ref_pk)
         if request.user.username not in self.project.managers:
-            return redirect('project-detail', pk=project_pk)
+            return redirect('projects:project-detail', pk=project_pk)
         else:
             return super(ReferenceEditView,self).post(request,*args,**kwargs)
 
@@ -226,7 +226,7 @@ class ReferenceEditView(FormView, LoginRequiredMixin):
             **form.cleaned_data
         )
         self.success_url = reverse_lazy(
-            'reference-detail',
+            'projects:reference-detail',
             kwargs={
                 'project_pk':self.project.pk,
                 'pk':self.object.pk,

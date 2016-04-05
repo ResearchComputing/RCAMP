@@ -15,11 +15,15 @@ from projects.models import Project
 class AccountRequestList(viewsets.ReadOnlyModelViewSet):
     queryset = AccountRequest.objects.all()
     serializer_class = AccountRequestSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    search_fields = ('username','first_name','last_name','email',)
     filter_class = AccountRequestFilter
+    lookup_field = 'username'
 
 class ProjectList(viewsets.ReadOnlyModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
+    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    search_fields = ('project_id','pi_emails','managers','collaborators',)
     filter_class = ProjectFilter
+    lookup_field = 'project_id'

@@ -28,6 +28,6 @@ urlpatterns = [
     url(r'^logout', auth_views.logout, {'template_name':'logout.html'}),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^api/', include('endpoints.urls')),
-    url(r'^accounts/', include('accounts.urls')),
-    url(r'^projects/', include('projects.urls')),
+    url(r'^accounts/', include('accounts.urls', namespace='accounts')),
+    url(r'^projects/', include('projects.urls', namespace='projects')),
 ]

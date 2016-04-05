@@ -6,10 +6,11 @@ from projects.models import Project
 class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         extra_kwargs = {
-            'url': {
-                'view_name': 'api-accountrequests',
+            'projects': {
+                'lookup_field': 'project_id',
             }
         }
+        lookup_field = 'username'
         model = AccountRequest
         fields = (
             'username',
@@ -29,11 +30,7 @@ class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
-        extra_kwargs = {
-            'url': {
-                'view_name': 'api-projects',
-            }
-        }
+        lookup_field = 'project_id'
         model = Project
         fields = (
             'pi_emails',

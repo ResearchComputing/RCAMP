@@ -142,6 +142,8 @@ STATICFILES_DIRS = (
 # GRAPPELLI ADMIN SETTINGS
 GRAPPELLI_ADMIN_TITLE = 'RCAMP'
 
+REST_FRAMEWORK = {}
+
 try:
     from local_settings import *
 except:

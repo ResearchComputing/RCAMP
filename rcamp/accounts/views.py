@@ -74,7 +74,7 @@ class AccountRequestCreateView(FormView):
 
         account_request_received.send(sender=ar.__class__,account_request=ar)
 
-        self.success_url = reverse_lazy('account-request-review', kwargs={'request_id':ar.id})
+        self.success_url = reverse_lazy('accounts:account-request-review', kwargs={'request_id':ar.id})
         return super(AccountRequestCreateView,self).form_valid(form)
 
 class SponsoredAccountRequestCreateView(AccountRequestCreateView):

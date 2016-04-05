@@ -39,7 +39,7 @@
 </div>
 {% endif %}
 
-<form class="form-horizontal" method="POST" action="{% url 'project-edit' object.pk %}" role="form" enctype="multipart/form-data">
+<form class="form-horizontal" method="POST" action="{% url 'projects:project-edit' object.pk %}" role="form" enctype="multipart/form-data">
   {% csrf_token %}
 
   <fieldset>
@@ -114,7 +114,7 @@
   </fieldset>
 
   <div class="col-sm-6 col-sm-offset-4 request-submit">
-    <a href="{% url 'project-detail' object.pk %}" class="btn btn-warning btn-lg" role="button">Cancel Edit</a>
+    <a href="{% url 'projects:project-detail' object.pk %}" class="btn btn-warning btn-lg" role="button">Cancel Edit</a>
       <button type="submit" class="btn btn-primary btn-lg">Save Project</button>
   </div>
 </form>
