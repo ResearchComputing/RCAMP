@@ -64,7 +64,7 @@ class AccountRequest(models.Model):
 
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
-    notes = models.TextField(default='')
+    notes = models.TextField(null=True,blank=True)
     id_verified_by = models.CharField(max_length=128,blank=True,null=True)
 
     request_date = models.DateTimeField(auto_now_add=True)
@@ -80,8 +80,12 @@ class AccountRequest(models.Model):
         return instance
 
     def save(self,*args,**kwargs):
+        # Is model being loaded from db?
+        old_status = 'a'
+        if hasattr(self, '_loaded_values'):
+            old_status = self._loaded_values['status']
         # Check for change in approval status
-        if (self.status == 'a') and (self._loaded_values['status'] != 'a'):
+        if (self.status == 'a') and (old_status != 'a'):
             # Approval process
             logger.info('Approving account request: '+self.username)
             self.approved_on=timezone.now()
