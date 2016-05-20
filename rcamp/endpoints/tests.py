@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.test import override_settings
+import pytz
 import json
 import datetime
 
@@ -43,7 +44,7 @@ class AccountRequestEndpointTestCase(TestCase):
             username='testuser2',
             email='tu2@tu.org',
             role='faculty',
-            approved_on=datetime.datetime(2016,04,01),
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,04,01)),
             status='a'
         ))
         self.ar2 = AccountRequest.objects.create(**ar_dict)

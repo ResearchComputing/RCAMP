@@ -10,7 +10,6 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 import ast
 
-from lib.auth_mixin import LoginRequiredMixin
 from mailer.signals import project_created_by_user
 from projects.models import Project
 from projects.models import Reference
@@ -20,7 +19,7 @@ from projects.forms import ReferenceForm
 
 
 
-class ProjectListView(ListView, LoginRequiredMixin):
+class ProjectListView(ListView):
     model = Project
     template_name = 'project-list.html'
 
@@ -43,7 +42,7 @@ class ProjectListView(ListView, LoginRequiredMixin):
         # context['startup'] = startup
         return context
 
-class ProjectDetailView(DetailView, LoginRequiredMixin):
+class ProjectDetailView(DetailView):
     model = Project
     template_name = 'project-detail.html'
 
@@ -53,7 +52,7 @@ class ProjectDetailView(DetailView, LoginRequiredMixin):
         context['references'] = references
         return context
 
-class ProjectCreateView(FormView, LoginRequiredMixin):
+class ProjectCreateView(FormView):
     template_name = 'project-create.html'
     form_class = ProjectForm
 
@@ -73,7 +72,7 @@ class ProjectCreateView(FormView, LoginRequiredMixin):
         )
         return super(ProjectCreateView,self).form_valid(form)
 
-class ProjectEditView(FormView, LoginRequiredMixin):
+class ProjectEditView(FormView):
     template_name = 'project-edit.html'
     form_class = ProjectEditForm
 
@@ -127,7 +126,7 @@ class ProjectEditView(FormView, LoginRequiredMixin):
         )
         return super(ProjectEditView,self).form_valid(form)
 
-class ReferenceDetailView(DetailView, LoginRequiredMixin):
+class ReferenceDetailView(DetailView):
     model = Reference
     template_name = 'reference-detail.html'
 
@@ -141,7 +140,7 @@ class ReferenceDetailView(DetailView, LoginRequiredMixin):
         context['project'] = self.project
         return context
 
-class ReferenceCreateView(FormView, LoginRequiredMixin):
+class ReferenceCreateView(FormView):
     template_name = 'reference-create.html'
     form_class = ReferenceForm
 
@@ -182,7 +181,7 @@ class ReferenceCreateView(FormView, LoginRequiredMixin):
         )
         return super(ReferenceCreateView,self).form_valid(form)
 
-class ReferenceEditView(FormView, LoginRequiredMixin):
+class ReferenceEditView(FormView):
     template_name = 'reference-edit.html'
     form_class = ReferenceForm
 

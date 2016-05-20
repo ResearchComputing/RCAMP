@@ -3,6 +3,7 @@ from django.test import RequestFactory
 from django.test import override_settings
 
 from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser
 from accounts.test_models import BaseCase
 from accounts.test_views import CbvCase
 from projects.models import Project
@@ -46,6 +47,11 @@ class ProjectListTestCase(CbvCase):
         test_queryset = Project.objects.filter(project_id='ucb1')
         self.assertEqual(queryset.count(), test_queryset.count())
 
+    def test_get_unauthed(self):
+        response = self.client.get('/projects/list')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/login?next=/projects/list'))
+
 # This test case covers the project creation page.
 class ProjectCreateTestCase(BaseCase,CbvCase):
     def setUp(self):
@@ -56,6 +62,11 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
             'first_name': 'Test',
             'last_name': 'Requester',
         })
+
+    def test_get_unauthed(self):
+        response = self.client.get('/projects/create')
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/login?next=/projects/create'))
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create(self):
@@ -199,6 +210,11 @@ class ProjectEditTestCase(BaseCase,CbvCase):
             'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         })
+
+    def test_get_unauthed(self):
+        response = self.client.get('/projects/list/{}/edit'.format(self.proj.pk))
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue('/login?next=/projects/' in response.url)
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_update(self):
