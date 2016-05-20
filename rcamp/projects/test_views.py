@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.test import RequestFactory
+from django.test import override_settings
 
 from django.contrib.auth.models import User
+from accounts.test_models import BaseCase
 from accounts.test_views import CbvCase
 from projects.models import Project
 from projects.models import Reference
@@ -45,7 +47,7 @@ class ProjectListTestCase(CbvCase):
         self.assertEqual(queryset.count(), test_queryset.count())
 
 # This test case covers the project creation page.
-class ProjectCreateTestCase(CbvCase):
+class ProjectCreateTestCase(BaseCase,CbvCase):
     def setUp(self):
         super(ProjectCreateTestCase,self).setUp()
         self.user = User.objects.create(**{
@@ -55,8 +57,8 @@ class ProjectCreateTestCase(CbvCase):
             'last_name': 'Requester',
         })
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create(self):
-
         request = RequestFactory().post(
                 '/projects/create',
                 data={
@@ -83,6 +85,7 @@ class ProjectCreateTestCase(CbvCase):
         self.assertEquals(proj.collaborators,['testuser','testcuuser'])
         self.assertEquals(proj.organization,'ucb')
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create_no_project_id(self):
         data = {
             'title': 'Test Project',
@@ -118,6 +121,7 @@ class ProjectCreateTestCase(CbvCase):
         proj = Project.objects.filter(project_id='ucb1')
         self.assertEqual(proj.count(),1)
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create_missing_pi_emails(self):
         request = RequestFactory().post(
                 '/projects/create',
@@ -144,6 +148,7 @@ class ProjectCreateTestCase(CbvCase):
                 **{}
             )
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create_missing_explanation(self):
         request = RequestFactory().post(
                 '/projects/create',
@@ -176,7 +181,7 @@ class ProjectCreateTestCase(CbvCase):
             )
 
 # This test case covers the project edit page.
-class ProjectEditTestCase(CbvCase):
+class ProjectEditTestCase(BaseCase,CbvCase):
     def setUp(self):
         super(ProjectEditTestCase,self).setUp()
         self.user = User.objects.create(**{
@@ -195,6 +200,7 @@ class ProjectEditTestCase(CbvCase):
             'organization':'ucb',
         })
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_update(self):
         request = RequestFactory().post(
                 '/projects/list/{}/edit'.format(self.proj.pk),
@@ -220,6 +226,7 @@ class ProjectEditTestCase(CbvCase):
         self.assertEquals(proj.collaborators,['testuser','testcuuser'])
         self.assertEquals(proj.organization,'ucb')
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_update_removed_self(self):
         request = RequestFactory().post(
                 '/projects/list/{}/edit'.format(self.proj.pk),
@@ -245,6 +252,7 @@ class ProjectEditTestCase(CbvCase):
         self.assertEquals(proj.collaborators,['testuser','testcuuser'])
         self.assertEquals(proj.organization,'ucb')
 
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_update_missing_fields(self):
         request = RequestFactory().post(
                 '/projects/list/{}/edit'.format(self.proj.pk),
