@@ -113,6 +113,12 @@ class RcLdapUserAdmin(admin.ModelAdmin):
     ordering = ('last_name',)
     form = RcLdapUserForm
 
+    def get_actions(self, request):
+        #Disable delete
+        actions = super(RcLdapUserAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
+
     def save_model(self, request, obj, form, change):
         org = form.cleaned_data['organization'] or None
         obj.save(organization=org)
@@ -155,6 +161,12 @@ class RcLdapGroupAdmin(admin.ModelAdmin):
     list_display = ['name','gid','members','organization',]
     search_fields = ['name']
     form = RcLdapGroupForm
+
+    def get_actions(self, request):
+        #Disable delete
+        actions = super(RcLdapGroupAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
 
     def save_model(self, request, obj, form, change):
         org = form.cleaned_data['organization'] or None
