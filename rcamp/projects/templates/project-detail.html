@@ -75,6 +75,7 @@
     </table>
   </div>
 
+  {% if user.username in object.managers %}
   <legend>References and publications for {{ object.project_id }}</legend>
   <ul class="list-group">
     {% for reference in references %}
@@ -102,5 +103,6 @@
       </p>
     </a>
   </ul>
+  {% endif %}
 </div>
 {% endblock %}
