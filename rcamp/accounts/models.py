@@ -225,7 +225,7 @@ class RcLdapUser(LdapUser):
     objects = RcLdapUserManager()
 
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
-    object_classes = ['top','person','inetorgperson','posixaccount','curcPerson']
+    object_classes = ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount']
     expires = ldap_fields.DateTimeField(db_column='shadowExpire',blank=True,null=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber')
     gid = ldap_fields.IntegerField(db_column='gidNumber')

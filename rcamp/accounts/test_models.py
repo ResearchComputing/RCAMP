@@ -24,16 +24,16 @@ admin = ('cn=admin', {'userPassword': ['test']})
 groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
+    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
 cu_groups = ('ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 cu_people = ('ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
+    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
 xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson'], 'ou': ['people']})
+    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
 test_user = (
     'uid=testuser,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson'],
+        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson','shadowAccount'],
         'cn': ['user, test'],
         'givenName': ['test'],
         'sn': ['user'],
@@ -49,7 +49,7 @@ test_user = (
 )
 test_cu_user = (
     'uid=testcuuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson'],
+        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson','shadowAccount'],
         'cn': ['user, test'],
         'givenName': ['test'],
         'sn': ['user'],
