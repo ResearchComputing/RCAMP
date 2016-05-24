@@ -153,32 +153,16 @@ class AccountRequestTestCase(CuBaseCase,CbvCase):
 
 #This test case covers the sponsored account request page.
 class SponsoredAccountRequestTestCase(CuBaseCase,CbvCase):
-    def test_initial(self):
-        request = RequestFactory().get('/accounts/account-request/create/sponsored')
-        view = SponsoredAccountRequestCreateView()
-        view = SponsoredAccountRequestTestCase.setup_view(view,request)
-        initial = view.get_initial()
-
-        self.assertDictContainsSubset(
-            {
-                'organization':'ucb',
-                'role': 'sponsored',
-            },
-            initial
-        )
-
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/sponsored',
                 data={
-                    'organization':'ucb',
                     'username':'testuser',
                     'password':'testpass',
                     'login_shell': '/bin/bash',
                     'sponsor_email': 'sponsor@colorado.edu',
-                    'role': 'sponsored',
                     'summit':True,
                     'petalibrary_archive':True,
                 }
@@ -201,32 +185,16 @@ class SponsoredAccountRequestTestCase(CuBaseCase,CbvCase):
 
 #This test case covers the class account request page.
 class ClassAccountRequestTestCase(CuBaseCase,CbvCase):
-    def test_initial(self):
-        request = RequestFactory().get('/accounts/account-request/create/class')
-        view = ClassAccountRequestCreateView()
-        view = ClassAccountRequestTestCase.setup_view(view,request)
-        initial = view.get_initial()
-
-        self.assertDictContainsSubset(
-            {
-                'organization':'ucb',
-                'role': 'student',
-            },
-            initial
-        )
-
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/class',
                 data={
-                    'organization':'ucb',
                     'username':'testuser',
                     'password':'testpass',
                     'login_shell': '/bin/bash',
                     'course_number': 'CSCI4000',
-                    'role': 'student',
                 }
             )
         view = ClassAccountRequestCreateView.as_view()
