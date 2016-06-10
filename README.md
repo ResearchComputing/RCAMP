@@ -5,6 +5,8 @@ Research Computing Administrative &amp; Management Portal
 
 **accounts** - The accounts app contains all code for the creation, review, and approval of account requests. Also contained in this app is all code necessary for managing users and groups.
 
+**projects** - The projects app contains all code for the request and management of projects and compute-time allocations.
+
 **mailer** - The mailer app contains all code for sending emails from app-wide signals.
 
 **endpoints** - The endpoints app exposes a selection of RESTful endpoints for accessing RCAMP data.
