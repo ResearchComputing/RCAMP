@@ -46,7 +46,12 @@ Collect static files
 python manage.py collectstatic
 ```
 
-Set up the database (SQLite3 preferred for dev/testing). Any problems encountered during this phase can normally be rectified by removing all migration files, and re-running the following commands:
+Set up the database (SQLite3 preferred for dev/testing).
+```
+python manage.py migrate
+```
+
+Any problems encountered during this phase can normally be rectified by removing all migration files, and running the following commands:
 ```
 python manage.py makemigrations
 python manage.py migrate
