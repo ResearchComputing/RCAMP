@@ -54,11 +54,12 @@ class AllocationInline(admin.TabularInline):
     model = Allocation
 
     def get_max_num(self, request, obj=None, **kwargs):
-        if hasattr(obj,'parent'):
-            allocs = Allocation.objects.filter(project=obj.parent)
-            if allocs.count() > 50:
-                return 0
-        return 50
+        max_num = 0
+        if obj:
+            allocs = Allocation.objects.filter(project=obj)
+            if allocs.count() <= 50:
+                max_num = 50
+        return max_num
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):

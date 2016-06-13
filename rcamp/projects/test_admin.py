@@ -66,6 +66,15 @@ class AdminProjectTestCase(ProjectsAdminTestCase):
                 'managers': ['testuser','testcuuser'],
                 'collaborators': ['testuser','testcuuser'],
                 'organization':'ucb',
+                'allocation_set-TOTAL_FORMS': '0',
+                'allocation_set-INITIAL_FORMS': '0',
+                'allocation_set-MIN_NUM_FORMS': '0',
+                'allocation_set-MAX_NUM_FORMS': '0',
+                # 'allocations-project': '',
+                # 'allocations-allocation_id': '',
+                # 'allocations-amount': '',
+                # 'allocations-start_date': '',
+                # 'allocations-end_date': '',
             }
         )
         self.assertRedirects(response, '/admin/projects/project/')
@@ -84,6 +93,15 @@ class AdminProjectTestCase(ProjectsAdminTestCase):
                 'managers': ['testuser'],
                 'collaborators': ['testuser','testcuuser'],
                 'organization':'csu',
+                'allocation_set-TOTAL_FORMS': '0',
+                'allocation_set-INITIAL_FORMS': '0',
+                'allocation_set-MIN_NUM_FORMS': '0',
+                'allocation_set-MAX_NUM_FORMS': '0',
+                # 'allocations-project': '',
+                # 'allocations-allocation_id': '',
+                # 'allocations-amount': '',
+                # 'allocations-start_date': '',
+                # 'allocations-end_date': '',
             }
         )
         self.assertRedirects(response, '/admin/projects/project/')

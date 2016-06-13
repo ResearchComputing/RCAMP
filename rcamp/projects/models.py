@@ -87,6 +87,7 @@ class Allocation(models.Model):
     def save(self,*args,**kwargs):
         if (not self.allocation_id) or (self.allocation_id == ''):
             proj_id = self.project.project_id
+            prefix_offset = len(proj_id) + 1
             allocs = Allocation.objects.filter(
                 allocation_id__startswith=proj_id
             ).annotate(
@@ -97,7 +98,7 @@ class Allocation(models.Model):
                 next_id = '{}_{}'.format(proj_id.lower(),'1')
             else:
                 last_id = allocs[0].allocation_id
-                last_id = last_id.replace(proj_id,'')
+                last_id = last_id.replace(proj_id+'_','')
                 next_id = int(last_id) + 1
                 next_id = '{}_{}'.format(proj_id.lower(),str(next_id))
             self.allocation_id = next_id
