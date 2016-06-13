@@ -4,18 +4,8 @@ from django.db.models.functions import Substr, Lower
 from lib import fields
 
 
-# Create your models here.
-# class Allocation(models.Model):
-#     allocation_id = models.CharField(max_length=24,unique=True)
-#     title = models.CharField(max_length=256)
-#     cpu_mins_awarded = models.FloatField()
-#     created_on = models.DateField(auto_now_add=True)
-#     members = fields.ListField(default=[],blank=True,null=True)
-#
-#     def __unicode__(self):
-#         return self.allocation_id
 
-class Cast (Func):
+class Cast(Func):
     function = 'CAST'
     template = '%(function)s(%(expressions)s as %(target_type)s)'
 
@@ -82,6 +72,36 @@ class Reference(models.Model):
 
     def __unicode__(self):
         return '{}_{}'.format((self.project.project_id,str(self.created_on)))
+
+class Allocation(models.Model):
+    project = models.ForeignKey(Project)
+    allocation_id = models.SlugField(unique=True,blank=True,null=True)
+    amount = models.BigIntegerField()
+    created_on = models.DateField(auto_now_add=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __unicode__(self):
+        return self.allocation_id
+
+    def save(self,*args,**kwargs):
+        if (not self.allocation_id) or (self.allocation_id == ''):
+            proj_id = self.project.project_id
+            allocs = Allocation.objects.filter(
+                allocation_id__startswith=proj_id
+            ).annotate(
+                alloc_number_int=Cast(Substr('allocation_id', prefix_offset), target_type='UNSIGNED')
+            ).order_by('-alloc_number_int')
+
+            if allocs.count() == 0:
+                next_id = '{}_{}'.format(proj_id.lower(),'1')
+            else:
+                last_id = allocs[0].allocation_id
+                last_id = last_id.replace(proj_id,'')
+                next_id = int(last_id) + 1
+                next_id = '{}_{}'.format(proj_id.lower(),str(next_id))
+            self.allocation_id = next_id
+        super(Allocation,self).save(*args,**kwargs)
 
 # class AllocationRequest(models.Model):
 #     STATUSES = (

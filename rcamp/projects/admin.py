@@ -3,6 +3,7 @@ from django import forms
 from lib.fields import CsvField
 from accounts.models import RcLdapUser
 from projects.models import Project
+from projects.models import Allocation
 
 
 
@@ -49,6 +50,16 @@ class ProjectAdminForm(forms.ModelForm):
             'deactivated',
         ]
 
+class AllocationInline(admin.TabularInline):
+    model = Allocation
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        if hasattr(obj,'parent'):
+            allocs = Allocation.objects.filter(project=obj.parent)
+            if allocs.count() > 50:
+                return 0
+        return 50
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     # filter_horizontal = ('allocations',)
@@ -71,6 +82,10 @@ class ProjectAdmin(admin.ModelAdmin):
         'qos_addenda',
         'created_on',
     ]
+    inlines = [
+        AllocationInline,
+    ]
+
     form = ProjectAdminForm
 
 # Overrides default admin form for Allocations to allow
