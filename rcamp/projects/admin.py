@@ -89,6 +89,22 @@ class ProjectAdmin(admin.ModelAdmin):
 
     form = ProjectAdminForm
 
+@admin.register(Allocation)
+class AllocationAdmin(admin.ModelAdmin):
+    list_display = [
+        'allocation_id',
+        'amount',
+        'start_date',
+        'end_date',
+        'created_on',
+    ]
+
+    list_editable = [
+        'amount',
+        'start_date',
+        'end_date',
+    ]
+
 # Overrides default admin form for Allocations to allow
 # for filtered multiselect widget.
 # class AllocationForm(forms.ModelForm):

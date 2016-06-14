@@ -4,10 +4,12 @@ from mock import MagicMock
 import mock
 import datetime
 import copy
+import pytz
 
 from django.conf import settings
 from accounts.test_admin import AdminTestCase
 from projects.models import Project
+from projects.models import Allocation
 
 
 
@@ -117,3 +119,60 @@ class AdminProjectTestCase(ProjectsAdminTestCase):
         self.assertRedirects(response, '/admin/projects/project/')
         qs = Project.objects.filter(project_id='ucb1')
         self.assertEquals(qs.count(), 0)
+
+class AllocationsAdminTestCase(AdminTestCase):
+    def test_index(self):
+        response = self.client.get('/admin/projects/')
+        self.assertContains(response, "Allocations")
+
+class AdminAllocationTestCase(AllocationsAdminTestCase):
+    def setUp(self):
+        self.test_proj = Project.objects.create(**{
+            'title': 'Test Project',
+            'description': 'A test project',
+            'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
+            'managers': ['testuser','testcuuser'],
+            'collaborators': ['testuser','testcuuser'],
+            'organization':'ucb',
+        })
+
+        sdate = datetime.datetime(2016,02,02)
+        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
+        edate = datetime.datetime(2017,02,02)
+        edate_tz = pytz.timezone('America/Denver').localize(edate)
+        self.test_alloc = Allocation.objects.create(**{
+            'project': self.test_proj,
+            'amount': '50000',
+            'start_date': sdate_tz,
+            'end_date': edate_tz,
+        })
+        super(AdminAllocationTestCase,self).setUp()
+
+    def test_allocation_list(self):
+        response = self.client.get('/admin/projects/allocation/')
+        self.assertContains(response, "Allocations")
+        self.assertContains(response, "ucb1_1")
+        self.assertContains(response, "50000")
+
+    def test_allocation_detail(self):
+        response = self.client.get(
+            '/admin/projects/allocation/{}/'.format(self.test_alloc.pk)
+        )
+        self.assertContains(response, "ucb1_1")
+        self.assertContains(response, "50000")
+        self.assertContains(response, "2016-02-02")
+        self.assertContains(response, "2017-02-02")
+
+    def test_allocation_add(self):
+        response = self.client.post(
+            '/admin/projects/allocation/add/',
+            {
+                'project': self.test_proj.pk,
+                'amount': '50000',
+                'start_date': '2016-02-02',
+                'end_date': '2017-02-02',
+            }
+        )
+        self.assertRedirects(response, '/admin/projects/allocation/')
+        alloc = Allocation.objects.get(allocation_id='ucb1_2')
+        self.assertEquals(alloc.amount,50000)
