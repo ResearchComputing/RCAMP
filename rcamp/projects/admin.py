@@ -4,6 +4,7 @@ from lib.fields import CsvField
 from accounts.models import RcLdapUser
 from projects.models import Project
 from projects.models import Allocation
+from projects.models import AllocationRequest
 
 
 
@@ -61,6 +62,17 @@ class AllocationInline(admin.TabularInline):
                 max_num = 50
         return max_num
 
+class AllocationRequestInline(admin.TabularInline):
+    model = AllocationRequest
+
+    def get_max_num(self, request, obj=None, **kwargs):
+        max_num = 0
+        if obj:
+            ars = AllocationRequest.objects.filter(project=obj)
+            if ars.count() <= 50:
+                max_num = 50
+        return max_num
+
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     # filter_horizontal = ('allocations',)
@@ -85,6 +97,7 @@ class ProjectAdmin(admin.ModelAdmin):
     ]
     inlines = [
         AllocationInline,
+        AllocationRequestInline,
     ]
 
     form = ProjectAdminForm
@@ -105,95 +118,17 @@ class AllocationAdmin(admin.ModelAdmin):
         'end_date',
     ]
 
-# Overrides default admin form for Allocations to allow
-# for filtered multiselect widget.
-# class AllocationForm(forms.ModelForm):
-#     def __init__(self,*args,**kwargs):
-#         super(AllocationForm,self).__init__(*args,**kwargs)
-#         user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-#             for u in RcLdapUser.objects.all().order_by('username'))
-#
-#         self.fields['members'].required = False
-#         self.fields['members'].widget = admin.widgets.FilteredSelectMultiple(
-#                                         choices=user_tuple,
-#                                         verbose_name='Members',
-#                                         is_stacked=False)
-#
-#     class Meta:
-#         model = Allocation
-#         fields = [
-#             'allocation_id',
-#             'title',
-#             'cpu_mins_awarded',
-#             'members',
-#         ]
-#
-# @admin.register(Allocation)
-# class AllocationAdmin(admin.ModelAdmin):
-#     list_display = [
-#         'allocation_id',
-#         'title',
-#         'cpu_mins_awarded',
-#         'created_on',
-#     ]
-#     search_fields = [
-#         'allocation_id',
-#         'title',
-#         'cpu_mins_awarded',
-#         'created_on',
-#         'members',
-#     ]
-#     form = AllocationForm
+@admin.register(AllocationRequest)
+class AllocationRequestAdmin(admin.ModelAdmin):
+    list_display = [
+        'project',
+        'request_date',
+        'time_requested',
+        'status',
+        'approved_on',
+        'requester',
+    ]
 
-# Overrides default admin form for AllocationRequests to allow
-# for filtered multiselect widget.
-# class AllocationRequestForm(forms.ModelForm):
-#     def __init__(self,*args,**kwargs):
-#         super(AllocationRequestForm,self).__init__(*args,**kwargs)
-#         user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-#             for u in RcLdapUser.objects.all().order_by('username'))
-#
-#         self.fields['members'].required = False
-#         self.fields['members'].widget = admin.widgets.FilteredSelectMultiple(
-#                                         choices=user_tuple,
-#                                         verbose_name='Members',
-#                                         is_stacked=False)
-#
-#     class Meta:
-#         model = AllocationRequest
-#         fields = [
-#             'title',
-#             'abstract',
-#             'funding',
-#             'proposal',
-#             'time_requested',
-#             'cpu_mins_awarded',
-#             'disk_space',
-#             'software_request',
-#             'members',
-#             'status',
-#             'approved_on',
-#             'notes',
-#             'project',
-#             'requester',
-#         ]
-#
-# @admin.register(AllocationRequest)
-# class AllocationRequestAdmin(admin.ModelAdmin):
-#     def approve_requests(modeladmin, request, queryset):
-#         queryset.update(status='a')
-#     approve_requests.short_description = 'Approve selected allocation requests'
-#     actions = [approve_requests]
-#     list_display = [
-#         'title',
-#         'project',
-#         'time_requested',
-#         'status',
-#         'request_date',
-#     ]
-#     search_fields = [
-#         'title',
-#         'project',
-#         'request_date',
-#     ]
-#     form = AllocationRequestForm
+    list_editable = [
+        'status',
+    ]

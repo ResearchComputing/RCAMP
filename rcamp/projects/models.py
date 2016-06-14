@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import Func, F
 from django.db.models.functions import Substr, Lower
+from django.utils import timezone
 from lib import fields
 
 
@@ -104,53 +105,54 @@ class Allocation(models.Model):
             self.allocation_id = next_id
         super(Allocation,self).save(*args,**kwargs)
 
-# class AllocationRequest(models.Model):
-#     STATUSES = (
-#         ('a','Approved'),
-#         ('d','Denied'),
-#         ('w','Waiting'),
-#         ('h','Hold'),
-#         ('r','Ready For Review'),
-#         ('q','Response Requested'),
-#         ('i','Denied - Insufficient Resources'),
-#         ('x','Denied - Proposal Incomplete'),
-#         ('f','Approved - Fully Funded'),
-#         ('p','Approved - Partially Funded'),
-#     )
-#
-#     title = models.CharField(max_length=256,unique=True)
-#     abstract = models.TextField()
-#     funding = models.TextField()
-#     proposal = models.FileField()
-#     time_requested = models.BigIntegerField()
-#     cpu_mins_awarded = models.BigIntegerField(default=0)
-#     disk_space = models.IntegerField()
-#     software_request = models.TextField(null=True,blank=True)
-#     members = fields.ListField(default=[],blank=True,null=True)
-#
-#     status = models.CharField(max_length=16,choices=STATUSES,default='w')
-#     approved_on = models.DateTimeField(null=True,blank=True)
-#     notes = models.TextField()
-#     project = models.ForeignKey(Project)
-#
-#     requester = models.CharField(max_length=12)
-#     request_date = models.DateTimeField(auto_now_add=True)
-#
-#     def __unicode__(self):
-#         return '%s_%s'%(self.principal_investigator,self.request_date)
-#
-#     @classmethod
-#     def from_db(cls,db,field_names,values):
-#         instance = super(AllocationRequest,cls).from_db(db,field_names,values)
-#         # Store original field values on the instance
-#         instance._loaded_values = dict(zip(field_names,values))
-#         return instance
-#
-#     def save(self,*args,**kwargs):
-#         # Check for change in approval status
-#         if (self.status in ['a','f','p']) and (self._loaded_values['status'] not in ['a','f','p']):
-#             # Approval process
-#             logger.info('Approving project request: '+self.__unicode__())
-#             self.approved_on=timezone.now()
-#
-#         super(AllocationRequest,self).save(*args,**kwargs)
+class AllocationRequest(models.Model):
+    STATUSES = (
+        ('a','Approved'),
+        ('d','Denied'),
+        ('w','Waiting'),
+        ('h','Hold'),
+        ('r','Ready For Review'),
+        ('q','Response Requested'),
+        ('i','Denied - Insufficient Resources'),
+        ('x','Denied - Proposal Incomplete'),
+        ('f','Approved - Fully Funded'),
+        ('p','Approved - Partially Funded'),
+    )
+
+    project = models.ForeignKey(Project)
+    allocation = models.ForeignKey(Allocation,null=True,blank=True)
+
+    abstract = models.TextField()
+    funding = models.TextField()
+    proposal = models.FileField()
+    time_requested = models.BigIntegerField()
+
+    amount_awarded = models.BigIntegerField(default=0)
+    disk_space = models.IntegerField()
+    software_request = models.TextField(null=True,blank=True)
+
+    requester = models.CharField(max_length=12)
+    request_date = models.DateTimeField(auto_now_add=True)
+
+    status = models.CharField(max_length=16,choices=STATUSES,default='w')
+    approved_on = models.DateTimeField(null=True,blank=True)
+    notes = models.TextField(null=True,blank=True)
+
+    def __unicode__(self):
+        return '{}_{}'.format(self.project.project_id,self.request_date)
+
+    @classmethod
+    def from_db(cls,db,field_names,values):
+        instance = super(AllocationRequest,cls).from_db(db,field_names,values)
+        # Store original field values on the instance
+        instance._loaded_values = dict(zip(field_names,values))
+        return instance
+
+    def save(self,*args,**kwargs):
+        # Check for change in approval status
+        if (self.status in ['a','f','p']) and (self._loaded_values['status'] not in ['a','f','p']):
+            # Approval process
+            # logger.info('Approving project request: '+self.__unicode__())
+            self.approved_on=timezone.now()
+
+        super(AllocationRequest,self).save(*args,**kwargs)

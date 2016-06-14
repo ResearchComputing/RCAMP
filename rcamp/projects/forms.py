@@ -4,6 +4,7 @@ from django.contrib.admin import widgets
 from lib.fields import MultiEmailField
 from accounts.models import RcLdapUser
 from projects.models import Project
+from projects.models import AllocationRequest
 
 
 
@@ -67,3 +68,6 @@ class ProjectEditForm(forms.Form):
 class ReferenceForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea,required=True)
     link = forms.CharField(widget=forms.Textarea,required=True)
+
+class AllocationRequestForm(forms.ModelForm):
+    pass
