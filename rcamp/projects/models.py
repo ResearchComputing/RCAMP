@@ -29,6 +29,7 @@ class Project(models.Model):
     created_on = models.DateField(auto_now_add=True)
     notes = models.TextField(blank=True,null=True)
 
+    parent_account = models.CharField(max_length=24,null=True,blank=True)
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     deactivated = models.BooleanField(default=False)
 

@@ -189,7 +189,8 @@ class ProjectEndpointTestCase(TestCase):
 
         proj_dict.update(dict(
             pi_emails=['pi2@pi.org'],
-            project_id='ucb2'
+            project_id='ucb2',
+            parent_account='ucball'
         ))
         del proj_dict['qos_addenda']
         self.proj2 = Project.objects.create(**proj_dict)
@@ -227,7 +228,8 @@ class ProjectEndpointTestCase(TestCase):
                 u'pi_emails': u"[u'pi2@pi.org']",
                 u'created_on': u'2016-04-01',
                 u'organization': u'ucb',
-                u'project_id': u'ucb2'
+                u'project_id': u'ucb2',
+                u'parent_account': u'ucball',
             },
             {
                 u'collaborators': u"[u'tu@tu.org']",
@@ -327,11 +329,13 @@ class AllocationEndpointTestCase(TestCase):
             title='Test Project',
             description='A description.',
             project_id='ucb1',
+            parent_account='ucball',
             qos_addenda='+=viz'
         )
         self.proj1 = Project.objects.create(**proj_dict)
         self.proj1.created_on = datetime.datetime(2016,06,01)
         self.proj1.save()
+        del proj_dict['parent_account']
         proj_dict['project_id'] = 'ucb2'
         self.proj2 = Project.objects.create(**proj_dict)
         self.proj2.created_on = datetime.datetime(2016,06,01)
@@ -380,7 +384,8 @@ class AllocationEndpointTestCase(TestCase):
                     u'created_on': u'2016-06-01',
                     u'qos_addenda': u'+=viz',
                     u'organization': u'ucb',
-                    u'project_id': u'ucb1'
+                    u'project_id': u'ucb1',
+                    u'parent_account': u'ucball'
                 },
                 u'amount': 50000,
                 u'start_date': u'2016-02-02'
@@ -400,7 +405,8 @@ class AllocationEndpointTestCase(TestCase):
                     u'created_on': u'2016-06-01',
                     u'qos_addenda': u'+=viz',
                     u'organization': u'ucb',
-                    u'project_id': u'ucb1'
+                    u'project_id': u'ucb1',
+                    u'parent_account': u'ucball'
                 },
                 u'amount': 50000,
                 u'start_date': u'2016-02-02'
@@ -420,7 +426,8 @@ class AllocationEndpointTestCase(TestCase):
                     u'created_on': u'2016-06-01',
                     u'qos_addenda': u'+=viz',
                     u'organization': u'ucb',
-                    u'project_id': u'ucb2'
+                    u'project_id': u'ucb2',
+                    u'parent_account': None
                 },
                 u'amount': 50000,
                 u'start_date': u'2016-02-02'
@@ -453,7 +460,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'created_on': u'2016-06-01',
                 u'qos_addenda': u'+=viz',
                 u'organization': u'ucb',
-                u'project_id': u'ucb1'
+                u'project_id': u'ucb1',
+                u'parent_account': u'ucball'
             },
             u'amount': 50000,
             u'start_date': u'2016-02-02'
@@ -484,7 +492,8 @@ class AllocationEndpointTestCase(TestCase):
                     u'created_on': u'2016-06-01',
                     u'qos_addenda': u'+=viz',
                     u'organization': u'ucb',
-                    u'project_id': u'ucb1'
+                    u'project_id': u'ucb1',
+                    u'parent_account': u'ucball'
                 },
                 u'amount': 50000,
                 u'start_date': u'2016-02-02'
@@ -504,7 +513,8 @@ class AllocationEndpointTestCase(TestCase):
                     u'created_on': u'2016-06-01',
                     u'qos_addenda': u'+=viz',
                     u'organization': u'ucb',
-                    u'project_id': u'ucb2'
+                    u'project_id': u'ucb2',
+                    u'parent_account': None
                 },
                 u'amount': 50000,
                 u'start_date': u'2016-02-02'
@@ -537,7 +547,8 @@ class AllocationEndpointTestCase(TestCase):
                     u'created_on': u'2016-06-01',
                     u'qos_addenda': u'+=viz',
                     u'organization': u'ucb',
-                    u'project_id': u'ucb2'
+                    u'project_id': u'ucb2',
+                    u'parent_account': None
                 },
                 u'amount': 50000,
                 u'start_date': u'2016-02-02'

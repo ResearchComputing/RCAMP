@@ -43,6 +43,7 @@ class ProjectFilter(rest_framework.filters.FilterSet):
             'project_id',
             'created_on',
             'notes',
+            'parent_account',
             'qos_addenda',
             'deactivated',
         ]

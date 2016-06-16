@@ -47,6 +47,7 @@ class ProjectAdminForm(forms.ModelForm):
             'organization',
             # 'created_on',
             'notes',
+            'parent_account',
             'qos_addenda',
             'deactivated',
         ]

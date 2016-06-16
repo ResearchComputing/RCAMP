@@ -43,6 +43,7 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'project_id',
             'created_on',
             'notes',
+            'parent_account',
             'qos_addenda',
             'deactivated',
         )
