@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from accounts.models import AccountRequest
 from projects.models import Project
+from projects.models import Allocation
 
 
 class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
@@ -42,6 +43,21 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
             'project_id',
             'created_on',
             'notes',
+            'parent_account',
             'qos_addenda',
             'deactivated',
+        )
+
+class AllocationSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(many=False,read_only=True)
+    class Meta:
+        lookup_field = 'allocation_id'
+        model = Allocation
+        fields = (
+            'project',
+            'allocation_id',
+            'amount',
+            'start_date',
+            'end_date',
+            'created_on',
         )

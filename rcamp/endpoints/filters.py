@@ -3,6 +3,7 @@ import rest_framework
 
 from accounts.models import AccountRequest
 from projects.models import Project
+from projects.models import Allocation
 
 
 class AccountRequestFilter(rest_framework.filters.FilterSet):
@@ -42,6 +43,21 @@ class ProjectFilter(rest_framework.filters.FilterSet):
             'project_id',
             'created_on',
             'notes',
+            'parent_account',
             'qos_addenda',
             'deactivated',
+        ]
+
+class AllocationFilter(rest_framework.filters.FilterSet):
+    min_date = django_filters.DateTimeFilter(name="created_on", lookup_type='gte')
+    max_date = django_filters.DateTimeFilter(name="created_on", lookup_type='lte')
+    class Meta:
+        model = Allocation
+        fields = [
+            'project',
+            'allocation_id',
+            'amount',
+            'start_date',
+            'end_date',
+            'created_on',
         ]

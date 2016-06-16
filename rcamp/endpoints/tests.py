@@ -6,6 +6,7 @@ import datetime
 
 from accounts.models import AccountRequest
 from projects.models import Project
+from projects.models import Allocation
 
 
 
@@ -188,7 +189,8 @@ class ProjectEndpointTestCase(TestCase):
 
         proj_dict.update(dict(
             pi_emails=['pi2@pi.org'],
-            project_id='ucb2'
+            project_id='ucb2',
+            parent_account='ucball'
         ))
         del proj_dict['qos_addenda']
         self.proj2 = Project.objects.create(**proj_dict)
@@ -226,7 +228,8 @@ class ProjectEndpointTestCase(TestCase):
                 u'pi_emails': u"[u'pi2@pi.org']",
                 u'created_on': u'2016-04-01',
                 u'organization': u'ucb',
-                u'project_id': u'ucb2'
+                u'project_id': u'ucb2',
+                u'parent_account': u'ucball',
             },
             {
                 u'collaborators': u"[u'tu@tu.org']",
@@ -308,6 +311,247 @@ class ProjectEndpointTestCase(TestCase):
                 u'created_on': u'2016-04-01',
                 u'organization': u'ucb',
                 u'project_id': u'ucb2'
+            }
+        ]
+        res_content = json.loads(res.content)
+        for i in xrange(0,len(res_content)):
+            self.assertDictContainsSubset(expected_content[i],res_content[i])
+
+# The test case covers the allocations API endpoint
+class AllocationEndpointTestCase(TestCase):
+    def setUp(self):
+        super(AllocationEndpointTestCase,self).setUp()
+        proj_dict = dict(
+            pi_emails=['pi@pi.org'],
+            managers=['pi@pi.prg','opi@pi.org'],
+            collaborators=['tu@tu.org'],
+            organization='ucb',
+            title='Test Project',
+            description='A description.',
+            project_id='ucb1',
+            parent_account='ucball',
+            qos_addenda='+=viz'
+        )
+        self.proj1 = Project.objects.create(**proj_dict)
+        self.proj1.created_on = datetime.datetime(2016,06,01)
+        self.proj1.save()
+        del proj_dict['parent_account']
+        proj_dict['project_id'] = 'ucb2'
+        self.proj2 = Project.objects.create(**proj_dict)
+        self.proj2.created_on = datetime.datetime(2016,06,01)
+        self.proj2.save()
+
+        sdate = datetime.datetime(2016,02,02)
+        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
+        edate = datetime.datetime(2017,02,02)
+        edate_tz = pytz.timezone('America/Denver').localize(edate)
+        alloc_dict = dict(
+            project=self.proj1,
+            amount=50000,
+            start_date=sdate_tz,
+            end_date=edate_tz
+        )
+        self.alloc1 = Allocation.objects.create(**alloc_dict)
+        self.alloc1.created_on = datetime.datetime(2016,06,01)
+        self.alloc1.save()
+        edate = datetime.datetime(2017,03,02)
+        edate_tz = pytz.timezone('America/Denver').localize(edate)
+        alloc_dict['end_date'] = edate_tz
+        self.alloc2 = Allocation.objects.create(**alloc_dict)
+        self.alloc2.created_on = datetime.datetime(2016,04,01)
+        self.alloc2.save()
+        alloc_dict['project'] = self.proj2
+        self.alloc3 = Allocation.objects.create(**alloc_dict)
+        self.alloc3.created_on = datetime.datetime(2016,06,01)
+        self.alloc3.save()
+
+    def test_alloc_list(self):
+        res = self.client.get('/api/allocations/')
+        self.assertEquals(res.status_code, 200)
+        expected_content = [
+            {
+                u'end_date': u'2017-02-02',
+                u'allocation_id': u'ucb1_1',
+                u'created_on': u'2016-06-01',
+                u'project': {
+                    u'collaborators': u"[u'tu@tu.org']",
+                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'description': u'A description.',
+                    u'title': u'Test Project',
+                    u'deactivated': False,
+                    u'notes': None,
+                    u'pi_emails': u"[u'pi@pi.org']",
+                    u'created_on': u'2016-06-01',
+                    u'qos_addenda': u'+=viz',
+                    u'organization': u'ucb',
+                    u'project_id': u'ucb1',
+                    u'parent_account': u'ucball'
+                },
+                u'amount': 50000,
+                u'start_date': u'2016-02-02'
+            },
+            {
+                u'end_date': u'2017-03-02',
+                u'allocation_id': u'ucb1_2',
+                u'created_on': u'2016-04-01',
+                u'project': {
+                    u'collaborators': u"[u'tu@tu.org']",
+                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'description': u'A description.',
+                    u'title': u'Test Project',
+                    u'deactivated': False,
+                    u'notes': None,
+                    u'pi_emails': u"[u'pi@pi.org']",
+                    u'created_on': u'2016-06-01',
+                    u'qos_addenda': u'+=viz',
+                    u'organization': u'ucb',
+                    u'project_id': u'ucb1',
+                    u'parent_account': u'ucball'
+                },
+                u'amount': 50000,
+                u'start_date': u'2016-02-02'
+            },
+            {
+                u'end_date': u'2017-03-02',
+                u'allocation_id': u'ucb2_1',
+                u'created_on': u'2016-06-01',
+                u'project': {
+                    u'collaborators': u"[u'tu@tu.org']",
+                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'description': u'A description.',
+                    u'title': u'Test Project',
+                    u'deactivated': False,
+                    u'notes': None,
+                    u'pi_emails': u"[u'pi@pi.org']",
+                    u'created_on': u'2016-06-01',
+                    u'qos_addenda': u'+=viz',
+                    u'organization': u'ucb',
+                    u'project_id': u'ucb2',
+                    u'parent_account': None
+                },
+                u'amount': 50000,
+                u'start_date': u'2016-02-02'
+            }
+        ]
+        res_content = json.loads(res.content)
+        for i in xrange(0,len(res_content)):
+            self.assertDictContainsSubset(expected_content[i],res_content[i])
+
+    def test_alloc_post(self):
+        res = self.client.post('/api/allocations/')
+        self.assertEquals(res.status_code, 405)
+
+    def test_alloc_detail(self):
+        res = self.client.get('/api/allocations/ucb1_1/')
+        self.assertEquals(res.status_code, 200)
+        res_content = json.loads(res.content)
+        expected_content = {
+            u'end_date': u'2017-02-02',
+            u'allocation_id': u'ucb1_1',
+            u'created_on': u'2016-06-01',
+            u'project': {
+                u'collaborators': u"[u'tu@tu.org']",
+                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'description': u'A description.',
+                u'title': u'Test Project',
+                u'deactivated': False,
+                u'notes': None,
+                u'pi_emails': u"[u'pi@pi.org']",
+                u'created_on': u'2016-06-01',
+                u'qos_addenda': u'+=viz',
+                u'organization': u'ucb',
+                u'project_id': u'ucb1',
+                u'parent_account': u'ucball'
+            },
+            u'amount': 50000,
+            u'start_date': u'2016-02-02'
+        }
+        self.assertDictContainsSubset(expected_content,res_content)
+
+    def test_alloc_filter_dates(self):
+        res = self.client.get(
+            '/api/allocations/?min_date={}&max_date={}'.format(
+                '2016-05-31',
+                '2016-06-01'
+            )
+        )
+        self.assertEquals(res.status_code, 200)
+        expected_content = [
+            {
+                u'end_date': u'2017-02-02',
+                u'allocation_id': u'ucb1_1',
+                u'created_on': u'2016-06-01',
+                u'project': {
+                    u'collaborators': u"[u'tu@tu.org']",
+                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'description': u'A description.',
+                    u'title': u'Test Project',
+                    u'deactivated': False,
+                    u'notes': None,
+                    u'pi_emails': u"[u'pi@pi.org']",
+                    u'created_on': u'2016-06-01',
+                    u'qos_addenda': u'+=viz',
+                    u'organization': u'ucb',
+                    u'project_id': u'ucb1',
+                    u'parent_account': u'ucball'
+                },
+                u'amount': 50000,
+                u'start_date': u'2016-02-02'
+            },
+            {
+                u'end_date': u'2017-03-02',
+                u'allocation_id': u'ucb2_1',
+                u'created_on': u'2016-06-01',
+                u'project': {
+                    u'collaborators': u"[u'tu@tu.org']",
+                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'description': u'A description.',
+                    u'title': u'Test Project',
+                    u'deactivated': False,
+                    u'notes': None,
+                    u'pi_emails': u"[u'pi@pi.org']",
+                    u'created_on': u'2016-06-01',
+                    u'qos_addenda': u'+=viz',
+                    u'organization': u'ucb',
+                    u'project_id': u'ucb2',
+                    u'parent_account': None
+                },
+                u'amount': 50000,
+                u'start_date': u'2016-02-02'
+            }
+        ]
+        res_content = json.loads(res.content)
+        for i in xrange(0,len(res_content)):
+            self.assertDictContainsSubset(expected_content[i],res_content[i])
+
+    def test_alloc_search(self):
+        res = self.client.get(
+            '/api/allocations/?search={}'.format(
+                'ucb2'
+            )
+        )
+        self.assertEquals(res.status_code, 200)
+        expected_content = [
+            {
+                u'end_date': u'2017-03-02',
+                u'allocation_id': u'ucb2_1',
+                u'created_on': u'2016-06-01',
+                u'project': {
+                    u'collaborators': u"[u'tu@tu.org']",
+                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'description': u'A description.',
+                    u'title': u'Test Project',
+                    u'deactivated': False,
+                    u'notes': None,
+                    u'pi_emails': u"[u'pi@pi.org']",
+                    u'created_on': u'2016-06-01',
+                    u'qos_addenda': u'+=viz',
+                    u'organization': u'ucb',
+                    u'project_id': u'ucb2',
+                    u'parent_account': None
+                },
+                u'amount': 50000,
+                u'start_date': u'2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
