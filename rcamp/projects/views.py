@@ -267,18 +267,18 @@ class AllocationRequestCreateView(FormView):
         return context
 
     def form_valid(self, form):
-        # ref_dict = {
-        #     'project': self.project
-        # }
-        # ref_dict.update(form.cleaned_data)
-        # ref = Reference.objects.create(**ref_dict)
-        # self.success_url = reverse_lazy(
-        #     'projects:reference-detail',
-        #     kwargs={
-        #         'project_pk':self.project.pk,
-        #         'pk':ref.pk,
-        #     }
-        # )
+        ar_dict = {
+            'project': self.project
+        }
+        ar_dict.update(form.cleaned_data)
+        ar = AllocationRequest.objects.create(**ar_dict)
+        self.success_url = reverse_lazy(
+            'projects:allocation-request-detail',
+            kwargs={
+                'project_pk':self.project.pk,
+                'pk':ar.pk,
+            }
+        )
         return super(AllocationRequestCreateView,self).form_valid(form)
 
 class AllocationRequestDetailView(DetailView):

@@ -10,3 +10,155 @@
 {% block jumbotron_subheading %}
 <p>Request a compute time allocation for {{ project.project_id }}</p>
 {% endblock %}
+
+{% block container %}
+<div class="row">
+  <div class="mailto-help">
+    Questions about project creation?
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Creation">
+      Contact us
+    </a>
+    or view our
+    <a href="https://www.rc.colorado.edu/support/getting-started.html">
+      Getting Started Guide.
+    </a>
+  </div>
+
+  {% if form.errors %}
+  <div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <p>
+      <strong>Could not create request.</strong>
+      Please resolve the errors below, or
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Allocation%20Request">
+        Contact us
+      </a>
+    </p>
+    {{ form.non_field_errors }}
+  </div>
+  {% endif %}
+
+  <form class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <fieldset>
+      <legend>Justification for Request</legend>
+
+      {% if form.abstract.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+        <label class="col-sm-2 control-label" for="id_abstract">Abstract</label>
+        <div class="col-sm-8">
+          <textarea id="id_abstract" name="abstract" class="form-control" rows="10" cols="40"/>{% if form.abstract.value %}{{ form.abstract.value }}{% endif %}</textarea>
+          {% if form.abstract.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.abstract.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if form.funding.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+        <label class="col-sm-2 control-label" for="id_funding">Description of Funding</label>
+        <div class="col-sm-8">
+          <textarea id="id_funding" name="funding" class="form-control" rows="10" cols="40"/>{% if form.funding.value %}{{ form.funding.value }}{% endif %}</textarea>
+          {% if form.funding.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.funding.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if form.proposal.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+        <label class="col-sm-2 control-label" for="id_proposal">Upload your Proposal <small>(as a .doc, .docx, .txt, .pdf Max 10MB)</small></label>
+        <div class="col-sm-8">
+          {{ form.proposal }}
+          {% if form.proposal.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.proposal.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Resources Requested</legend>
+
+      {% if form.time_requested.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+        <label class="col-sm-2 control-label" for="id_time_requested">Time Request (in SU)</label>
+        <div class="col-sm-8">
+          <input id="id_time_requested" type="number" name="time_requested" class="form-control"
+          {% if form.time_requested.value %}value={{ form.time_requested.value }}{% endif %}
+          maxlength="256" />
+          {% if form.time_requested.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.time_requested.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if form.disk_space.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+        <label class="col-sm-2 control-label" for="id_disk_space"><small>(optional)</small> Disk Space Request (in GB)</label>
+        <div class="col-sm-8">
+          <input id="id_disk_space" type="number" name="disk_space" class="form-control"
+          {% if form.disk_space.value %}value={{ form.disk_space.value }}{% endif %}
+          maxlength="256" />
+          {% if form.disk_space.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.disk_space.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if form.software_request.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+        <label class="col-sm-2 control-label" for="id_software_request"><small>(optional)</small> Software Request</label>
+        <div class="col-sm-8">
+          <textarea id="id_software_request" name="software_request" class="form-control" rows="10" cols="40"/>{% if form.software_request.value %}{{ form.software_request.value }}{% endif %}</textarea>
+          {% if form.software_request.errors %}
+          <div class="alert alert-danger alert-dismissable">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <strong>{{ form.software_request.errors }}</strong>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="col-sm-2 col-sm-offset-5 request-submit">
+        <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}
