@@ -4,7 +4,6 @@ from django.contrib.admin import widgets
 from lib.fields import MultiEmailField
 from accounts.models import RcLdapUser
 from projects.models import Project
-from projects.models import AllocationRequest
 
 
 
@@ -69,5 +68,15 @@ class ReferenceForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea,required=True)
     link = forms.CharField(widget=forms.Textarea,required=True)
 
-class AllocationRequestForm(forms.ModelForm):
-    pass
+class AllocationRequestForm(forms.Form):
+    abstract = forms.CharField(widget=forms.Textarea,required=True)
+    funding = forms.CharField(widget=forms.Textarea,required=True)
+    proposal = forms.FileField(required=True)
+    time_requested = forms.IntegerField(min_value=0,required=True)
+    disk_space = forms.IntegerField(min_value=0,required=False)
+    software_request = forms.CharField(widget=forms.Textarea,required=False)
+
+class StartupRequestForm(forms.Form):
+    reason = forms.CharField(widget=forms.Textarea,required=True)
+    disk_space = forms.IntegerField(min_value=0,required=False)
+    software_request = forms.CharField(widget=forms.Textarea,required=False)

@@ -13,9 +13,12 @@ import ast
 from mailer.signals import project_created_by_user
 from projects.models import Project
 from projects.models import Reference
+from projects.models import Allocation
+from projects.models import AllocationRequest
 from projects.forms import ProjectForm
 from projects.forms import ProjectEditForm
 from projects.forms import ReferenceForm
+from projects.forms import AllocationRequestForm
 
 
 
@@ -49,7 +52,11 @@ class ProjectDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(ProjectDetailView, self).get_context_data(**kwargs)
         references = Reference.objects.filter(project=self.object)
+        allocations = Allocation.objects.filter(project=self.object)
+        allocation_requests = AllocationRequest.objects.filter(project=self.object)
         context['references'] = references
+        context['allocations'] = allocations
+        context['allocation_requests'] = allocation_requests
         return context
 
 class ProjectCreateView(FormView):
@@ -232,3 +239,58 @@ class ReferenceEditView(FormView):
             }
         )
         return super(ReferenceEditView,self).form_valid(form)
+
+class AllocationRequestCreateView(FormView):
+    template_name = 'allocation-request-create.html'
+    form_class = AllocationRequestForm
+
+    def get(self, request, *args, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        self.project = get_object_or_404(Project,pk=project_pk)
+        if request.user.username not in self.project.managers:
+            return redirect('projects:project-detail', pk=project_pk)
+        else:
+            return super(AllocationRequestCreateView,self).get(request,*args,**kwargs)
+
+    def post(self, request, *args, **kwargs):
+        path_cmp = self.request.path.split('/')
+        project_pk = int(path_cmp[-3])
+        self.project = get_object_or_404(Project,pk=project_pk)
+        if request.user.username not in self.project.managers:
+            return redirect('projects:project-detail', pk=project_pk)
+        else:
+            return super(AllocationRequestCreateView,self).post(request,*args,**kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AllocationRequestCreateView,self).get_context_data(**kwargs)
+        context['project'] = self.project
+        return context
+
+    def form_valid(self, form):
+        # ref_dict = {
+        #     'project': self.project
+        # }
+        # ref_dict.update(form.cleaned_data)
+        # ref = Reference.objects.create(**ref_dict)
+        # self.success_url = reverse_lazy(
+        #     'projects:reference-detail',
+        #     kwargs={
+        #         'project_pk':self.project.pk,
+        #         'pk':ref.pk,
+        #     }
+        # )
+        return super(AllocationRequestCreateView,self).form_valid(form)
+
+class AllocationRequestDetailView(DetailView):
+    model = AllocationRequest
+    template_name = 'allocation-request-detail.html'
+
+    def get(self, request, *args, **kwargs):
+        project_pk = kwargs.get('project_pk')
+        self.project = get_object_or_404(Project,pk=project_pk)
+        return super(AllocationRequestDetailView,self).get(request,*args,**kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(AllocationRequestDetailView,self).get_context_data(**kwargs)
+        context['project'] = self.project
+        return context

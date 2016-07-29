@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - My Projects{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/projects.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Allocation Requests for {{ project.project_id }}</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Review your allocation requests.</p>
+{% endblock %}
+
+{% block container %}
+<div class="row">
+  <div class="mailto-help">
+      Questions about this allocation request?
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Allocation%20Request%20(%23{{object.pk}})">
+          Contact us.
+      </a>
+  </div>
+
+  <legend>Allocation Request</legend>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <tr>
+        <td><strong>Request ID</strong></td>
+        <td>{{ object.pk }}</td>
+      </tr>
+      <tr>
+        <td><strong>Funding Specified</strong></td>
+        <td>{{ object.funding }}</td>
+      </tr>
+      <tr>
+        <td><strong>Request Abstract</strong></td>
+        <td>{{ object.abstract }}</td>
+      </tr>
+      <tr>
+        <td><strong>Proposal</strong></td>
+        <td><a href="{{ object.proposal.url }}">{{ object.proposal.name }}</a></td>
+      </tr>
+      <tr>
+        <td><strong>Time Requested</strong></td>
+        <td>{{ object.time_requested }} SU</td>
+      </tr>
+      <tr>
+        <td><strong>Disk Space</strong></td>
+        <td>{{ object.disk_space }} GB</td>
+      </tr>
+      <tr>
+        <td><strong>Software</strong></td>
+        <td>{{ object.software_request }}</td>
+      </tr>
+      <tr>
+        <td><strong>Request Date</strong></td>
+        <td>{{ object.request_date }}</td>
+      </tr>
+      <tr>
+        <td><strong>Requester</strong></td>
+        <td>{{ object.requester }}</td>
+      </tr>
+      <tr>
+        <td><strong>Status</strong></td>
+        {% for status in object.STATUSES %}
+        {% if object.status == status.0 %}
+        <td>{{ status.1 }}</td>
+        {% endif %}
+        {% endfor %}
+      </tr>
+      <tr>
+        <td><strong>Time Awarded</strong></td>
+        <td>{{ object.amount_awarded }} SU</td>
+      </tr>
+      <tr>
+        <td><strong>Approved On</strong></td>
+        <td>{{ object.approved_on }}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+{% endblock %}

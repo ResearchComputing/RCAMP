@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Request Allocation{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/projects.css" type="text/css" media="all" rel="stylesheet">
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Request an allocation</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Request a compute time allocation for {{ project.project_id }}</p>
+{% endblock %}

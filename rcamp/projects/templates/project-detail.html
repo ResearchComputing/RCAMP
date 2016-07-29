@@ -93,13 +93,37 @@
       </p>
     </a>
   </ul>
+  {% endif %}
 
   <legend>Allocations for {{ object.project_id }}</legend>
   <ul class="list-group">
-    <a href="#" id="allocation-request-link" class="list-group-item" disabled>
+    {% for allocation in allocations %}
+    <h4 class="list-group-item-heading">{{ allocation.allocation_id }}</h4>
+    <p class="list-group-item-text">
+      <strong>Allocated Time:</strong> {{ allocation.amount }} SU
+    </p>
+    {% endfor %}
+  </ul>
+
+  {% if user.username in object.managers %}
+  <legend>Allocation Requests for {{ object.project_id }}</legend>
+  <ul class="list-group">
+    {% for allocation_request in allocation_requests %}
+    <a href="{% url 'projects:allocation-request-detail' project_pk=object.pk pk=allocation_request.pk %}" class="list-group-item">
+      <h4 class="list-group-item-heading">{{ allocation_request.request_date }}, {{ allocation_request.time_requested }} SU</h4>
+      <p class="list-group-item-text">
+        {% for status in allocation_request.STATUSES %}
+        {% if allocation_request.status == status.0 %}
+        <strong>Status:</strong> {{ status.1 }}
+        {% endif %}
+        {% endfor %}
+      </p>
+    </a>
+    {% endfor %}
+    <a href="{% url 'projects:allocation-request-create' project_pk=object.pk %}" id="allocation-request-link" class="list-group-item">
       <h4 class="list-group-item-heading">Request an allocation</h4>
       <p class="list-group-item-text">
-        Request a compute time limit increase for this project.
+        Request a compute time allocation for this project.
       </p>
     </a>
   </ul>

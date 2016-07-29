@@ -6,3 +6,7 @@
 .project-edit-link {
   font-size: medium;
 }
+
+#scavenger-mailto + .list-group {
+  margin-top: 20px;
+}

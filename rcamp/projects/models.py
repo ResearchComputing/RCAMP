@@ -125,11 +125,11 @@ class AllocationRequest(models.Model):
 
     abstract = models.TextField()
     funding = models.TextField()
-    proposal = models.FileField()
+    proposal = models.FileField(upload_to='proposals/%Y/%m/%d')
     time_requested = models.BigIntegerField()
 
     amount_awarded = models.BigIntegerField(default=0)
-    disk_space = models.IntegerField()
+    disk_space = models.IntegerField(default=0)
     software_request = models.TextField(null=True,blank=True)
 
     requester = models.CharField(max_length=12)

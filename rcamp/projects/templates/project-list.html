@@ -14,6 +14,13 @@
 {% block container %}
 <div class="row">
   <legend>Manage Projects</legend>
+  <span id="scavenger-mailto">
+    <i class="fa fa-info-circle" aria-hidden="true"></i>
+    Request access to the <i>scavenger</i> queue
+    <a href="mailto:rc-help@colorado.edu?subject=Request%20Access%20To%20Scavenger">
+        by contacting us.
+    </a>
+  </span>
   <ul class="list-group">
     {% for project in object_list %}
       {% if user.username in project.managers %}
