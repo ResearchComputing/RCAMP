@@ -2,17 +2,20 @@ from django.test import TestCase
 from django.test import RequestFactory
 from django.test import override_settings
 
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
 from accounts.test_models import BaseCase
 from accounts.test_views import CbvCase
 from projects.models import Project
 from projects.models import Reference
+from projects.models import AllocationRequest
 from projects.views import ProjectListView
 from projects.views import ProjectCreateView
 from projects.views import ProjectEditView
 from projects.views import ReferenceCreateView
 from projects.views import ReferenceEditView
+from projects.views import AllocationRequestCreateView
 
 
 # This test case covers the project list view.
@@ -411,5 +414,84 @@ class ReferenceEditTestCase(CbvCase):
             )
         self.assertEquals(
                 response.context_data['form'].errors['link'],
+                [u'This field is required.']
+            )
+
+# This test case covers the Allocation Request create page
+class AllocationRequestCreateTestCase(CbvCase):
+    def setUp(self):
+        super(AllocationRequestCreateTestCase,self).setUp()
+        self.user = User.objects.create(**{
+            'username': 'testuser',
+            'email': 'testr@test.org',
+            'first_name': 'Test',
+            'last_name': 'Requester',
+        })
+        self.proj = Project.objects.create(**{
+            'project_id': 'ucb1',
+            'title': 'Test Project',
+            'description': 'A test project',
+            'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
+            'managers': ['testuser','testcuuser'],
+            'collaborators': ['testuser','testcuuser'],
+            'organization':'ucb',
+        })
+
+    def test_allocationrequest_create(self):
+
+        with ContentFile(b'content', name='plain.txt') as fp:
+            request = RequestFactory().post(
+                    '/projects/{}/allocationrequests/create'.format(self.proj.pk),
+                    data={
+                        'abstract': 'test abstract',
+                        'funding': 'test funding',
+                        'proposal': fp,
+                        'time_requested': '1234',
+                        'disk_space': '1234',
+                        'software_request': 'none',
+                    }
+                )
+            request.user = self.user
+            view = AllocationRequestCreateView.as_view()
+            response = view(request)
+
+        self.assertTrue(response.url.startswith('/projects/list/{}/allocationrequests/'.format(self.proj.pk)))
+
+        ar = AllocationRequest.objects.get(pk=1)
+        self.assertEquals(ar.project.project_id,self.proj.project_id)
+        self.assertEquals(ar.abstract,'test abstract')
+        self.assertEquals(ar.funding,'test funding')
+
+        path_cmps = ar.proposal.name.split('/')
+        self.assertEquals(len(path_cmps),5)
+        self.assertEquals(path_cmps[-1][-3:],'txt')
+
+        self.assertEquals(ar.time_requested,1234)
+        self.assertEquals(ar.disk_space,1234)
+        self.assertEquals(ar.software_request,'none')
+
+    def test_allocationrequest_create_missing_fields(self):
+        request = RequestFactory().post(
+                '/projects/list/{}/allocationrequests/create'.format(self.proj.pk),
+                data={}
+            )
+        request.user = self.user
+        view = AllocationRequestCreateView.as_view()
+        response = view(request)
+
+        self.assertEquals(
+                response.context_data['form'].errors['abstract'],
+                [u'This field is required.']
+            )
+        self.assertEquals(
+                response.context_data['form'].errors['funding'],
+                [u'This field is required.']
+            )
+        self.assertEquals(
+                response.context_data['form'].errors['proposal'],
+                [u'This field is required.']
+            )
+        self.assertEquals(
+                response.context_data['form'].errors['time_requested'],
                 [u'This field is required.']
             )

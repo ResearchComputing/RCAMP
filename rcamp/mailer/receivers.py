@@ -28,3 +28,12 @@ def notify_project_created_by_user(sender, **kwargs):
     for notifier in notifiers:
         ctx = {'project':project}
         msg = notifier.send(context=ctx)
+
+@receiver(allocation_request_created_by_user)
+def notify_allocation_request_created_by_user(sender, **kwargs):
+    ar = kwargs.get('allocation_request')
+
+    notifiers = MailNotifier.objects.filter(event='allocation_request_created_by_user')
+    for notifier in notifiers:
+        ctx = {'allocation_request': ar}
+        msg = notifier.send(context=ctx)
