@@ -1,10 +1,11 @@
+from dateutil.relativedelta import relativedelta
 from django.db import models
 from django.db.models import Func, F
 from django.db.models.functions import Substr, Lower
 from django.utils import timezone
 from lib import fields
 
-
+from mailer.signals import allocation_created_from_request
 
 class Cast(Func):
     function = 'CAST'
@@ -75,7 +76,28 @@ class Reference(models.Model):
     def __unicode__(self):
         return '{}_{}'.format((self.project.project_id,str(self.created_on)))
 
+class AllocationManager(models.Manager):
+    def create_allocation_from_request(self,**kwargs):
+        project = kwargs.get('project')
+        time_requested = kwargs.get('time_requested')
+        if not all([project,time_requested]):
+            raise TypeError('Missing required field.')
+
+        now = timezone.now()
+        next_year = now + relativedelta(years=1)
+
+        alloc_fields = {}
+        alloc_fields['project'] = project
+        alloc_fields['amount'] = time_requested
+        alloc_fields['start_date'] = now
+        alloc_fields['end_date'] = next_year
+
+        alloc = self.create(**alloc_fields)
+        return alloc
+
 class Allocation(models.Model):
+    objects = AllocationManager()
+
     project = models.ForeignKey(Project)
     allocation_id = models.SlugField(unique=True,blank=True,null=True)
     amount = models.BigIntegerField()
@@ -125,14 +147,14 @@ class AllocationRequest(models.Model):
 
     abstract = models.TextField()
     funding = models.TextField()
-    proposal = models.FileField(upload_to='proposals/%Y/%m/%d')
+    proposal = models.FileField(upload_to='proposals/%Y/%m/%d',null=True,blank=True)
     time_requested = models.BigIntegerField()
 
     amount_awarded = models.BigIntegerField(default=0)
-    disk_space = models.IntegerField(default=0)
+    disk_space = models.IntegerField(default=0,null=True,blank=True)
     software_request = models.TextField(null=True,blank=True)
 
-    requester = models.CharField(max_length=12)
+    requester = models.CharField(max_length=12,null=True,blank=True)
     request_date = models.DateTimeField(auto_now_add=True)
 
     status = models.CharField(max_length=16,choices=STATUSES,default='w')
@@ -154,6 +176,12 @@ class AllocationRequest(models.Model):
         if (self.status in ['a','f','p']) and (self._loaded_values['status'] not in ['a','f','p']):
             # Approval process
             # logger.info('Approving project request: '+self.__unicode__())
+            alloc = Allocation.objects.create_allocation_from_request(
+                project = self.project,
+                time_requested = self.time_requested
+            )
+            allocation_created_from_request.send(sender=alloc.__class__,allocation=alloc)
             self.approved_on=timezone.now()
+            self.allocation = alloc
 
         super(AllocationRequest,self).save(*args,**kwargs)

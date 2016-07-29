@@ -16,6 +16,7 @@ class EventChoicesTestCase(TestCase):
         expected_choices = (
             ('account_created_from_request', 'account_created_from_request'),
             ('account_request_received', 'account_request_received'),
+            ('allocation_created_from_request', 'allocation_created_from_request'),
             ('allocation_request_created_by_user', 'allocation_request_created_by_user'),
             ('project_created_by_user', 'project_created_by_user'),
         )
@@ -311,4 +312,51 @@ class AllocReqReceivedTestCase(TestCase):
         self.assertEquals(
             outbox[1].body,
             self.mn2.make_body({'allocation_request':self.ctx})
+        )
+
+class ARApprovedTestCase(TestCase):
+    def setUp(self):
+        self.ctx = {
+            'username':'testuser',
+            'email':'testuser@test.org',
+        }
+        mn1_dict = {
+            'name':'allocation_created_from_request',
+            'event':'allocation_created_from_request',
+            'from_address':'test@test.org',
+            'mailto':"requestuser@test.org,{{ allocation.email }},,",
+            'cc':"requestuser@test.org,{{ allocation.email }},,",
+            'bcc':"requestuser@test.org,{{ allocation.email }},,",
+            'subject':"Hi, {{ allocation.username }}!",
+            'body':"You, {{ allocation.username }}, did it!!!!",
+        }
+        mn2_dict = {
+            'name':'allocation_created_from_request2',
+            'event':'allocation_created_from_request',
+            'from_address':'test@test.org',
+            'mailto':"requestuser@test.org,{{ allocation.email }},,",
+            'cc':"requestuser@test.org,{{ allocation.email }},,",
+            'bcc':"requestuser@test.org,{{ allocation.email }},,",
+            'subject':"Hi, {{ allocation.username }}!",
+            'body':"You, {{ allocation.username }}, did it!!!!",
+        }
+        self.mn1 = MailNotifier.objects.create(**mn1_dict)
+        self.mn2 = MailNotifier.objects.create(**mn2_dict)
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_allocation_requested_received(self):
+        allocation_created_from_request.send(
+            sender='Allocation',
+            allocation=self.ctx
+        )
+
+        from django.core.mail import outbox
+        self.assertEquals(len(outbox),2)
+        self.assertEquals(
+            outbox[0].body,
+            self.mn1.make_body({'allocation':self.ctx})
+        )
+        self.assertEquals(
+            outbox[1].body,
+            self.mn2.make_body({'allocation':self.ctx})
         )

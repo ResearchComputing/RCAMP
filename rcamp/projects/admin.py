@@ -121,6 +121,10 @@ class AllocationAdmin(admin.ModelAdmin):
 
 @admin.register(AllocationRequest)
 class AllocationRequestAdmin(admin.ModelAdmin):
+    def approve_requests(modeladmin, request, queryset):
+        queryset.update(status='a')
+    approve_requests.short_description = 'Approve selected allocation requests'
+    actions = [approve_requests]
     list_display = [
         'project',
         'request_date',

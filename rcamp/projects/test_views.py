@@ -457,7 +457,7 @@ class AllocationRequestCreateTestCase(CbvCase):
 
         self.assertTrue(response.url.startswith('/projects/list/{}/allocationrequests/'.format(self.proj.pk)))
 
-        ar = AllocationRequest.objects.get(pk=1)
+        ar = AllocationRequest.objects.get()
         self.assertEquals(ar.project.project_id,self.proj.project_id)
         self.assertEquals(ar.abstract,'test abstract')
         self.assertEquals(ar.funding,'test funding')

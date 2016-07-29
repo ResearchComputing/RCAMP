@@ -37,3 +37,12 @@ def notify_allocation_request_created_by_user(sender, **kwargs):
     for notifier in notifiers:
         ctx = {'allocation_request': ar}
         msg = notifier.send(context=ctx)
+
+@receiver(allocation_created_from_request)
+def notify_allocation_created_from_request(sender, **kwargs):
+    alloc = kwargs.get('allocation')
+
+    notifiers = MailNotifier.objects.filter(event='allocation_created_from_request')
+    for notifier in notifiers:
+        ctx = {'allocation':alloc}
+        msg = notifier.send(context=ctx)
