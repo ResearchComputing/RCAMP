@@ -16,37 +16,52 @@ class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a><
 {% endblock %}
 
 {% block modal_title %}
-<h4 class="modal-title">Terms &amp; Conditions</h4>
+<h2 class="modal-title">Terms &amp; Conditions</h2>
 {% endblock %}
 {% block modal_body %}
-<p> Acknowledgement of the Janus supercomputer in publications:
-                "This work utilized the Janus supercomputer, which is supported
-                by the National Science Foundation (award number CNS-0821794) and
-                the University of Colorado Boulder. The Janus supercomputer is
-                a joint effort of the University of Colorado Boulder, the
-                University of Colorado Denver and the National Center for Atmospheric Research."
-            </p>
-            <p>In order to meet export control guidelines, the PI certifies that:
-            <ul>
-                <li>The system will be used for fundamental research intended
-                    to be published without any restrictions.
-                </li>
-                <li>The PI will ensure that all users added under their allocation
-                    to the system are (a) employees, students, or visitors of a U.S.
-                    university, or (b) citizens or permanent residents of the United States.
-                </li>
-                <li>The PI will retain records or correspondence documenting the
-                    export control status of every user requested.
-                </li>
-            </ul>
-            </p>
-            <p>No HIPAA, FERPA, ITAR, classified or copywrited data may be stored on RC resources.
-            </p>
-            <p>The PI agrees to provide summaries of activities and accomplishments
-                resulting from use of the Janus system to facilitate the annual reporting
-                requirements to the NSF and the VCR office.
-            </p>
-{% endblock %}
+<p>Use of University of Colorado Research Computing resources,
+  including (but not limited to) the Janus and Summit supercomputers
+  must be acknowledged in any and all publications.</p>
+
+<h3>Janus</h3>
+
+<blockquote><p>This work utilized the Janus supercomputer, which is
+    supported by the National Science Foundation (award number
+    CNS-0821794) and the University of Colorado Boulder. The Janus
+    supercomputer is a joint effort of the University of Colorado
+    Boulder, the University of Colorado Denver and the National Center
+    for Atmospheric Research.</p></blockquote>
+
+<h3>Summit</h3>
+
+<blockquote><p>This work utilized the Summit supercomputer, which is
+    supported by the National Science Foundation, the University of
+    Colorado Boulder, and Colorado State University. The Summit
+    supercomputer is a joint effort of the University of Colorado
+    Boulder and Colorado State University.</p></blockquote>
+
+<h3>Export control</h3>
+
+<p>United States export control requires that the PI ensure and
+  certify compliance with the following:</p>
+
+<ul>
+  <li>The system will be used for fundamental research intended to be
+    published without any restrictions.</li>
+  <li>All related users are either (a) employees, students, or
+    visitors of a U.S. university, or (b) citizens or permanent
+    residents of the United States.</li>
+  <li>The PI will retain records or correspondence documenting the
+    export control status of every user requested.</li>
+</ul>
+
+<p>No HIPAA, FERPA, ITAR, classified, or copywrited data may be stored
+  on RC resources.</p>
+
+<p>The PI agrees to provide summaries of activities and
+  accomplishments resulting from use of the Janus or Summit systems to
+  facilitate reporting requirements of the NSF and the VCR office.</p>
+  {% endblock %}
 
 {% block container %}
 <div class="mailto-help">
