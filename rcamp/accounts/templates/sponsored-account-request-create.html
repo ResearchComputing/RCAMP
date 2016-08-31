@@ -149,41 +149,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     <fieldset>
         <legend>Which resources do you intend to use?</legend>
 
-        <div class="checkbox">
-            <label>
-                <input id="id_blanca" type="checkbox" name="blanca"
-                {% if form.blanca.value %}checked{% endif %}/>
-                Blanca, condo compute cluster
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input id="id_janus" type="checkbox" name="janus"
-                {% if form.janus.value %}checked{% endif %}/>
-                Janus, parallel HPC cluster (2011)
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input id="id_summit" type="checkbox" name="summit"
-                {% if form.summit.value %}checked{% endif %}/>
-                Summit, parallel HPC cluster (2016)
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input id="id_petalibrary_active" type="checkbox" name="petalibrary_active"
-                {% if form.petalibrary_active.value %}checked{% endif %}/>
-                PetaLibrary/active, active-use disk storage
-            </label>
-        </div>
-        <div class="checkbox">
-            <label>
-                <input id="id_petalibrary_archive" type="checkbox" name="petalibrary_archive"
-                {% if form.petalibrary_archive.value %}checked{% endif %}/>
-                PetaLibrary/archive, long-term disk+tape storage
-            </label>
-        </div>
+        {% include "account-request-resource-checkboxes.html" %}
     </fieldset>
 
     <div class="col-sm-2 col-sm-offset-5 request-submit">
