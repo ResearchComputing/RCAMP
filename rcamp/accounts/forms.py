@@ -83,6 +83,12 @@ class ClassAccountRequestForm(AccountRequestForm):
             'role',
         )
 
+    def __init__ (self, data=None, **kwargs):
+        if data is not None:
+            data['organization'] = 'ucb'
+            data['role'] = 'student'
+        super(ClassAccountRequestForm, self).__init__(data=data, **kwargs)
+
 class ProjectAccountRequestForm(AccountRequestForm):
     projects = forms.ModelMultipleChoiceField(
         queryset=Project.objects.all(),

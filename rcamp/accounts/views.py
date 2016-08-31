@@ -92,14 +92,6 @@ class ClassAccountRequestCreateView(AccountRequestCreateView):
     template_name = 'class-account-request-create.html'
     form_class = ClassAccountRequestForm
 
-    def get_form(self, form_class=None):
-        if form_class is None:
-            form_class = self.get_form_class()
-        form_kwargs = self.get_form_kwargs()
-        form_kwargs['data']['organization'] = 'ucb'
-        form_kwargs['data']['role'] = 'student'
-        return form_class(**form_kwargs)
-
     def form_valid(self, form):
         course_number = form.cleaned_data.get('course_number')
         if not hasattr(self, 'ar_dict'):
