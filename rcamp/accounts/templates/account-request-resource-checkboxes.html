@@ -1,0 +1,76 @@
+<div class="checkbox">
+  <dl>
+    <label>
+      <dt><input id="id_summit" type="checkbox" name="summit"
+                 {% if form.summit.value %}checked{% endif %}/>
+        Summit supercomputing cluster (2016)</dt>
+      <dd>Summit is a heterogeneous supercomputing cluster based
+        primarily on the Intel Xeon "Haswell" CPU, with
+        secondary NVidia Tesla K80 and high-memory resources
+        and, in the future, an Intel Xeon Phi "knights landing"
+        MIC resource. It replaces Janus as Research Computing's
+        flagship computational resource. All nodes sit on a
+        first-generation Intel Omni-Path Architecture
+        interconnect which also provides access to an IBM GPFS
+        Parallel scratch file
+        system. <a href="https://www.rc.colorado.edu/resources/compute/summit">[more
+          information]</a></dd>
+    </label>
+
+    <label>
+      <dt><input id="id_blanca" type="checkbox" name="blanca"
+                 {% if form.blanca.value %}checked{% endif %}/>
+        Blanca "condo" compute cluster
+      </dt>
+      <dd>The Research Computing Condo Computing service offers
+        researchers the opportunity to purchase and own compute
+        nodes that will be operated as part of the Blanca
+        compute cluster. The aggregate cluster is made available
+        to all condo partners while maintaining priority for the
+        owner of each
+        node. <a href="https://www.rc.colorado.edu/resources/compute/blanca">[more
+          information]</a></dd>
+    </label>
+
+    <label>
+      <dt><input id="id_janus" type="checkbox" name="janus"
+                 {% if form.janus.value %}checked{% endif %}/>
+        Janus supercomputing cluster (2011)</dt>
+      <dd>The Janus supercomputer is a Linux compute cluster
+        capable of 184 TFLOPS (trillion floating-point
+        operations per second). Funding for Janus was provided
+        by the National Science Foundation (MRI grant
+        CNS-0821794), the University of Colorado Boulder, and
+        the National Center for Atmospheric
+        Research. <a href="https://www.rc.colorado.edu/resources/compute/janus">[more
+          information]</a></dd>
+    </label>
+
+    <label>
+      <dt><input id="id_petalibrary_active" type="checkbox" name="petalibrary_active"
+                 {% if form.petalibrary_active.value %}checked{% endif %}/>
+        PetaLibrary/active disk storage</dt>
+      <dd>The PetaLibrary/active storage service is mounted at
+        <code>/work/</code> on all Research Computing
+        computational systems. This storage may be used by
+        compute workloads, but it is not designed to be
+        performant under I/O-intensive applications or parallel
+        writes. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">[more
+          information]</a></dd>
+    </label>
+
+    <label>
+      <dt><input id="id_petalibrary_archive" type="checkbox" name="petalibrary_archive"
+                 {% if form.petalibrary_archive.value %}checked{% endif %}/>
+        PetaLibrary/archive long-term disk+tape storage</dt>
+      <dd>PetaLibrary/archive is a hierarchical storage system
+        that dynamically and simultaneously manages data on both
+        disk and tape storage systems while presenting all data
+        as part of a single, unified filesystem namespace. This
+        provides good performance when accessing frequently-used
+        data while remaining cost-effective for storing large
+        quantities of archive
+        data. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">[more
+          information]</a></dd>
+    </label>
+</div>
