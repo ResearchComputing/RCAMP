@@ -68,6 +68,12 @@ class SponsoredAccountRequestForm(AccountRequestForm):
             'role',
         )
 
+    def __init__ (self, data=None, **kwargs):
+        if data is not None:
+            data['organization'] = 'ucb'
+            data['role'] = 'sponsored'
+        super(SponsoredAccountRequestForm, self).__init__(data=data, **kwargs)
+
 class ClassAccountRequestForm(AccountRequestForm):
     course_number = forms.CharField(max_length=32,required=True)
 
@@ -76,6 +82,12 @@ class ClassAccountRequestForm(AccountRequestForm):
             'organization',
             'role',
         )
+
+    def __init__ (self, data=None, **kwargs):
+        if data is not None:
+            data['organization'] = 'ucb'
+            data['role'] = 'student'
+        super(ClassAccountRequestForm, self).__init__(data=data, **kwargs)
 
 class ProjectAccountRequestForm(AccountRequestForm):
     projects = forms.ModelMultipleChoiceField(
