@@ -171,3 +171,5 @@ class RcLdapGroupAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         org = form.cleaned_data['organization'] or None
         obj.save(organization=org)
+
+admin.site.register(IdTracker)
