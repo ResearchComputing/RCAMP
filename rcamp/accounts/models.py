@@ -161,10 +161,14 @@ class RcLdapUserManager(models.Manager):
         return obj
 
     def create_user_from_request(self,**kwargs):
-        username = str(kwargs.get('username').strip())
+        username = kwargs.get('username')
+        if username is not None:
+            username = str(username).strip()
         first_name = kwargs.get('first_name')
         last_name = kwargs.get('last_name')
-        email = kwargs.get('email').strip()
+        email = kwargs.get('email')
+        if email is not None:
+            email = str(email).strip()
         organization = kwargs.get('organization')
         login_shell = kwargs.get('login_shell')
         if not all([username,first_name,last_name,email,organization,login_shell]):

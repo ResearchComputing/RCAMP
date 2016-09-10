@@ -401,9 +401,10 @@ class AccountCreationTestCase(BaseCase):
         u = RcLdapUser.objects.create_user_from_request(**user_dict)
 
         self.assertEquals(u.dn, 'uid=requestuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        today = datetime.datetime.today()
-        next_year = today.year + 1
-        self.assertEquals(u.expires.year, next_year)
+        today = datetime.date.today()
+        expire = today.replace(year=today.year+1)
+        expire_days = (expire - datetime.date(1970, 1, 1)).days
+        self.assertEquals(u.expires, expire_days)
 
 class MockLdapObjectManager():
     create_user_from_request = MagicMock(return_value={})
