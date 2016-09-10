@@ -161,10 +161,10 @@ class RcLdapUserManager(models.Manager):
         return obj
 
     def create_user_from_request(self,**kwargs):
-        username = kwargs.get('username')
+        username = str(kwargs.get('username').strip())
         first_name = kwargs.get('first_name')
         last_name = kwargs.get('last_name')
-        email = kwargs.get('email')
+        email = kwargs.get('email').strip()
         organization = kwargs.get('organization')
         login_shell = kwargs.get('login_shell')
         if not all([username,first_name,last_name,email,organization,login_shell]):
@@ -176,8 +176,8 @@ class RcLdapUserManager(models.Manager):
         user_fields['first_name'] = first_name.strip()
         user_fields['last_name'] = last_name.strip()
         user_fields['full_name'] = '%s, %s' % (user_fields['last_name'],user_fields['first_name'])
-        user_fields['email'] = email.strip()
-        user_fields['username'] = username.strip()
+        user_fields['email'] = email
+        user_fields['username'] = username
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
