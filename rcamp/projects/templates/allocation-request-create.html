@@ -107,7 +107,7 @@
         <label class="col-sm-2 control-label" for="id_time_requested">Time Request (in SU)</label>
         <div class="col-sm-8">
           <input id="id_time_requested" type="number" name="time_requested" class="form-control"
-          {% if form.time_requested.value %}value={{ form.time_requested.value }}{% endif %}
+          {% if form.time_requested.value %}value="{{ form.time_requested.value }}"{% endif %}
           maxlength="256" />
           {% if form.time_requested.errors %}
           <div class="alert alert-danger alert-dismissable">
@@ -126,7 +126,7 @@
         <label class="col-sm-2 control-label" for="id_disk_space"><small>(optional)</small> Disk Space Request (in GB)</label>
         <div class="col-sm-8">
           <input id="id_disk_space" type="number" name="disk_space" class="form-control"
-          {% if form.disk_space.value %}value={{ form.disk_space.value }}{% endif %}
+          {% if form.disk_space.value %}value="{{ form.disk_space.value }}"{% endif %}
           maxlength="256" />
           {% if form.disk_space.errors %}
           <div class="alert alert-danger alert-dismissable">

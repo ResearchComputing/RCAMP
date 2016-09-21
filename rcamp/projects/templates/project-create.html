@@ -75,7 +75,7 @@
         <label class="col-sm-2 control-label" for="id_title">Title</label>
         <div class="col-sm-8">
             <input id="id_title" type="text" name="title" class="form-control"
-            {% if form.title.value %}value={{ form.title.value }}{% endif %}
+            {% if form.title.value %}value="{{ form.title.value }}"{% endif %}
             maxlength="256" />
             {% if form.title.errors %}
             <div class="alert alert-danger alert-dismissable">
@@ -114,7 +114,7 @@
         <label class="col-sm-2 control-label" for="id_pi_emails">PI Emails (comma-separated)</label>
         <div class="col-sm-8">
             <input id="id_pi_emails" type="text" name="pi_emails" class="form-control"
-            {% if form.pi_emails.value %}value={{ form.pi_emails.value }}{% endif %}
+            {% if form.pi_emails.value %}value="{{ form.pi_emails.value }}"{% endif %}
             maxlength="256" />
             {% if form.pi_emails.errors %}
             <div class="alert alert-danger alert-dismissable">
