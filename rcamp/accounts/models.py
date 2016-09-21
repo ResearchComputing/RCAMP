@@ -162,9 +162,13 @@ class RcLdapUserManager(models.Manager):
 
     def create_user_from_request(self,**kwargs):
         username = kwargs.get('username')
+        if username is not None:
+            username = str(username).strip()
         first_name = kwargs.get('first_name')
         last_name = kwargs.get('last_name')
         email = kwargs.get('email')
+        if email is not None:
+            email = str(email).strip()
         organization = kwargs.get('organization')
         login_shell = kwargs.get('login_shell')
         if not all([username,first_name,last_name,email,organization,login_shell]):
@@ -176,8 +180,8 @@ class RcLdapUserManager(models.Manager):
         user_fields['first_name'] = first_name.strip()
         user_fields['last_name'] = last_name.strip()
         user_fields['full_name'] = '%s, %s' % (user_fields['last_name'],user_fields['first_name'])
-        user_fields['email'] = email.strip()
-        user_fields['username'] = username.strip()
+        user_fields['email'] = email
+        user_fields['username'] = username
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
@@ -188,9 +192,9 @@ class RcLdapUserManager(models.Manager):
         role = kwargs.get('role')
         if role:
             if role == 'sponsored':
-                today = datetime.datetime.today()
+                today = datetime.date.today()
                 expiration_date = today.replace(year=today.year+1)
-                user_fields['expires'] = expiration_date
+                user_fields['expires'] = date_to_sp_expire(expiration_date)
             if role == 'faculty':
                 user_fields['role'] = ['pi',role]
             else:
@@ -226,7 +230,7 @@ class RcLdapUser(LdapUser):
 
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
     object_classes = ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount']
-    expires = ldap_fields.DateTimeField(db_column='shadowExpire',blank=True,null=True)
+    expires = ldap_fields.IntegerField(db_column='shadowExpire',blank=True,null=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber')
     gid = ldap_fields.IntegerField(db_column='gidNumber')
     gecos =  ldap_fields.CharField(db_column='gecos',default='')
@@ -322,3 +326,7 @@ class RcLdapGroup(ldapdb.models.Model):
             self._set_base_dn(org)
         force_insert = kwargs.pop('force_insert',None)
         super(RcLdapGroup,self).save(*args,**kwargs)
+
+
+def date_to_sp_expire (date_, epoch=datetime.date(year=1970, day=1, month=1)):
+    return (date_ - epoch).days
