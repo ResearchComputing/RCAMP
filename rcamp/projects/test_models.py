@@ -94,14 +94,14 @@ class AllocationCreateTestCase(TestCase):
         })
         self.ar_dict = {
             'project': self.proj,
-            'time_requested': 1234,
+            'amount_awarded': 1234,
         }
 
     def test_create_allocation_from_request(self):
         alloc = Allocation.objects.create_allocation_from_request(**self.ar_dict)
 
         self.assertEquals(alloc.project,self.proj)
-        self.assertEquals(alloc.amount,self.ar_dict['time_requested'])
+        self.assertEquals(alloc.amount,self.ar_dict['amount_awarded'])
         self.assertIsNotNone(alloc.start_date)
         self.assertIsNotNone(alloc.end_date)
 
@@ -133,6 +133,7 @@ class AllocationRequestTestCase(TestCase):
             'abstract': 'test abstract',
             'funding': 'test funding',
             'time_requested': 1234,
+            'amount_awarded': 0,
             'disk_space': 1234,
             'software_request': 'none',
             'requester': 'testuser',
@@ -156,6 +157,7 @@ class AllocationRequestTestCase(TestCase):
     def test_approve_allocation_request(self):
         ar = AllocationRequest.objects.get(project=self.proj)
         self.assertEquals(ar.status,'w')
+        ar.amount_awarded = 1230
         ar.status = 'a'
         ar.save()
         self.assertEquals(ar.status,'a')
