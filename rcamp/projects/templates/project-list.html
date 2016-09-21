@@ -13,6 +13,12 @@
 
 {% block container %}
 <div class="row">
+
+  <ol class="breadcrumb">
+    <li><a href="{% url 'index' %}">Index</a></li>
+    <li class="active">My Projects</li>
+  </ol>
+
   <legend>My Projects</legend>
   <span id="scavenger-mailto">
     <i class="fa fa-info-circle" aria-hidden="true"></i>

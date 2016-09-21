@@ -13,16 +13,12 @@
 
 {% block container %}
 <div class="row">
-  <div class="mailto-help">
-    Questions about project creation?
-    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Creation">
-      Contact us
-    </a>
-    or view our
-    <a href="https://www.rc.colorado.edu/support/getting-started.html">
-      Getting Started Guide.
-    </a>
-  </div>
+  <ol class="breadcrumb">
+    <li><a href="{% url 'index' %}">Index</a></li>
+    <li><a href="{% url 'projects:project-list' %}">My Projects</a></li>
+    <li><a href="{% url 'projects:project-detail' pk=project.pk %}">{{ project.project_id}}</a></li>
+    <li class="active">Request Allocation</li>
+  </ol>
 
   {% if form.errors %}
   <div class="alert alert-danger alert-dismissable">
@@ -43,6 +39,18 @@
 
     <fieldset>
       <legend>Justification for Request</legend>
+      <div class="mailto-help">
+        <small>
+          Questions about project creation?
+          <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Creation">
+            Contact us
+          </a>
+          or view our
+          <a href="https://www.rc.colorado.edu/support/getting-started.html">
+            Getting Started Guide.
+          </a>
+        </small>
+      </div>
 
       {% if form.abstract.errors %}
       <div class="form-group has-error has-feedback">

@@ -13,14 +13,22 @@
 
 {% block container %}
 <div class="row">
+  <ol class="breadcrumb">
+    <li><a href="{% url 'index' %}">Index</a></li>
+    <li><a href="{% url 'projects:project-list' %}">My Projects</a></li>
+    <li><a href="{% url 'projects:project-detail' pk=project.pk %}">{{ project.project_id }}</a></li>
+    <li class="active">Allocation Request {{ object.pk }}</li>
+  </ol>
+
+  <legend>Allocation Request</legend>
   <div class="mailto-help">
+    <small>
       Questions about this allocation request?
       <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Allocation%20Request%20(%23{{object.pk}})">
           Contact us.
       </a>
+    </small>
   </div>
-
-  <legend>Allocation Request</legend>
   <div class="table-responsive">
     <table class="table table-striped">
       <tr>

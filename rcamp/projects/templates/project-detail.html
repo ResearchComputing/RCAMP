@@ -13,12 +13,12 @@
 
 {% block container %}
 <div class="row">
-  <div class="mailto-help">
-      Questions about this project or its allocations?
-      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20(%23{{object.project_id}})">
-          Contact us.
-      </a>
-  </div>
+
+  <ol class="breadcrumb">
+    <li><a href="{% url 'index' %}">Index</a></li>
+    <li><a href="{% url 'projects:project-list' %}">My Projects</a></li>
+    <li class="active">{{ object.project_id }}</li>
+  </ol>
 
   {% if edit_warning %}
   <div class="alert alert-danger" role="alert">
@@ -32,6 +32,14 @@
   <legend>Project: {{ object.project_id }}
     {% if user.username in object.managers %}<a href="{% url 'projects:project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
   </legend>
+  <div class="mailto-help">
+      <small>
+        Questions about this project or its allocations?
+        <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20(%23{{object.project_id}})">
+            Contact us.
+        </a>
+      </small>
+  </div>
   <div class="table-responsive">
     <table class="table table-striped">
       <tr>

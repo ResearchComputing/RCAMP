@@ -13,16 +13,24 @@
 
 {% block container %}
 <div class="row">
-  <div class="mailto-help">
-      Questions about this reference?
-      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Reference%20(%23{{object.pk}})">
-          Contact us.
-      </a>
-  </div>
+  <ol class="breadcrumb">
+    <li><a href="{% url 'index' %}">Index</a></li>
+    <li><a href="{% url 'projects:project-list' %}">My Projects</a></li>
+    <li><a href="{% url 'projects:project-detail' pk=project.pk %}">{{ project.project_id}}</a></li>
+    <li class="active">Reference {{ object.pk }}</li>
+  </ol>
 
   <legend>Reference
     {% if user.username in project.managers %}<a href="{% url 'projects:reference-edit' project_pk=project.pk pk=object.pk %}" class="project-edit-link">(edit reference)</a>{% endif %}
   </legend>
+  <div class="mailto-help">
+    <small>
+      Questions about this reference?
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Reference%20(%23{{object.pk}})">
+          Contact us.
+      </a>
+    </small>
+  </div>
   <div class="table-responsive">
     <table class="table table-striped">
       <tr>
