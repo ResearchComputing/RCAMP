@@ -102,6 +102,10 @@ class AccountRequest(models.Model):
         super(AccountRequest,self).save(*args,**kwargs)
 
 class IdTracker(models.Model):
+    class Meta:
+        verbose_name = 'ID tracker'
+        verbose_name_plural = 'ID trackers'
+
     category = models.CharField(max_length=12,blank=False,null=False,unique=True)
     min_id = models.IntegerField(blank=False,null=False)
     max_id = models.IntegerField(blank=False,null=False)
@@ -217,6 +221,10 @@ class RcLdapUserManager(models.Manager):
         return user
 
 class RcLdapUser(LdapUser):
+    class Meta:
+        verbose_name = 'LDAP user'
+        verbose_name_plural = 'LDAP users'
+
     def __init__(self,*args,**kwargs):
         super(RcLdapUser,self).__init__(*args,**kwargs)
         rdn = self.dn.lower().replace(self.base_dn.lower(), '')
@@ -282,6 +290,10 @@ class RcLdapGroupManager(models.Manager):
         return obj
 
 class RcLdapGroup(ldapdb.models.Model):
+    class Meta:
+        verbose_name = 'LDAP group'
+        verbose_name_plural = 'LDAP groups'
+
     def __init__(self,*args,**kwargs):
         super(RcLdapGroup,self).__init__(*args,**kwargs)
         rdn = self.dn.lower().replace(self.base_dn.lower(), '')
