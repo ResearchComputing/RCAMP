@@ -26,15 +26,15 @@
         <h3 class="text-muted"><img src="https://www.rc.colorado.edu/sites/all/themes/research/logo.png" /></h3>
         <ul class="nav nav-justified">
             <li><a href="http://www.rc.colorado.edu">Home</a></li>
-            {% if request.user.is_authenticated %}
-            <li><a href="/logout">Logout</a></li>
-            {% else %}
-            <li><a href="/login">Login</a></li>
-            {% endif %}
             <li><a href="https://www.rc.colorado.edu/resources">Resources</a></li>
             <li><a href="https://www.rc.colorado.edu/support/allocationguidelines">Guidelines</a></li>
             <li><a href="https://www.rc.colorado.edu/support">Support</a></li>
             <li><a href="https://www.rc.colorado.edu/contact">Contact Us</a></li>
+            {% if request.user.is_authenticated %}
+            <li class="logout"><a href="/logout">Logout</a></li>
+            {% else %}
+            <li class="login"><a href="/login">Login</a></li>
+            {% endif %}
         </ul>
       </div>
 

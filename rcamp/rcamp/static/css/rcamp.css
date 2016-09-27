@@ -10,3 +10,16 @@ div.mailto-help {
 ol.breadcrumb {
   background-color: transparent;
 }
+
+form .help {
+    font-size: small;
+    font-style: italic;
+}
+
+.masthead .login a {
+    color: #3c763d;
+}
+
+.masthead .logout a {
+    color: #a94442;
+}
