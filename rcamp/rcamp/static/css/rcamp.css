@@ -10,3 +10,8 @@ div.mailto-help {
 ol.breadcrumb {
   background-color: transparent;
 }
+
+form .help {
+    font-size: small;
+    font-style: italic;
+}
