@@ -83,14 +83,14 @@ class AdminTestCase(BaseCase):
     def test_index(self):
         response = self.client.get('/admin/accounts/')
         self.assertContains(response, "Account requests")
-        self.assertContains(response, "Rc ldap groups")
-        self.assertContains(response, "Rc ldap users")
+        self.assertContains(response, "LDAP groups")
+        self.assertContains(response, "LDAP users")
 
 class AdminRcLdapGroupTestCase(AdminTestCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_group_list(self):
         response = self.client.get('/admin/accounts/rcldapgroup/')
-        self.assertContains(response, "Rc ldap groups")
+        self.assertContains(response, "LDAP groups")
         self.assertContains(response, "testgrp")
         self.assertContains(response, "1000")
 
@@ -108,7 +108,7 @@ class AdminRcLdapGroupTestCase(AdminTestCase):
     # @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     # def test_group_search(self):
     #     response = self.client.get('/admin/accounts/rcldapgroup/?q=test')
-    #     self.assertContains(response, "Rc ldap groups")
+    #     self.assertContains(response, "LDAP groups")
     #     self.assertContains(response, "testgrp")
     #     self.assertContains(response, "1000")
 
@@ -138,7 +138,7 @@ class AdminRcLdapUserTestCase(AdminTestCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_user_list(self):
         response = self.client.get('/admin/accounts/rcldapuser/')
-        self.assertContains(response, "Rc ldap users")
+        self.assertContains(response, "LDAP users")
         self.assertContains(response, "testuser")
         self.assertContains(response, "1000")
         self.assertContains(response, "testcuuser")
@@ -157,7 +157,7 @@ class AdminRcLdapUserTestCase(AdminTestCase):
     # @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     # def test_user_search(self):
     #     response = self.client.get('/admin/accounts/rcldapuser/?q=testcu')
-    #     self.assertContains(response, "Rc ldap user")
+    #     self.assertContains(response, "LDAP user")
     #     self.assertContains(response, "testcuuser")
     #     self.assertContains(response, "1200")
     #     self.assertNotContains(response, "testuser")
