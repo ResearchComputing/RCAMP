@@ -79,9 +79,12 @@ class Reference(models.Model):
 class AllocationManager(models.Manager):
     def create_allocation_from_request(self,**kwargs):
         project = kwargs.get('project')
-        amount_awarded = kwargs.get('amount_awarded')
-        if not all([project,amount_awarded]):
-            raise TypeError('Missing required field.')
+        if not project:
+            raise TypeError('Missing required field: project')
+        amount_awarded = (
+            kwargs.get('amount_awarded') or kwargs.get('time_requested'))
+        if not amount_awarded:
+            raise TypeError('Missing required field: amount_awarded')
 
         now = timezone.now()
         next_year = now + relativedelta(years=1)
@@ -178,7 +181,8 @@ class AllocationRequest(models.Model):
             # logger.info('Approving project request: '+self.__unicode__())
             alloc = Allocation.objects.create_allocation_from_request(
                 project = self.project,
-                amount_awarded = self.amount_awarded
+                amount_awarded = self.amount_awarded,
+                time_requested = self.time_requested
             )
             allocation_created_from_request.send(sender=alloc.__class__,allocation=alloc)
             self.approved_on=timezone.now()
