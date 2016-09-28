@@ -85,7 +85,7 @@ class AllocationManager(models.Manager):
         if not project:
             raise TypeError('Missing required field: project')
 
-        if not amount_awarded:
+        if amount_awarded == None:
             if not time_requested:
                 raise TypeError('Missing required field: amount_awarded or time_requested must be defined.')
             amount_awarded = time_requested
