@@ -95,6 +95,7 @@ class AllocationCreateTestCase(TestCase):
         self.ar_dict = {
             'project': self.proj,
             'amount_awarded': 1234,
+            'time_requested': 12345
         }
 
     def test_create_allocation_from_request(self):
@@ -105,15 +106,27 @@ class AllocationCreateTestCase(TestCase):
         self.assertIsNotNone(alloc.start_date)
         self.assertIsNotNone(alloc.end_date)
 
+        tmp_dict = copy.deepcopy(self.ar_dict)
+        del tmp_dict['amount_awarded']
+        alloc = Allocation.objects.create_allocation_from_request(**tmp_dict)
+        self.assertEquals(alloc.amount,self.ar_dict['time_requested'])
+
     def test_create_allocation_from_request_missing_fields(self):
-        for k in self.ar_dict.keys():
-            tmp_dict = copy.deepcopy(self.ar_dict)
-            del tmp_dict[k]
-            self.assertRaises(
-                    TypeError,
-                    Allocation.objects.create_allocation_from_request,
-                    **tmp_dict
-                )
+        tmp_dict = copy.deepcopy(self.ar_dict)
+        del tmp_dict['project']
+        self.assertRaises(
+                TypeError,
+                Allocation.objects.create_allocation_from_request,
+                **tmp_dict
+            )
+        tmp_dict = copy.deepcopy(self.ar_dict)
+        del tmp_dict['amount_awarded']
+        del tmp_dict['time_requested']
+        self.assertRaises(
+                TypeError,
+                Allocation.objects.create_allocation_from_request,
+                **tmp_dict
+            )
 
 # This test case covers AllocationRequest model functionality.
 class AllocationRequestTestCase(TestCase):
@@ -157,7 +170,6 @@ class AllocationRequestTestCase(TestCase):
     def test_approve_allocation_request(self):
         ar = AllocationRequest.objects.get(project=self.proj)
         self.assertEquals(ar.status,'w')
-        ar.amount_awarded = 1230
         ar.status = 'a'
         ar.save()
         self.assertEquals(ar.status,'a')
