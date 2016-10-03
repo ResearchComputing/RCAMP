@@ -7,6 +7,7 @@ import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
 import datetime
+import pam
 
 from projects.models import Project
 
@@ -279,6 +280,16 @@ class CuLdapUser(LdapUser):
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
         authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
+        return authed
+
+class CsuLdapUser(LdapUser):
+    base_dn = settings.LDAPCONFS['csuldap']['people_dn']
+    object_classes = []
+
+    @sensitive_variables('pwd')
+    def authenticate(self,pwd):
+        p = pam.pam()
+        authed = p.authenticate(self.username,pwd,service='login')
         return authed
 
 class RcLdapGroupManager(models.Manager):

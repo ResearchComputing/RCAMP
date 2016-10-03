@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
-import pam
+from django.views.decorators.debug import sensitive_variables
 from accounts.models import CuLdapUser
+from accounts.models import CsuLdapUser
 from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 from accounts.models import SHELL_CHOICES
@@ -29,27 +30,32 @@ class AccountRequestForm(forms.Form):
     petalibrary_active = forms.BooleanField(required=False)
     petalibrary_archive = forms.BooleanField(required=False)
 
+    @sensitive_variables('pw')
     def clean(self):
         cleaned_data = super(AccountRequestForm,self).clean()
         un = cleaned_data.get('username')
         pw = cleaned_data.get('password')
-        if AccountRequest.objects.filter(username=un).count() > 0:
-            raise forms.ValidationError(
-                'An account request has already been submitted for {}'.format(un)
-            )
-        try:
-            if RcLdapUser.objects.filter(username=un).count() > 0:
+        org = cleaned_data.get('organization')
+        ars = AccountRequest.objects.filter(username=un)
+        for ar in ars:
+            if org == ar.organization:
                 raise forms.ValidationError(
-                    'An account already exists with username {}'.format(un)
+                    'An account request has already been submitted for {}'.format(un)
                 )
-            org = cleaned_data.get('organization')
+        try:
+            rcu = RcLdapUser.objects.filter(username=un)
+            for u in rcu:
+                if org == u.organization:
+                    raise forms.ValidationError(
+                        'An account already exists with username {}'.format(un)
+                    )
             authed = False
             if org == 'ucb':
                 user = CuLdapUser.objects.get(username=un)
                 authed = user.authenticate(pw)
             elif org == 'csu':
-                p = pam.pam()
-                authed = p.authenticate(un,pw,service='login')
+                user = CsuLdapUser.objects.get(username=un)
+                authed = user.authenticate(pw)
             elif org == 'xsede':
                 pass
             if not authed:
@@ -58,6 +64,8 @@ class AccountRequestForm(forms.Form):
         except UnboundLocalError:
             raise forms.ValidationError('Invalid organization')
         except CuLdapUser.DoesNotExist:
+            raise forms.ValidationError('Invalid username')
+        except CsuLdapUser.DoesNotExist:
             raise forms.ValidationError('Invalid username')
         except TypeError:
             raise forms.ValidationError('Missing field(s)')

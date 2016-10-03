@@ -12,6 +12,7 @@ from accounts.forms import SponsoredAccountRequestForm
 from accounts.forms import ClassAccountRequestForm
 from accounts.forms import ProjectAccountRequestForm
 from accounts.models import CuLdapUser
+from accounts.models import CsuLdapUser
 from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
 from projects.models import Project
@@ -99,9 +100,9 @@ class AccountRequestFormTestCase(CuBaseCase):
         self.assertFalse(form.is_valid())
 
     # CSU request tests
-    @mock.patch('pam.pam.authenticate',MagicMock(return_value=True))
+    @mock.patch('accounts.models.CsuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_form_valid(self):
+    def test_csu_form_valid(self):
         form_data = {
             'organization': 'csu',
             'username': 'testuser',
@@ -112,9 +113,9 @@ class AccountRequestFormTestCase(CuBaseCase):
         form = AccountRequestForm(data=form_data)
         self.assertTrue(form.is_valid())
 
-    @mock.patch('pam.pam.authenticate',MagicMock(return_value=False))
+    @mock.patch('accounts.models.CsuLdapUser.authenticate',MagicMock(return_value=False))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_form_invalid_bad_creds(self):
+    def test_csu_form_invalid_bad_creds(self):
         form_data = {
             'organization': 'csu',
             'username': 'wronguser',
