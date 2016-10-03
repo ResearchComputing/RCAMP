@@ -3,6 +3,7 @@ from django.test import override_settings
 from mock import MagicMock
 import mock
 import datetime
+import pam
 
 from django.conf import settings
 
@@ -92,6 +93,31 @@ class AccountRequestFormTestCase(CuBaseCase):
         form_data = {
             'organization': 'ucb',
             'username': 'testuser',
+            'password': 'testpass',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    # CSU request tests
+    @mock.patch('pam.pam.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid(self):
+        form_data = {
+            'organization': 'csu',
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'faculty',
+            'login_shell': '/bin/bash',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    @mock.patch('pam.pam.authenticate',MagicMock(return_value=False))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_invalid_bad_creds(self):
+        form_data = {
+            'organization': 'csu',
+            'username': 'wronguser',
             'password': 'testpass',
         }
         form = AccountRequestForm(data=form_data)

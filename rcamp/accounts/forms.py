@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
+import pam
 from accounts.models import CuLdapUser
 from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
@@ -12,7 +13,7 @@ from projects.models import Project
 class AccountRequestForm(forms.Form):
     ORGS = (
         ('ucb','University of Colorado Boulder'),
-        # ('csu','Colorado State University'),
+        ('csu','Colorado State University'),
         # ('xsede','XSEDE'),
     )
     organization = forms.ChoiceField(choices=ORGS,required=True)
@@ -42,13 +43,15 @@ class AccountRequestForm(forms.Form):
                     'An account already exists with username {}'.format(un)
                 )
             org = cleaned_data.get('organization')
+            authed = False
             if org == 'ucb':
                 user = CuLdapUser.objects.get(username=un)
+                authed = user.authenticate(pw)
             elif org == 'csu':
-                pass
+                p = pam.pam()
+                authed = p.authenticate(un,pw,service='login')
             elif org == 'xsede':
                 pass
-            authed = user.authenticate(pw)
             if not authed:
                 raise forms.ValidationError('Invalid password')
             return cleaned_data
