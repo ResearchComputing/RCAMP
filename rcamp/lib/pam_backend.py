@@ -13,7 +13,7 @@ class PamBackend():
             return None
 
         p = pam.pam()
-        authed = p.authenticate(username, password, service=settings.PAM_SERVICE)
+        authed = p.authenticate(username, password, service=settings.PAM_SERVICES['default'])
 
         if authed:
             user_dict = {

@@ -146,8 +146,10 @@ GRAPPELLI_ADMIN_TITLE = 'RCAMP'
 
 REST_FRAMEWORK = {}
 
-PAM_SERVICE = 'login'
-CSU_PAM_SERVICE = 'csu'
+PAM_SERVICES = {
+    'default': 'login',
+    'csu': 'csu'
+}
 
 try:
     from local_settings import *
