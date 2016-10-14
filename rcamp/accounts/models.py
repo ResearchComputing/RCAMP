@@ -289,7 +289,7 @@ class CsuLdapUser(LdapUser):
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
         p = pam.pam()
-        authed = p.authenticate(self.username,pwd,service='login')
+        authed = p.authenticate(self.username, pwd, service=settings.CSU_PAM_SERVICE)
         return authed
 
 class RcLdapGroupManager(models.Manager):
