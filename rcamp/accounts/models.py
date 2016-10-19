@@ -291,6 +291,9 @@ class CsuLdapUser(LdapUser):
         p = pam.pam()
         authed = p.authenticate(self.username, pwd, service=settings.PAM_SERVICES['csu'])
         return authed
+# Monkey-patch LDAP attr names in field bindings
+CsuLdapUser._meta.get_field('username').db_column = 'sAMAccountName'
+CsuLdapUser._meta.get_field('username').column = 'sAMAccountName'
 
 class RcLdapGroupManager(models.Manager):
     def create(self,*args,**kwargs):

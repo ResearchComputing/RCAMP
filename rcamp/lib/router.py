@@ -17,6 +17,8 @@ class LdapRouter(object):
         if is_ldap_model(model):
             if model._meta.object_name.startswith('Cu'):
                 return 'culdap'
+            elif model._meta.object_name.startswith('Csu'):
+                return 'csuldap'
             else:
                 return 'rcldap'
         return None
@@ -26,6 +28,8 @@ class LdapRouter(object):
         if is_ldap_model(model):
             if model._meta.object_name.startswith('Cu'):
                 return 'culdap'
+            elif model._meta.object_name.startswith('Csu'):
+                return 'csuldap'
             else:
                 return 'rcldap'
         return None
@@ -36,6 +40,8 @@ class TestLdapRouter(LdapRouter):
         if is_ldap_model(model):
             if model._meta.object_name.startswith('Cu'):
                 return 'culdap_test'
+            elif model._meta.object_name.startswith('Csu'):
+                return 'culdap_test'
             else:
                 return 'rcldap_test'
         return None
@@ -44,6 +50,8 @@ class TestLdapRouter(LdapRouter):
         "Point all operations on LDAP models to the appropriate LDAP database"
         if is_ldap_model(model):
             if model._meta.object_name.startswith('Cu'):
+                return 'culdap_test'
+            elif model._meta.object_name.startswith('Csu'):
                 return 'culdap_test'
             else:
                 return 'rcldap_test'

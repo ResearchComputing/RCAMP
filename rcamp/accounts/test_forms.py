@@ -102,7 +102,7 @@ class AccountRequestFormTestCase(CuBaseCase):
     # CSU request tests
     @mock.patch('accounts.models.CsuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_csu_form_valid(self):
+    def xtest_csu_form_valid(self):
         form_data = {
             'organization': 'csu',
             'username': 'testuser',
