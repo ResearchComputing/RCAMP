@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
+from accounts.models import CsuLdapUser
 from projects.models import Project
 from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
@@ -31,7 +32,7 @@ class AccountRequestCreateView(FormView):
         if org == 'ucb':
             user = CuLdapUser.objects.get(username=un)
         elif org == 'csu':
-            pass
+            user = CsuLdapUser.objects.get(username=un)
         elif org =='xsede':
             pass
         login_shell = form.cleaned_data.get('login_shell')

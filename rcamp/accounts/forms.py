@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from django.views.decorators.debug import sensitive_variables
 from accounts.models import CuLdapUser
+from accounts.models import CsuLdapUser
 from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 from accounts.models import SHELL_CHOICES
@@ -12,7 +14,7 @@ from projects.models import Project
 class AccountRequestForm(forms.Form):
     ORGS = (
         ('ucb','University of Colorado Boulder'),
-        # ('csu','Colorado State University'),
+        ('csu','Colorado State University'),
         # ('xsede','XSEDE'),
     )
     organization = forms.ChoiceField(choices=ORGS,required=True)
@@ -28,33 +30,42 @@ class AccountRequestForm(forms.Form):
     petalibrary_active = forms.BooleanField(required=False)
     petalibrary_archive = forms.BooleanField(required=False)
 
+    @sensitive_variables('pw')
     def clean(self):
         cleaned_data = super(AccountRequestForm,self).clean()
         un = cleaned_data.get('username')
         pw = cleaned_data.get('password')
-        if AccountRequest.objects.filter(username=un).count() > 0:
-            raise forms.ValidationError(
-                'An account request has already been submitted for {}'.format(un)
-            )
-        try:
-            if RcLdapUser.objects.filter(username=un).count() > 0:
+        org = cleaned_data.get('organization')
+        ars = AccountRequest.objects.filter(username=un)
+        for ar in ars:
+            if org == ar.organization:
                 raise forms.ValidationError(
-                    'An account already exists with username {}'.format(un)
+                    'An account request has already been submitted for {}'.format(un)
                 )
-            org = cleaned_data.get('organization')
+        try:
+            rcu = RcLdapUser.objects.filter(username=un)
+            for u in rcu:
+                if org == u.organization:
+                    raise forms.ValidationError(
+                        'An account already exists with username {}'.format(un)
+                    )
+            authed = False
             if org == 'ucb':
                 user = CuLdapUser.objects.get(username=un)
+                authed = user.authenticate(pw)
             elif org == 'csu':
-                pass
+                user = CsuLdapUser.objects.get(username=un)
+                authed = user.authenticate(pw)
             elif org == 'xsede':
                 pass
-            authed = user.authenticate(pw)
             if not authed:
                 raise forms.ValidationError('Invalid password')
             return cleaned_data
         except UnboundLocalError:
             raise forms.ValidationError('Invalid organization')
         except CuLdapUser.DoesNotExist:
+            raise forms.ValidationError('Invalid username')
+        except CsuLdapUser.DoesNotExist:
             raise forms.ValidationError('Invalid username')
         except TypeError:
             raise forms.ValidationError('Missing field(s)')

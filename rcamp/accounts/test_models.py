@@ -29,6 +29,8 @@ cu_groups = ('ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 cu_people = ('ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
+xsede_groups = ('ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
 xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
 test_user = (
@@ -79,7 +81,7 @@ test_group = (
 # DATABASE_ROUTERS setting will need to be overridden
 # with the LDAP router for test.
 class BaseCase(TestCase):
-    directory = dict([admin, groups, cu_groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group])
+    directory = dict([admin, groups, cu_groups, xsede_groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group])
 
     @classmethod
     def setUpClass(cls):
@@ -357,6 +359,45 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(pgrp.dn, 'cn=requestuserpgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(pgrp.gid, 1001)
         self.assertEquals(sgrp.dn, 'cn=requestusergrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(sgrp.gid, 1002)
+        for grp in [pgrp,sgrp]:
+            self.assertEquals(grp.members, ['requestuser'])
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_create_xsede_user_from_request(self):
+        user_dict = {
+            'username': 'requestuser',
+            'first_name': 'Request',
+            'last_name': 'User',
+            'email': 'requser@requests.org',
+            'role': 'faculty',
+            'organization': 'xsede',
+            'login_shell': '/bin/bash',
+        }
+        u = RcLdapUser.objects.create_user_from_request(**user_dict)
+
+        self.assertEquals(u.dn, 'uid=requestuser,ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(u.username, 'requestuser')
+        self.assertEquals(u.first_name, 'Request')
+        self.assertEquals(u.last_name, 'User')
+        self.assertEquals(u.full_name, 'User, Request')
+        self.assertEquals(u.email, 'requser@requests.org')
+        self.assertEquals(u.uid, 1001)
+        self.assertEquals(u.gid, 1001)
+        self.assertEquals(u.gecos, 'Request User,,,')
+        self.assertEquals(u.home_directory, '/home/xsede/requestuser')
+        self.assertEquals(u.login_shell, '/bin/bash')
+        self.assertEquals(u.role, ['pi','faculty'])
+
+        idt = IdTracker.objects.get(category='posix')
+        self.assertEquals(idt.next_id, 1003)
+
+        pgrp = RcLdapGroup.objects.get(name='requestuserpgrp')
+        sgrp = RcLdapGroup.objects.get(name='requestusergrp')
+
+        self.assertEquals(pgrp.dn, 'cn=requestuserpgrp,ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(pgrp.gid, 1001)
+        self.assertEquals(sgrp.dn, 'cn=requestusergrp,ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(sgrp.gid, 1002)
         for grp in [pgrp,sgrp]:
             self.assertEquals(grp.members, ['requestuser'])

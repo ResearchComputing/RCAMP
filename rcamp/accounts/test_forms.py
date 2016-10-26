@@ -3,6 +3,7 @@ from django.test import override_settings
 from mock import MagicMock
 import mock
 import datetime
+import pam
 
 from django.conf import settings
 
@@ -11,6 +12,7 @@ from accounts.forms import SponsoredAccountRequestForm
 from accounts.forms import ClassAccountRequestForm
 from accounts.forms import ProjectAccountRequestForm
 from accounts.models import CuLdapUser
+from accounts.models import CsuLdapUser
 from accounts.models import AccountRequest
 from accounts.test_models import BaseCase
 from projects.models import Project
@@ -92,6 +94,31 @@ class AccountRequestFormTestCase(CuBaseCase):
         form_data = {
             'organization': 'ucb',
             'username': 'testuser',
+            'password': 'testpass',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    # CSU request tests
+    @mock.patch('accounts.models.CsuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def xtest_csu_form_valid(self):
+        form_data = {
+            'organization': 'csu',
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'faculty',
+            'login_shell': '/bin/bash',
+        }
+        form = AccountRequestForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    @mock.patch('accounts.models.CsuLdapUser.authenticate',MagicMock(return_value=False))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_csu_form_invalid_bad_creds(self):
+        form_data = {
+            'organization': 'csu',
+            'username': 'wronguser',
             'password': 'testpass',
         }
         form = AccountRequestForm(data=form_data)

@@ -7,6 +7,7 @@ import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
 import datetime
+import pam
 
 from projects.models import Project
 
@@ -280,6 +281,19 @@ class CuLdapUser(LdapUser):
     def authenticate(self,pwd):
         authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
         return authed
+
+class CsuLdapUser(LdapUser):
+    base_dn = settings.LDAPCONFS['csuldap']['people_dn']
+    object_classes = []
+
+    @sensitive_variables('pwd')
+    def authenticate(self,pwd):
+        p = pam.pam()
+        authed = p.authenticate(self.username, pwd, service=settings.PAM_SERVICES['csu'])
+        return authed
+# Monkey-patch LDAP attr names in field bindings
+CsuLdapUser._meta.get_field('username').db_column = 'sAMAccountName'
+CsuLdapUser._meta.get_field('username').column = 'sAMAccountName'
 
 class RcLdapGroupManager(models.Manager):
     def create(self,*args,**kwargs):
