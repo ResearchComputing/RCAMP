@@ -100,6 +100,32 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
         self.assertEquals(proj.organization,'ucb')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_project_create_missing_coll_man(self):
+        request = RequestFactory().post(
+                '/projects/create',
+                data={
+                    'project_id': 'ucb1',
+                    'title': 'Test Project',
+                    'description': 'A test project',
+                    'pi_emails': 'testuser@test.org,cuuser@cu.edu',
+                    'organization':'ucb',
+                }
+            )
+        request.user = self.user
+        view = ProjectCreateView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/projects/list/'))
+
+        proj = Project.objects.get(project_id='ucb1')
+        self.assertEquals(proj.title,'Test Project')
+        self.assertEquals(proj.description,'A test project')
+        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu'])
+        self.assertEquals(proj.managers,[u'testrequester'])
+        self.assertEquals(proj.collaborators,[])
+        self.assertEquals(proj.organization,'ucb')
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create_no_project_id(self):
         data = {
             'title': 'Test Project',
@@ -269,6 +295,30 @@ class ProjectEditTestCase(BaseCase,CbvCase):
         self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
         self.assertEquals(proj.managers,['testcuuser','testrequester','testuser'])
         self.assertEquals(proj.collaborators,['testuser','testcuuser'])
+        self.assertEquals(proj.organization,'ucb')
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_project_update_no_coll_man(self):
+        request = RequestFactory().post(
+                '/projects/list/{}/edit'.format(self.proj.pk),
+                data={
+                    'title': 'Test Project Updated',
+                    'description': 'A test project',
+                    'pi_emails': 'testuser@test.org,cuuser@cu.edu,test@test.org',
+                }
+            )
+        request.user = self.user
+        view = ProjectEditView.as_view()
+        response = view(request)
+
+        self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
+
+        proj = Project.objects.get(project_id='ucb1')
+        self.assertEquals(proj.title,'Test Project Updated')
+        self.assertEquals(proj.description,'A test project')
+        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
+        self.assertEquals(proj.managers,[u'testuser'])
+        self.assertEquals(proj.collaborators,[])
         self.assertEquals(proj.organization,'ucb')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])

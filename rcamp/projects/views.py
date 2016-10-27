@@ -67,11 +67,20 @@ class ProjectCreateView(FormView):
     def form_valid(self, form):
         user = self.request.user
         managers = form.cleaned_data['managers']
+        collaborators = form.cleaned_data['collaborators']
+        if not collaborators:
+            collaborators = []
         if user.username not in managers:
-            managers = ast.literal_eval(managers)
+            if not managers:
+                managers = []
+            else:
+                managers = ast.literal_eval(managers)
             managers.append(user.username)
             managers = str(managers)
-            form.cleaned_data.update({'managers':managers})
+            form.cleaned_data.update({
+                'managers':managers,
+                'collaborators': collaborators
+            })
         proj = Project.objects.create(**form.cleaned_data)
         project_created_by_user.send(sender=proj.__class__,project=proj)
         self.success_url = reverse_lazy(
@@ -118,11 +127,20 @@ class ProjectEditView(FormView):
     def form_valid(self, form):
         user = self.request.user
         managers = form.cleaned_data['managers']
+        collaborators = form.cleaned_data['collaborators']
+        if not collaborators:
+            collaborators = []
         if user.username not in managers:
-            managers = ast.literal_eval(managers)
+            if not managers:
+                managers = []
+            else:
+                managers = ast.literal_eval(managers)
             managers.append(user.username)
             managers = str(managers)
-            form.cleaned_data.update({'managers':managers})
+            form.cleaned_data.update({
+                'managers':managers,
+                'collaborators': collaborators
+            })
         proj = Project.objects.filter(
                 pk=self.object.pk
             ).update(
