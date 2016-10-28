@@ -136,11 +136,23 @@
   <fieldset>
     <legend>Project Managers</legend>
     {{ form.managers }}
+    {% if form.managers.errors %}
+    <div class="alert alert-danger alert-dismissable">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <strong>{{ form.managers.errors }}</strong>
+    </div>
+    {% endif %}
   </fieldset>
 
   <fieldset>
     <legend>Project Collaborators</legend>
     {{ form.collaborators }}
+    {% if form.collaborators.errors %}
+    <div class="alert alert-danger alert-dismissable">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <strong>{{ form.collaborators.errors }}</strong>
+    </div>
+    {% endif %}
   </fieldset>
 
   <div class="col-sm-2 col-sm-offset-5 request-submit">
