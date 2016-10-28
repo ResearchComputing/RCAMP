@@ -6,27 +6,14 @@ from accounts.models import RcLdapUser
 from projects.models import Project
 
 
+def get_user_choices ():
+    for user in RcLdapUser.objects.all().order_by('username'):
+        user_display = '{0} ({1} {2})'.format(
+            user.username, user.first_name, user.last_name)
+        yield (user.username, user_display)
+
 
 class ProjectForm(forms.ModelForm):
-    def __init__(self,*args,**kwargs):
-        super(ProjectForm,self).__init__(*args,**kwargs)
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
-        self.fields['managers'].required = False
-        self.fields['managers'].widget = widgets.FilteredSelectMultiple(
-                                        choices=user_tuple,
-                                        verbose_name='Managers',
-                                        is_stacked=False)
-
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
-        self.fields['collaborators'].required = False
-        self.fields['collaborators'].widget = widgets.FilteredSelectMultiple(
-                                        choices=user_tuple,
-                                        verbose_name='Collaborators',
-                                        is_stacked=False)
-
-    pi_emails = MultiEmailField(required=True)
 
     class Meta:
         model = Project
@@ -39,30 +26,36 @@ class ProjectForm(forms.ModelForm):
             'organization',
         ]
 
-class ProjectEditForm(forms.Form):
-    def __init__(self,*args,**kwargs):
-        super(ProjectEditForm,self).__init__(*args,**kwargs)
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
-        self.fields['managers'].required = False
-        self.fields['managers'].widget = widgets.FilteredSelectMultiple(
-                                        choices=user_tuple,
-                                        verbose_name='Managers',
-                                        is_stacked=False)
+        widgets = {
+            'managers': widgets.FilteredSelectMultiple(
+                verbose_name='Managers', is_stacked=False),
+            'collaborators': widgets.FilteredSelectMultiple(
+                verbose_name='Collaborators', is_stacked=False),
+        }
 
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
-        self.fields['collaborators'].required = False
-        self.fields['collaborators'].widget = widgets.FilteredSelectMultiple(
-                                        choices=user_tuple,
-                                        verbose_name='Collaborators',
-                                        is_stacked=False)
+    pi_emails = MultiEmailField(required=True)
+    managers = forms.MultipleChoiceField(choices=get_user_choices, required=False)
+    collaborators = forms.MultipleChoiceField(choices=get_user_choices, required=False)
+
+
+class ProjectEditForm(forms.Form):
 
     title = forms.CharField(max_length=256,required=True)
     description = forms.CharField(widget=forms.Textarea,required=True)
     pi_emails = MultiEmailField(required=True)
-    managers = forms.CharField(max_length=2048)
-    collaborators = forms.CharField(max_length=2048)
+    managers = forms.MultipleChoiceField(
+        choices=get_user_choices,
+        widget=widgets.FilteredSelectMultiple(
+                verbose_name='Managers', is_stacked=False),
+        required=False,
+    )
+    collaborators = forms.MultipleChoiceField(
+        choices=get_user_choices,
+        widget=widgets.FilteredSelectMultiple(
+            verbose_name='Collaborators', is_stacked=False),
+        required=False,
+    )
+
 
 class ReferenceForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea,required=True)

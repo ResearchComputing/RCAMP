@@ -2,6 +2,8 @@ from django.test import TestCase
 from django.test import RequestFactory
 from django.test import override_settings
 
+from django.http.response import HttpResponseRedirect
+
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
@@ -10,12 +12,34 @@ from accounts.test_views import CbvCase
 from projects.models import Project
 from projects.models import Reference
 from projects.models import AllocationRequest
+from projects.forms import RcLdapUser
 from projects.views import ProjectListView
 from projects.views import ProjectCreateView
 from projects.views import ProjectEditView
 from projects.views import ReferenceCreateView
 from projects.views import ReferenceEditView
 from projects.views import AllocationRequestCreateView
+
+import mock
+
+
+class RcLdapUserMock (object):
+    def __init__ (self, username, first_name, last_name):
+        self.username = username
+        self.first_name = first_name
+        self.last_name = last_name
+
+
+class RcLdapUserQuerySet (object):
+    order_by = mock.MagicMock(return_value=[
+        RcLdapUserMock('testuser', 'Test', 'User'),
+        RcLdapUserMock('testcuuser', 'Test', 'CUUser'),
+        RcLdapUserMock('testrequester', 'Test', 'Requester'),
+    ])
+
+
+class RcLdapUserObjectManager (object):
+    all = mock.MagicMock(return_value=RcLdapUserQuerySet())
 
 
 # This test case covers the project list view.
@@ -56,6 +80,7 @@ class ProjectListTestCase(CbvCase):
         self.assertTrue(response.url.endswith('/login?next=/projects/list'))
 
 # This test case covers the project creation page.
+@mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
 class ProjectCreateTestCase(BaseCase,CbvCase):
     def setUp(self):
         super(ProjectCreateTestCase,self).setUp()
@@ -115,6 +140,7 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
         view = ProjectCreateView.as_view()
         response = view(request)
 
+        self.assertIs(response.__class__, HttpResponseRedirect)
         self.assertTrue(response.url.startswith('/projects/list/'))
 
         proj = Project.objects.get(project_id='ucb1')
@@ -220,7 +246,9 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
                 **{}
             )
 
+
 # This test case covers the project edit page.
+@mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
 class ProjectEditTestCase(BaseCase,CbvCase):
     def setUp(self):
         super(ProjectEditTestCase,self).setUp()
@@ -261,6 +289,7 @@ class ProjectEditTestCase(BaseCase,CbvCase):
         view = ProjectEditView.as_view()
         response = view(request)
 
+        self.assertIs(response.__class__, HttpResponseRedirect)
         self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
 
         proj = Project.objects.get(project_id='ucb1')
@@ -287,6 +316,7 @@ class ProjectEditTestCase(BaseCase,CbvCase):
         view = ProjectEditView.as_view()
         response = view(request)
 
+        self.assertIs(response.__class__, HttpResponseRedirect)
         self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
 
         proj = Project.objects.get(project_id='ucb1')
@@ -311,6 +341,7 @@ class ProjectEditTestCase(BaseCase,CbvCase):
         view = ProjectEditView.as_view()
         response = view(request)
 
+        self.assertIs(response.__class__, HttpResponseRedirect)
         self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
 
         proj = Project.objects.get(project_id='ucb1')

@@ -8,7 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
-import ast
 
 from mailer.signals import project_created_by_user
 from mailer.signals import allocation_request_created_by_user
@@ -60,34 +59,23 @@ class ProjectDetailView(DetailView):
         context['allocation_requests'] = allocation_requests
         return context
 
+
 class ProjectCreateView(FormView):
     template_name = 'project-create.html'
     form_class = ProjectForm
 
     def form_valid(self, form):
-        user = self.request.user
-        managers = form.cleaned_data['managers']
-        collaborators = form.cleaned_data['collaborators']
-        if not collaborators:
-            collaborators = []
-        if user.username not in managers:
-            if not managers:
-                managers = []
-            else:
-                managers = ast.literal_eval(managers)
-            managers.append(user.username)
-            managers = str(managers)
-            form.cleaned_data.update({
-                'managers':managers,
-                'collaborators': collaborators
-            })
-        proj = Project.objects.create(**form.cleaned_data)
-        project_created_by_user.send(sender=proj.__class__,project=proj)
+        creator = self.request.user
+        if creator.username not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(creator.username)
+        project = Project.objects.create(**form.cleaned_data)
+        project_created_by_user.send(sender=project.__class__, project=project)
         self.success_url = reverse_lazy(
             'projects:project-detail',
-            kwargs={'pk':proj.pk}
+            kwargs={'pk':project.pk},
         )
-        return super(ProjectCreateView,self).form_valid(form)
+        return super(ProjectCreateView, self).form_valid(form)
+
 
 class ProjectEditView(FormView):
     template_name = 'project-edit.html'
@@ -125,23 +113,10 @@ class ProjectEditView(FormView):
         return initial
 
     def form_valid(self, form):
-        user = self.request.user
-        managers = form.cleaned_data['managers']
-        collaborators = form.cleaned_data['collaborators']
-        if not collaborators:
-            collaborators = []
-        if user.username not in managers:
-            if not managers:
-                managers = []
-            else:
-                managers = ast.literal_eval(managers)
-            managers.append(user.username)
-            managers = str(managers)
-            form.cleaned_data.update({
-                'managers':managers,
-                'collaborators': collaborators
-            })
-        proj = Project.objects.filter(
+        editor = self.request.user
+        if editor.username not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(editor.username)
+        project = Project.objects.filter(
                 pk=self.object.pk
             ).update(
                 **form.cleaned_data
@@ -151,6 +126,7 @@ class ProjectEditView(FormView):
             kwargs={'pk':self.object.pk}
         )
         return super(ProjectEditView,self).form_valid(form)
+
 
 class ReferenceDetailView(DetailView):
     model = Reference
