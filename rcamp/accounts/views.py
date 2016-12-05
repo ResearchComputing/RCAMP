@@ -75,6 +75,11 @@ class AccountRequestCreateView(FormView):
 
         account_request_received.send(sender=ar.__class__,account_request=ar)
 
+        # Auto-approve CSU requests
+        if org == 'csu':
+            ar.status = 'a'
+            ar.save()
+
         self.success_url = reverse_lazy('accounts:account-request-review', kwargs={'request_id':ar.id})
         return super(AccountRequestCreateView,self).form_valid(form)
 

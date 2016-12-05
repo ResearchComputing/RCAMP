@@ -103,6 +103,33 @@ class AccountRequestTestCase(CuBaseCase,CbvCase):
 
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_request_create_csu(self):
+        request = RequestFactory().post(
+                '/accounts/account-request/create/general',
+                data={
+                    'organization':'csu',
+                    'username':'testuser',
+                    'password':'testpass',
+                    'login_shell': '/bin/bash',
+                    'role': 'faculty',
+                    'summit':True,
+                    'petalibrary_archive':True,
+                }
+            )
+
+        from accounts.models import CuLdapUser
+        user = CuLdapUser.objects.get(username='testuser')
+        with mock.patch('accounts.models.CsuLdapUser.objects.get',MagicMock(return_value=user)):
+            view = AccountRequestCreateView.as_view()
+            response = view(request)
+
+            self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
+
+            ar = AccountRequest.objects.get(username='testuser')
+            self.assertEquals(ar.status,'a')
+
+    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_missing_username(self):
         request = RequestFactory().post(
                 '/accounts/account-request/create/general',
