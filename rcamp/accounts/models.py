@@ -49,7 +49,7 @@ class AccountRequest(models.Model):
         ('i','Incomplete'),
     )
 
-    username = models.CharField(max_length=12, unique=True)
+    username = models.CharField(max_length=48, unique=True)
     first_name = models.CharField(max_length=128,blank=False,null=False)
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
