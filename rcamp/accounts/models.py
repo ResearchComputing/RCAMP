@@ -195,6 +195,7 @@ class RcLdapUserManager(models.Manager):
         user_fields['organization'] = organization
 
         role = kwargs.get('role')
+        role = str(role)
         if role:
             if role == 'sponsored':
                 today = datetime.date.today()
