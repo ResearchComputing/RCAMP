@@ -16,7 +16,9 @@ from accounts.views import SponsoredAccountRequestCreateView
 from accounts.views import ClassAccountRequestCreateView
 from accounts.views import ProjectAccountRequestCreateView
 from accounts.models import AccountRequest
+from accounts.models import IdTracker
 from projects.models import Project
+
 
 
 # Adds method for returning Class-Based View instance, so that
@@ -120,13 +122,14 @@ class AccountRequestTestCase(CuBaseCase,CbvCase):
         from accounts.models import CuLdapUser
         user = CuLdapUser.objects.get(username='testuser')
         with mock.patch('accounts.models.CsuLdapUser.objects.get',MagicMock(return_value=user)):
-            view = AccountRequestCreateView.as_view()
-            response = view(request)
+            with mock.patch('accounts.models.RcLdapUser.objects.create_user_from_request',MagicMock(return_value=True)):
+                view = AccountRequestCreateView.as_view()
+                response = view(request)
 
-            self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
+                self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
 
-            ar = AccountRequest.objects.get(username='testuser')
-            self.assertEquals(ar.status,'a')
+                ar = AccountRequest.objects.get(username='testuser')
+                self.assertEquals(ar.status,'a')
 
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])

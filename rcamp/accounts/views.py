@@ -77,8 +77,11 @@ class AccountRequestCreateView(FormView):
 
         # Auto-approve CSU requests
         if org == 'csu':
-            ar.status = 'a'
-            ar.save()
+            #Force AR to load from db
+            ar_loaded = AccountRequest.objects.get(username=user.username,organization=org)
+
+            ar_loaded.status = 'a'
+            ar_loaded.save()
 
         self.success_url = reverse_lazy('accounts:account-request-review', kwargs={'request_id':ar.id})
         return super(AccountRequestCreateView,self).form_valid(form)
