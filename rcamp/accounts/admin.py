@@ -11,7 +11,7 @@ from projects.models import Project
 
 
 
-class AccountRequestForm(forms.ModelForm):
+class AccountRequestAdminForm(forms.ModelForm):
     projects = forms.ModelMultipleChoiceField(
         queryset=Project.objects.all(),
         required=False,
@@ -20,6 +20,28 @@ class AccountRequestForm(forms.ModelForm):
             False,
         )
     )
+
+    class Meta:
+        model = AccountRequest
+        exclude = ()
+
+    def clean(self):
+        # import pdb;pdb.set_trace()
+        super(AccountRequestAdminForm,self).clean()
+        conditions = [
+            self.instance,
+            self.instance.status != 'a',
+            self.cleaned_data['status'] == 'a'
+        ]
+        if all(conditions):
+            un = self.cleaned_data['username']
+            org = self.cleaned_data['organization']
+            rc_users = RcLdapUser.objects.filter(username=un)
+            for user in rc_users:
+                # org formatted as ou=ucb, so it must be parsed
+                user_org = user.org.split('=')[-1]
+                if user_org == org:
+                    raise forms.ValidationError('RC Account already exists: {}'.format(un))
 
 @admin.register(AccountRequest)
 class AccountRequestAdmin(admin.ModelAdmin):
@@ -43,7 +65,7 @@ class AccountRequestAdmin(admin.ModelAdmin):
         'username',
         'role',
     ]
-    form = AccountRequestForm
+    form = AccountRequestAdminForm
 
 class RcLdapUserForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):

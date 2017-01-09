@@ -34,7 +34,7 @@ xsede_groups = ('ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
 xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
     'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
 test_user = (
-    'uid=testuser,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
+    'uid=testuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
         'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson','shadowAccount'],
         'cn': ['user, test'],
         'givenName': ['test'],

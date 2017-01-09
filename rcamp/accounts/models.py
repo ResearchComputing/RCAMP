@@ -258,7 +258,8 @@ class RcLdapUser(LdapUser):
         if org in [o[0] for o in ORGANIZATIONS]:
             ou = 'ou={}'.format(org)
             self.org = ou
-            self.base_dn = ','.join([ou,self.base_dn])
+            if ou not in self.base_dn:
+                self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
 

@@ -4,6 +4,7 @@ from mock import MagicMock
 import mock
 import datetime
 import pam
+import copy
 
 from django.conf import settings
 
@@ -11,6 +12,7 @@ from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
 from accounts.forms import ClassAccountRequestForm
 from accounts.forms import ProjectAccountRequestForm
+from accounts.admin import AccountRequestAdminForm
 from accounts.models import CuLdapUser
 from accounts.models import CsuLdapUser
 from accounts.models import AccountRequest
@@ -144,6 +146,61 @@ class AccountRequestFormTestCase(CuBaseCase):
             'password': 'testpass',
         }
         form = AccountRequestForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+# This test case covers the functionality of the account request form
+# provided in the admin interface.
+class AccountRequestAdminFormTestCase(BaseCase):
+    def setUp(self):
+        super(AccountRequestAdminFormTestCase,self).setUp()
+        self.ar_dict = {
+            'organization': 'ucb',
+            'username': 'testuser',
+            'first_name': 'test',
+            'last_name': 'user',
+            'email': 'testuser@test.org',
+            'role': 'faculty',
+            'login_shell': '/bin/bash',
+            'status': 'p'
+        }
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid_create_approve_request(self):
+        form_data = {
+            'organization': 'ucb',
+            'username': 'newtestuser',
+            'first_name': 'test',
+            'last_name': 'user',
+            'email': 'newtestuser@test.org',
+            'role': 'faculty',
+            'login_shell': '/bin/bash',
+            'status': 'p'
+        }
+        form = AccountRequestAdminForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+        ar = AccountRequest.objects.create(**form_data)
+        form_data['status'] = 'a'
+
+        form = AccountRequestAdminForm(data=form_data,instance=ar)
+        self.assertTrue(form.is_valid())
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_valid_request_modified(self):
+        ar = AccountRequest.objects.create(**self.ar_dict)
+        form_data = copy.deepcopy(self.ar_dict)
+        form_data['role'] = 'student'
+
+        form = AccountRequestAdminForm(data=form_data,instance=ar)
+        self.assertTrue(form.is_valid())
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_form_invalid_approval_account_exists(self):
+        ar = AccountRequest.objects.create(**self.ar_dict)
+        form_data = copy.deepcopy(self.ar_dict)
+        form_data['status'] = 'a'
+
+        form = AccountRequestAdminForm(data=form_data,instance=ar)
         self.assertFalse(form.is_valid())
 
 class AccountRequestFormRcLdapTestCase(BaseCase):
