@@ -346,7 +346,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.uid, 1001)
         self.assertEquals(u.gid, 1001)
         self.assertEquals(u.gecos, 'Request User,,,')
-        self.assertEquals(u.home_directory, '/home/ucb/requestuser')
+        self.assertEquals(u.home_directory, '/home/requestuser')
         self.assertEquals(u.login_shell, '/bin/bash')
         self.assertEquals(u.role, ['pi','faculty'])
 
@@ -385,7 +385,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.uid, 1001)
         self.assertEquals(u.gid, 1001)
         self.assertEquals(u.gecos, 'Request User,,,')
-        self.assertEquals(u.home_directory, '/home/xsede/requestuser')
+        self.assertEquals(u.home_directory, '/home/requestuser')
         self.assertEquals(u.login_shell, '/bin/bash')
         self.assertEquals(u.role, ['pi','faculty'])
 

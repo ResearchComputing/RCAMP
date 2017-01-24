@@ -190,7 +190,10 @@ class RcLdapUserManager(models.Manager):
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
-        user_fields['home_directory'] = '/home/%s/%s' % (organization,user_fields['username'])
+        org_un = user_fields['username']
+        if organization == 'csu':
+            org_un += '@colostate.edu'
+        user_fields['home_directory'] = '/home/%s' % org_un
         user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
 
