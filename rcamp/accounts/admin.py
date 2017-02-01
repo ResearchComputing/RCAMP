@@ -48,7 +48,7 @@ class AccountRequestAdmin(admin.ModelAdmin):
     def approve_requests(modeladmin, request, queryset):
         queryset.update(status='a')
     approve_requests.short_description = 'Approve selected account requests'
-    actions = [approve_requests]
+    # actions = [approve_requests]
     list_display = [
         'username',
         'first_name',
