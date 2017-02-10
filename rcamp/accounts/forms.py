@@ -19,7 +19,7 @@ class AccountRequestForm(forms.Form):
     )
     organization = forms.ChoiceField(choices=ORGS,required=True)
     username = forms.CharField(max_length=12,required=True)
-    password = forms.CharField(max_length=32,widget=forms.PasswordInput)
+    password = forms.CharField(max_length=255,widget=forms.PasswordInput)
 
     role = forms.ChoiceField(choices=REQUEST_ROLES)
     login_shell = forms.ChoiceField(required=False,choices=SHELL_CHOICES)
