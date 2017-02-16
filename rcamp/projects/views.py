@@ -45,6 +45,7 @@ class ProjectListView(ListView):
             general_account = 'csu-general'
         else:
             general_account = 'ucb-general'
+        context['general_account'] = general_account
         context['general_request_subject'] = GENERAL_ACCOUNT_REQUEST_SUBJECT.format(username=username, general_account=general_account)
         context['general_request_body'] = GENERAL_ACCOUNT_REQUEST_BODY.format(username=username, general_account=general_account)
 
