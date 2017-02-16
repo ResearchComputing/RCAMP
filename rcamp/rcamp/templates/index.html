@@ -1,5 +1,18 @@
 {% extends "base.html" %}
 
+{% block jumbotron_button %}
+<p><a data-toggle="modal" href="#helpmodal"
+      class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
+{% endblock %}
+
+{% block modal_title %}
+<h2 class="modal-title">Terms &amp; Conditions</h2>
+{% endblock %}
+
+{% block modal_body %}
+{% include "terms-and-conditions.html" %}
+{% endblock %}
+
 {% block container %}
 <div class="row">
 
