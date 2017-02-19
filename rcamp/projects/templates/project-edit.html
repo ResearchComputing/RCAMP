@@ -24,6 +24,11 @@
   </a>
 </div>
 
+<ol class="breadcrumb">
+  <li><a href="{% url 'index' %}">Index</a></li>
+  <li><a href="{% url 'projects:project-list' %}">My Projects</a></li>
+  <li class="active">{{ object.project_id }}</li>
+</ol>
 
 {% if form.errors %}
 <div class="alert alert-danger alert-dismissable">
