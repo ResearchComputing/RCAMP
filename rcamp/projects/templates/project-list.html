@@ -19,15 +19,14 @@
     <li class="active">My Projects</li>
   </ol>
 
-  <legend>My Projects</legend>
-  <span id="general-account-mailto">
-    <i class="fa fa-info-circle" aria-hidden="true"></i>
-    Request access to the <i>general</i> account
-    <a href="mailto:rc-help@colorado.edu?subject=Request%20access%20to%20general%20account">
-        by contacting us.
-    </a>
-  </span>
+  <div class="alert alert-info" role="alert">
+    <p id="general-account-mailto">
+      <strong><a href="mailto:rc-help@colorado.edu?subject={{general_request_subject|urlencode}}&body={{general_request_body|urlencode}}">Contact
+      us</a></strong> to request access to <code>{{general_account}}</code> which provides low-priority access to compute resources without requiring an allocation request.
+    </p>
+  </div>
 
+  <legend>My Projects</legend>
   <ul class="list-group">
     {% for project in object_list %}
       {% if user.username in project.managers %}

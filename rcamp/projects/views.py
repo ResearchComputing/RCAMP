@@ -3,6 +3,7 @@ from django.views.generic import ListView
 from django.views.generic import DetailView
 from django.views.generic.edit import FormView
 from django.db.models import Q
+import django.utils.http
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse_lazy
@@ -11,6 +12,7 @@ from django.shortcuts import redirect
 
 from mailer.signals import project_created_by_user
 from mailer.signals import allocation_request_created_by_user
+
 from projects.models import Project
 from projects.models import Reference
 from projects.models import Allocation
@@ -20,6 +22,9 @@ from projects.forms import ProjectEditForm
 from projects.forms import ReferenceForm
 from projects.forms import AllocationRequestForm
 
+
+GENERAL_ACCOUNT_REQUEST_SUBJECT = "{general_account} account request: {username}"
+GENERAL_ACCOUNT_REQUEST_BODY = "Please add me ({username}) to the {general_account} account. I will use it to [insert reason or activity here]."
 
 
 class ProjectListView(ListView):
@@ -33,16 +38,17 @@ class ProjectListView(ListView):
         )
 
     def get_context_data(self, **kwargs):
-        # user = self.request.user
         context = super(ProjectListView,self).get_context_data(**kwargs)
-        # try:
-        #     startup = Project.objects.get(
-        #         pi_emails__in=user.email,
-        #         is_startup=True
-        #     )
-        # except Project.DoesNotExist:
-        #     startup = None
-        # context['startup'] = startup
+
+        username = self.request.user.username
+        if username.endswith('@colostate.edu'):
+            general_account = 'csu-general'
+        else:
+            general_account = 'ucb-general'
+        context['general_account'] = general_account
+        context['general_request_subject'] = GENERAL_ACCOUNT_REQUEST_SUBJECT.format(username=username, general_account=general_account)
+        context['general_request_body'] = GENERAL_ACCOUNT_REQUEST_BODY.format(username=username, general_account=general_account)
+
         return context
 
 class ProjectDetailView(DetailView):
