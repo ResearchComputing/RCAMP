@@ -26,16 +26,16 @@
       {% if request.user.is_authenticated %}
       <span class="logout"><a href="/logout">Logout {{ request.user.username }}</a></span>
       {% else %}
-      <span class="login"><a href="/login">Login</a></span>
+      <span class="login"><a href="/login">Portal sign-in</a></span>
       {% endif %}
     </div>
 
     <div class="masthead">
         <h3 class="text-muted"><img src="https://www.rc.colorado.edu/sites/all/themes/research/logo.png" /></h3>
         <ul class="nav nav-justified">
+            <li><a href="{% url 'index' %}">Account portal</a></li>
             <li><a href="http://www.rc.colorado.edu">Home</a></li>
             <li><a href="https://www.rc.colorado.edu/resources">Resources</a></li>
-            <li><a href="https://www.rc.colorado.edu/support/allocationguidelines">Guidelines</a></li>
             <li><a href="https://www.rc.colorado.edu/support">Support</a></li>
             <li><a href="https://www.rc.colorado.edu/contact">Contact Us</a></li>
         </ul>
@@ -48,7 +48,7 @@
         <p>Welcome to Research Computing.</p>
         {% endblock %}
         {% block jumbotron_button %}
-        <p><a class="btn btn-primary btn-lg" role="button">Terms &amp; Policies &raquo;</a></p>
+        <p><a class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
         {% endblock %}
     </div>
     {% endblock %}

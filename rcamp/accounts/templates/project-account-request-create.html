@@ -9,7 +9,7 @@
 
 {% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
 {% block jumbotron_subheading %}
-<p>Request an account on the Janus supercomputer at the University of Colorado Boulder.</p>
+<p>Request an account with University of Colorado Boulder Research Computing.</p>
 {% endblock %}
 {% block jumbotron_button %}
 <p><a data-toggle="modal" href="#helpmodal"
@@ -97,7 +97,11 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_username">Username</label>
+        <div class="col-sm-12">
+          <p id="ucb-login-help"><i class="fa fa-info-circle" aria-hidden="true"></i> UCB users use their CU IdentiKey username and password.</p>
+          <p id="csu-login-help"><i class="fa fa-info-circle" aria-hidden="true"></i> CSU users use their CSU EID as username. Password is <code>${csu_password},${duo_otp}</code> or <code>${csu_password},push</code>.</p>
+        </div>
+        <label class="col-sm-2 control-label" for="id_username">Username</label>
             <div class="col-sm-8">
                 <input id="id_username" type="text" name="username" class="form-control"
                 {% if form.username.value %}value="{{ form.username.value }}"{% endif %}

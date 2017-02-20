@@ -10,58 +10,19 @@
 {% block jumbotron_subheading %}
 <p>Request a Research Computing account.</p>
 {% endblock %}
+
 {% block jumbotron_button %}
 <p><a data-toggle="modal" href="#helpmodal"
-class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
+      class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
 {% endblock %}
 
 {% block modal_title %}
 <h2 class="modal-title">Terms &amp; Conditions</h2>
 {% endblock %}
+
 {% block modal_body %}
-<p>Use of University of Colorado Research Computing resources,
-  including (but not limited to) the Janus and Summit supercomputers
-  must be acknowledged in any and all publications.</p>
-
-<h3>Janus</h3>
-
-<blockquote><p>This work utilized the Janus supercomputer, which is
-    supported by the National Science Foundation (award number
-    CNS-0821794) and the University of Colorado Boulder. The Janus
-    supercomputer is a joint effort of the University of Colorado
-    Boulder, the University of Colorado Denver and the National Center
-    for Atmospheric Research.</p></blockquote>
-
-<h3>Summit</h3>
-
-<blockquote><p>This work utilized the Summit supercomputer, which is
-    supported by the National Science Foundation, the University of
-    Colorado Boulder, and Colorado State University. The Summit
-    supercomputer is a joint effort of the University of Colorado
-    Boulder and Colorado State University.</p></blockquote>
-
-<h3>Export control</h3>
-
-<p>United States export control requires that the PI ensure and
-  certify compliance with the following:</p>
-
-<ul>
-  <li>The system will be used for fundamental research intended to be
-    published without any restrictions.</li>
-  <li>All related users are either (a) employees, students, or
-    visitors of a U.S. university, or (b) citizens or permanent
-    residents of the United States.</li>
-  <li>The PI will retain records or correspondence documenting the
-    export control status of every user requested.</li>
-</ul>
-
-<p>No HIPAA, FERPA, ITAR, classified, or copywrited data may be stored
-  on RC resources.</p>
-
-<p>The PI agrees to provide summaries of activities and
-  accomplishments resulting from use of the Janus or Summit systems to
-  facilitate reporting requirements of the NSF and the VCR office.</p>
-  {% endblock %}
+{% include "terms-and-conditions.html" %}
+{% endblock %}
 
 {% block container %}
 <div class="mailto-help">
@@ -82,7 +43,7 @@ class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a><
     </p>
   </a>
   <a href="{% url 'accounts:class-account-request-create' %}" class="list-group-item">
-    <h4 class="list-group-item-heading">I am enrolled in a class</h4>
+    <h4 class="list-group-item-heading">I am enrolled in a CU class</h4>
     <p class="list-group-item-text">
       Select this option if you are requesting an account because you are
       enrolled in a class which will require the use of Research Computing
@@ -90,19 +51,19 @@ class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a><
     </p>
   </a>
   <a href="{% url 'accounts:sponsored-account-request-create' %}" class="list-group-item">
-    <h4 class="list-group-item-heading">I am a sponsored affiliate</h4>
+    <h4 class="list-group-item-heading">I am a CU sponsored affiliate</h4>
     <p class="list-group-item-text">
       Select this option if you are a sponsored affiliate of the University of
       Colorado Boulder.
     </p>
   </a>
   <a href="{% url 'accounts:account-request-create' %}" class="list-group-item">
-    <h4 class="list-group-item-heading">I want to create a new project</h4>
+    <h4 class="list-group-item-heading">I am not affiliated with an existing project</h4>
     <p class="list-group-item-text">
-      Select this option if you are requesting an account in order to create
-      a new project on Research Computing resources.
+      Select this option if you want to create a new Research
+      Computing project or want to start using Research Computing
+      resources without a project.
     </p>
   </a>
 </div>
-
 {% endblock %}
