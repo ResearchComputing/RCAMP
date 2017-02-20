@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.core import mail
+from django.core.exceptions import ValidationError
 from django.template import Template,Context
 import time
 import socket
@@ -23,20 +24,39 @@ class MailNotifier(models.Model):
     subject = models.CharField(max_length=256)
     body = models.TextField()
 
+    def save(self,*args,**kwargs):
+        self.validate_templates()
+        super(MailNotifier,self).save(*args,**kwargs)
+
+    def validate_templates(self,ctx={}):
+        try:
+            self.make_email(ctx)
+        except:
+            raise ValueError('Cannot save notifier because there is a template error.')
 
     def send(self,context={}):
-        m = self.make_email(context)
-        m.send()
+        try:
+            m = self.make_email(context)
+            m.send()
 
-        mail_log = MailLog(
-            reference_name=self.name,
-            email_object=m.message().__str__(),
-            recipient_emails=','.join(self.make_mailto_list(context)),
-            from_host=socket.gethostname()
-            )
-        mail_log.save()
+            mail_log = MailLog(
+                reference_name=self.name,
+                email_object=m.message().__str__(),
+                recipient_emails=','.join(self.make_mailto_list(context)),
+                from_host=socket.gethostname()
+                )
+            mail_log.save()
 
-        return m.message()
+            return m.message()
+        except:
+            mail_log = MailLog(
+                reference_name='Error: {}'.format(self.name),
+                email_object=str(context),
+                recipient_emails='',
+                from_host=socket.gethostname()
+                )
+            mail_log.save()
+            return ''
 
     def make_email(self,context):
 

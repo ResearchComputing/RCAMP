@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.test import override_settings
+import copy
 
 
 from mailer.models import MailNotifier
@@ -29,7 +30,7 @@ class MailNotifierTestCase(TestCase):
             'username':'testuser',
             'email':'testuser@test.org',
         }
-        mn_dict = {
+        self.mn_dict = {
             'name':'account_request_received',
             'event':'account_request_received',
             'from_address':'test@test.org',
@@ -39,7 +40,7 @@ class MailNotifierTestCase(TestCase):
             'subject':'Hi, {{ username }}!',
             'body':'You, {{ username }}, did it!!!!',
         }
-        self.mn = MailNotifier.objects.create(**mn_dict)
+        self.mn = MailNotifier.objects.create(**self.mn_dict)
 
     def test_make_body(self):
         body = self.mn.make_body(self.ctx)
@@ -125,6 +126,17 @@ class MailNotifierTestCase(TestCase):
 
         ml = MailLog.objects.get()
         self.assertEquals(ml.recipient_emails,'requestuser@test.org,testuser@test.org')
+
+    @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
+    def test_save_tpl_error(self):
+        mn_error_dict = copy.deepcopy(self.mn_dict)
+        mn_error_dict['body'] = '{% if this will break %}'
+
+        self.assertRaises(
+            ValueError,
+            MailNotifier.objects.create,
+            **mn_error_dict
+        )
 
 class ARReceivedTestCase(TestCase):
     def setUp(self):
