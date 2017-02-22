@@ -45,7 +45,8 @@ class AccountRequestForm(forms.Form):
         try:
             rcu = RcLdapUser.objects.filter(username=un)
             for u in rcu:
-                if org == u.organization:
+                user_org = u.org.split('=')[-1]
+                if org == user_org.lower():
                     raise forms.ValidationError(
                         'An account already exists with username {}'.format(un)
                     )
