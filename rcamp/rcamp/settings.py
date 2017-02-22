@@ -151,6 +151,10 @@ PAM_SERVICES = {
     'csu': 'csu'
 }
 
+LICENSE_GROUPS = {
+    'ucb': 'ucb'
+}
+
 try:
     from local_settings import *
 except:

@@ -223,6 +223,16 @@ class RcLdapUserManager(models.Manager):
                 members=[username],
                 organization=organization
             )
+
+        # Add CU users to ucb posix group
+        if organization == 'ucb':
+            license_grp = settings.LICENSE_GROUPS['ucb']
+            ucb_grps = RcLdapGroup.objects.filter(name=license_grp)
+            if ucb_grps.count() > 0:
+                ucb_grp = ucb_grps[0]
+                ucb_grp.members.append(username)
+                ucb_grp.save(organization='ucb')
+
         return user
 
 class RcLdapUser(LdapUser):

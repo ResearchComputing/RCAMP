@@ -74,6 +74,15 @@ test_group = (
     }
 )
 
+test_license_group = (
+    'cn=ucb,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
+        'objectClass': ['top','posixGroup'],
+        'cn': ['ucb'],
+        'gidNumber': ['1010'],
+        'memberUid': []
+    }
+)
+
 # Base class to set up mock LDAP server for the remainder
 # of the test cases.
 #
@@ -81,7 +90,7 @@ test_group = (
 # DATABASE_ROUTERS setting will need to be overridden
 # with the LDAP router for test.
 class BaseCase(TestCase):
-    directory = dict([admin, groups, cu_groups, xsede_groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group])
+    directory = dict([admin, groups, cu_groups, xsede_groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group, test_license_group])
 
     @classmethod
     def setUpClass(cls):
@@ -325,6 +334,7 @@ class AccountCreationTestCase(BaseCase):
         idt.save()
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    @override_settings(LICENSE_GROUPS={'ucb':'ucb'})
     def test_create_user_from_request(self):
         user_dict = {
             'username': 'requestuser',
@@ -355,6 +365,7 @@ class AccountCreationTestCase(BaseCase):
 
         pgrp = RcLdapGroup.objects.get(name='requestuserpgrp')
         sgrp = RcLdapGroup.objects.get(name='requestusergrp')
+        license_grp = RcLdapGroup.objects.get(name='ucb')
 
         self.assertEquals(pgrp.dn, 'cn=requestuserpgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(pgrp.gid, 1001)
@@ -362,6 +373,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(sgrp.gid, 1002)
         for grp in [pgrp,sgrp]:
             self.assertEquals(grp.members, ['requestuser'])
+        # self.assertEquals(license_grp.members,['requestuser'])
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_create_xsede_user_from_request(self):
