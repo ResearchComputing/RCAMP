@@ -197,6 +197,23 @@ class MockLdapTestCase(BaseCase):
         self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_rcuser_save_without_ids(self):
+        user_dict = dict(
+            username='createtest',
+            first_name='c',
+            last_name='u',
+            full_name='u, c',
+            email='cu@cu.org',
+            modified_date=datetime.datetime(2015,11,06,03,43,24),
+            uid=1010,
+            gecos='c u,,,',
+            home_directory='/home/ucb/createtest'
+        )
+        u = RcLdapUser(**user_dict)
+        u.save(organization='ucb')
+        self.assertEquals(u.gid, 1010)
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_create(self):
         user_dict = dict(
                 username='createtest',
@@ -249,6 +266,23 @@ class MockLdapTestCase(BaseCase):
         g.save(organization='ucb')
         self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(g.gid, 1010)
+
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_rcgroup_save_without_gid(self):
+        id_tracker = IdTracker.objects.create(**{
+            'category': 'posix',
+            'min_id': 1000,
+            'max_id': 1010,
+            'next_id': 1001
+        })
+        grp_dict = dict(
+            name='createtestgrp',
+            members=['createtest']
+        )
+        g = RcLdapGroup(**grp_dict)
+        g.save(organization='ucb')
+        self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(g.gid, 1001)
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcgroup_create(self):

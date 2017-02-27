@@ -254,8 +254,8 @@ class RcLdapUser(LdapUser):
     base_dn = settings.LDAPCONFS['rcldap']['people_dn']
     object_classes = ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount']
     expires = ldap_fields.IntegerField(db_column='shadowExpire',blank=True,null=True)
-    uid = ldap_fields.IntegerField(db_column='uidNumber')
-    gid = ldap_fields.IntegerField(db_column='gidNumber')
+    uid = ldap_fields.IntegerField(db_column='uidNumber',null=True,blank=True)
+    gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
     gecos =  ldap_fields.CharField(db_column='gecos',default='')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
@@ -280,6 +280,18 @@ class RcLdapUser(LdapUser):
         org = kwargs.pop('organization', None)
         if org:
             self._set_base_dn(org)
+
+        # If no UID/GID specified, auto-assign
+        if (self.uid == None) and (self.gid == None):
+            id_tracker = IdTracker.objects.get(category='posix')
+            uid = id_tracker.get_next_id()
+            self.uid = uid
+            self.gid = uid
+        elif self.uid == None:
+            self.uid = self.gid
+        elif self.gid == None:
+            self.gid = self.uid
+
         super(RcLdapUser,self).save(*args,**kwargs)
 
 class CuLdapUser(LdapUser):
@@ -339,7 +351,7 @@ class RcLdapGroup(ldapdb.models.Model):
     object_classes = ['top','posixGroup']
     # posixGroup attributes
     # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
-    gid = ldap_fields.IntegerField(db_column='gidNumber')
+    gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
     name = ldap_fields.CharField(db_column='cn', max_length=200)
     members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
@@ -366,6 +378,13 @@ class RcLdapGroup(ldapdb.models.Model):
         if org:
             self._set_base_dn(org)
         force_insert = kwargs.pop('force_insert',None)
+
+        # If no GID specified, auto-assign
+        if self.gid == None:
+            id_tracker = IdTracker.objects.get(category='posix')
+            gid = id_tracker.get_next_id()
+            self.gid = gid
+
         super(RcLdapGroup,self).save(*args,**kwargs)
 
 
