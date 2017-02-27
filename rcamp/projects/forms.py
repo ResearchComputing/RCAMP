@@ -6,11 +6,14 @@ from accounts.models import RcLdapUser
 from projects.models import Project
 
 
-def get_user_choices ():
+def get_user_choices():
     for user in RcLdapUser.objects.all().order_by('username'):
+        username = user.username
+        if user.organization == 'ou=csu':
+            username = username + '@colostate.edu'
         user_display = '{0} ({1} {2})'.format(
-            user.username, user.first_name, user.last_name)
-        yield (user.username, user_display)
+            username, user.first_name, user.last_name)
+        yield (username, user_display)
 
 
 class ProjectForm(forms.ModelForm):

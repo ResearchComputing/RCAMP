@@ -5,6 +5,7 @@ from accounts.models import RcLdapUser
 from projects.models import Project
 from projects.models import Allocation
 from projects.models import AllocationRequest
+from projects.forms import get_user_choices
 
 
 
@@ -13,16 +14,14 @@ from projects.models import AllocationRequest
 class ProjectAdminForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(ProjectAdminForm,self).__init__(*args,**kwargs)
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
+        user_tuple = get_user_choices()
         self.fields['managers'].required = False
         self.fields['managers'].widget = admin.widgets.FilteredSelectMultiple(
                                         choices=user_tuple,
                                         verbose_name='Managers',
                                         is_stacked=False)
 
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
+        user_tuple = get_user_choices()
         self.fields['collaborators'].required = False
         self.fields['collaborators'].widget = admin.widgets.FilteredSelectMultiple(
                                         choices=user_tuple,
