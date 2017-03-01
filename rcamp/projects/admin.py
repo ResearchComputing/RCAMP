@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django import forms
+from django.core.urlresolvers import reverse
+from django.utils.safestring import mark_safe
 from lib.fields import CsvField
 from accounts.models import RcLdapUser
 from projects.models import Project
@@ -126,7 +128,8 @@ class AllocationRequestAdmin(admin.ModelAdmin):
     approve_requests.short_description = 'Approve selected allocation requests'
     actions = [approve_requests]
     list_display = [
-        'project',
+        'pk',
+        'project_link',
         'request_date',
         'time_requested',
         'status',
@@ -137,3 +140,12 @@ class AllocationRequestAdmin(admin.ModelAdmin):
     list_editable = [
         'status',
     ]
+
+    readonly_fields = ('project_link',)
+
+    def project_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:projects_project_change", args=(obj.project.pk,)),
+            obj.project.project_id
+        ))
+    project_link.short_description = 'project_link'
