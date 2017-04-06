@@ -17,9 +17,15 @@ from django.conf.urls import include, url
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
+from django.conf.urls import handler404
+from django.conf.urls import handler500
 # Make sure signals/receivers get loaded.
 from mailer import receivers
 
+
+
+handler404 = 'lib.views.handler404'
+handler500 = 'lib.views.handler500'
 
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
