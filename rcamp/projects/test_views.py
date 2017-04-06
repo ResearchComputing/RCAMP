@@ -24,17 +24,19 @@ import mock
 
 
 class RcLdapUserMock (object):
-    def __init__ (self, username, first_name, last_name):
+    def __init__ (self, username, first_name, last_name, organization):
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
+        self.organization = organization
 
 
 class RcLdapUserQuerySet (object):
     order_by = mock.MagicMock(return_value=[
-        RcLdapUserMock('testuser', 'Test', 'User'),
-        RcLdapUserMock('testcuuser', 'Test', 'CUUser'),
-        RcLdapUserMock('testrequester', 'Test', 'Requester'),
+        RcLdapUserMock('testuser', 'Test', 'User','ou=ucb'),
+        RcLdapUserMock('testcuuser', 'Test', 'CUUser','ou=ucb'),
+        RcLdapUserMock('testrequester', 'Test', 'Requester','ou=ucb'),
+        RcLdapUserMock('testcsurequester', 'Test', 'Requester','ou=csu'),
     ])
 
 
