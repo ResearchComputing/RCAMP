@@ -180,7 +180,11 @@ class RcLdapUserManager(models.Manager):
             raise TypeError('Missing required field.')
 
         id_tracker = IdTracker.objects.get(category='posix')
-        uid = id_tracker.get_next_id()
+        if organization == 'ucb':
+            cu_user = CuLdapUser.objects.get(username=username)
+            uid = cu_user.uid
+        else:
+            uid = id_tracker.get_next_id()
         user_fields = {}
         user_fields['first_name'] = first_name.strip()
         user_fields['last_name'] = last_name.strip()
