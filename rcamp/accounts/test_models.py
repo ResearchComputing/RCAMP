@@ -357,6 +357,9 @@ class IdTrackerTestCase(BaseCase):
 
 # This test case covers creating an LDAP user from
 # a request dictionary.
+class MockCuUser():
+    uid = 999000
+
 class AccountCreationTestCase(BaseCase):
     def setUp(self):
         super(AccountCreationTestCase,self).setUp()
@@ -367,9 +370,10 @@ class AccountCreationTestCase(BaseCase):
         )
         idt.save()
 
+    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=MockCuUser)
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     @override_settings(LICENSE_GROUPS={'ucb':'ucb'})
-    def test_create_user_from_request(self):
+    def test_create_user_from_request(self,mock_cu_user):
         user_dict = {
             'username': 'requestuser',
             'first_name': 'Request',
@@ -387,24 +391,24 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.last_name, 'User')
         self.assertEquals(u.full_name, 'User, Request')
         self.assertEquals(u.email, 'requser@requests.org')
-        self.assertEquals(u.uid, 1001)
-        self.assertEquals(u.gid, 1001)
+        self.assertEquals(u.uid, 999000)
+        self.assertEquals(u.gid, 999000)
         self.assertEquals(u.gecos, 'Request User,,,')
         self.assertEquals(u.home_directory, '/home/requestuser')
         self.assertEquals(u.login_shell, '/bin/bash')
         self.assertEquals(u.role, ['pi','faculty'])
 
         idt = IdTracker.objects.get(category='posix')
-        self.assertEquals(idt.next_id, 1003)
+        self.assertEquals(idt.next_id, 1002)
 
         pgrp = RcLdapGroup.objects.get(name='requestuserpgrp')
         sgrp = RcLdapGroup.objects.get(name='requestusergrp')
         license_grp = RcLdapGroup.objects.get(name='ucb')
 
         self.assertEquals(pgrp.dn, 'cn=requestuserpgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(pgrp.gid, 1001)
+        self.assertEquals(pgrp.gid, 999000)
         self.assertEquals(sgrp.dn, 'cn=requestusergrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(sgrp.gid, 1002)
+        self.assertEquals(sgrp.gid, 1001)
         for grp in [pgrp,sgrp]:
             self.assertEquals(grp.members, ['requestuser'])
         # self.assertEquals(license_grp.members,['requestuser'])
@@ -474,8 +478,9 @@ class AccountCreationTestCase(BaseCase):
                 gid=1001
             )
 
+    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=MockCuUser)
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_create_user_from_request_sponsored(self):
+    def test_create_user_from_request_sponsored(self,mock_cu_user):
         user_dict = {
             'username': 'requestuser',
             'first_name': 'Request',
