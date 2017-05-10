@@ -553,6 +553,8 @@ class AllocationRequestCreateTestCase(CbvCase):
         self.assertEquals(ar.disk_space,1234)
         self.assertEquals(ar.software_request,'none')
 
+        self.assertEquals(ar.requester,self.user.username)
+
     def test_allocationrequest_create_missing_fields(self):
         request = RequestFactory().post(
                 '/projects/list/{}/allocationrequests/create'.format(self.proj.pk),
