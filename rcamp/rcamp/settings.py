@@ -141,6 +141,11 @@ STATICFILES_DIRS = (
     os.path.join(os.path.dirname(os.path.abspath(__file__)),'static'),
 )
 
+# Media files (User-uploaded files)
+# https://docs.djangoproject.com/en/1.8/ref/settings/#media-root
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media','')
+
 # GRAPPELLI ADMIN SETTINGS
 GRAPPELLI_ADMIN_TITLE = 'RCAMP'
 
