@@ -371,7 +371,7 @@ class AllocationEndpointTestCase(TestCase):
         expected_content = [
             {
                 u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_1',
+                u'allocation_id': u'ucb1_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -392,7 +392,7 @@ class AllocationEndpointTestCase(TestCase):
             },
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb1_2',
+                u'allocation_id': u'ucb1_summit2',
                 u'created_on': u'2016-04-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -413,7 +413,7 @@ class AllocationEndpointTestCase(TestCase):
             },
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_1',
+                u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -442,12 +442,12 @@ class AllocationEndpointTestCase(TestCase):
         self.assertEquals(res.status_code, 405)
 
     def test_alloc_detail(self):
-        res = self.client.get('/api/allocations/ucb1_1/')
+        res = self.client.get('/api/allocations/ucb1_summit1/')
         self.assertEquals(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
             u'end_date': u'2017-02-02',
-            u'allocation_id': u'ucb1_1',
+            u'allocation_id': u'ucb1_summit1',
             u'created_on': u'2016-06-01',
             u'project': {
                 u'collaborators': u"[u'tu@tu.org']",
@@ -479,7 +479,7 @@ class AllocationEndpointTestCase(TestCase):
         expected_content = [
             {
                 u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_1',
+                u'allocation_id': u'ucb1_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -500,7 +500,7 @@ class AllocationEndpointTestCase(TestCase):
             },
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_1',
+                u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -534,7 +534,7 @@ class AllocationEndpointTestCase(TestCase):
         expected_content = [
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_1',
+                u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
