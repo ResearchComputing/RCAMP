@@ -515,10 +515,7 @@ class AccountRequestTestCase(BaseCase):
             'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
-
-    def test_loaded_values(self):
-        ar = AccountRequest.objects.get(username='testuser')
-        self.assertDictContainsSubset(self.ar_dict,ar._loaded_values)
+        MockLdapObjectManager.create_user_from_request.reset_mock()
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_update_account_request(self):
@@ -528,6 +525,29 @@ class AccountRequestTestCase(BaseCase):
         ar.save()
         self.assertEquals(ar.status,'p')
         self.assertIsNone(ar.approved_on)
+
+    @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_update_approved_request(self):
+        new_req = copy.deepcopy(self.ar_dict)
+        new_req['username'] = 'testuser1'
+        new_req['email'] = 'tu1@tu.org'
+        new_req['status'] = 'a'
+        ar = AccountRequest.objects.create(**new_req)
+        ar.first_name = 'Bob'
+        ar.save()
+        self.assertEqual(MockLdapObjectManager.create_user_from_request.call_count, 1)
+
+    @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
+    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    def test_create_and_approve_request(self):
+        new_req = copy.deepcopy(self.ar_dict)
+        new_req['username'] = 'testuser1'
+        new_req['email'] = 'tu1@tu.org'
+        new_req['status'] = 'a'
+        ar = AccountRequest.objects.create(**new_req)
+        self.assertEquals(ar.status,'a')
+        self.assertIsNotNone(ar.approved_on)
 
     @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])

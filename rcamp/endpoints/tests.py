@@ -52,13 +52,13 @@ class AccountRequestEndpointTestCase(TestCase):
         self.ar2.projects.add(self.proj)
 
         del ar_dict['resources_requested']
-        del ar_dict['approved_on']
         ar_dict.update(dict(
             username='testuser3',
             email='tu3@tu.org',
             status='a',
             notes='approved!',
-            id_verified_by='admin'
+            id_verified_by='admin',
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,05,01)),
         ))
         self.ar3 = AccountRequest.objects.create(**ar_dict)
 
