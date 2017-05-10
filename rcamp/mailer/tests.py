@@ -312,7 +312,8 @@ class AllocReqReceivedTestCase(TestCase):
     def test_allocation_request_received(self):
         allocation_request_created_by_user.send(
             sender='AllocationRequest',
-            allocation_request=self.ctx
+            allocation_request=self.ctx,
+            requester=self.ctx
         )
 
         from django.core.mail import outbox

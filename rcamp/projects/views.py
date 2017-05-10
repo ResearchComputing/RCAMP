@@ -13,6 +13,8 @@ from django.shortcuts import redirect
 from mailer.signals import project_created_by_user
 from mailer.signals import allocation_request_created_by_user
 
+from accounts.models import RcLdapUser
+
 from projects.models import Project
 from projects.models import Reference
 from projects.models import Allocation
@@ -269,11 +271,18 @@ class AllocationRequestCreateView(FormView):
 
     def form_valid(self, form):
         ar_dict = {
-            'project': self.project
+            'project': self.project,
+            'requester': self.request.user.username
         }
         ar_dict.update(form.cleaned_data)
         ar = AllocationRequest.objects.create(**ar_dict)
-        allocation_request_created_by_user.send(sender=ar.__class__,allocation_request=ar)
+
+        try:
+            requester = RcLdapUser.objects.get(username=ar.requester)
+        except RcLdapUser.DoesNotExist:
+            requester = None
+
+        allocation_request_created_by_user.send(sender=ar.__class__,allocation_request=ar,requester=requester)
         self.success_url = reverse_lazy(
             'projects:allocation-request-detail',
             kwargs={
