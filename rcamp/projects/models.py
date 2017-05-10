@@ -116,6 +116,8 @@ class Allocation(models.Model):
         return self.allocation_id
 
     def save(self,*args,**kwargs):
+        alloc_id_tpl = '{project_id}_summit{alloc_enum}'
+
         if (not self.allocation_id) or (self.allocation_id == ''):
             proj_id = self.project.project_id
             prefix_offset = len(proj_id) + 1
@@ -126,12 +128,18 @@ class Allocation(models.Model):
             ).order_by('-alloc_number_int')
 
             if allocs.count() == 0:
-                next_id = '{}_{}'.format(proj_id.lower(),'1')
+                next_id = alloc_id_tpl.format(
+                    project_id=proj_id.lower(),
+                    alloc_enum='1'
+                )
             else:
                 last_id = allocs[0].allocation_id
-                last_id = last_id.replace(proj_id+'_','')
+                last_id = last_id.replace(proj_id+'_summit','')
                 next_id = int(last_id) + 1
-                next_id = '{}_{}'.format(proj_id.lower(),str(next_id))
+                next_id = alloc_id_tpl.format(
+                    project_id=proj_id.lower(),
+                    alloc_enum=str(next_id)
+                )
             self.allocation_id = next_id
         super(Allocation,self).save(*args,**kwargs)
 

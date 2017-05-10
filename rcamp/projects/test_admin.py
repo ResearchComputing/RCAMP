@@ -159,14 +159,14 @@ class AdminAllocationTestCase(AllocationsAdminTestCase):
     def test_allocation_list(self):
         response = self.client.get('/admin/projects/allocation/')
         self.assertContains(response, "Allocations")
-        self.assertContains(response, "ucb1_1")
+        self.assertContains(response, "ucb1_summit1")
         self.assertContains(response, "50000")
 
     def test_allocation_detail(self):
         response = self.client.get(
             '/admin/projects/allocation/{}/'.format(self.test_alloc.pk)
         )
-        self.assertContains(response, "ucb1_1")
+        self.assertContains(response, "ucb1_summit1")
         self.assertContains(response, "50000")
         self.assertContains(response, "2016-02-02")
         self.assertContains(response, "2017-02-02")
@@ -182,5 +182,5 @@ class AdminAllocationTestCase(AllocationsAdminTestCase):
             }
         )
         self.assertRedirects(response, '/admin/projects/allocation/')
-        alloc = Allocation.objects.get(allocation_id='ucb1_2')
+        alloc = Allocation.objects.get(allocation_id='ucb1_summit2')
         self.assertEquals(alloc.amount,50000)
