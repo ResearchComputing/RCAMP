@@ -25,7 +25,6 @@ class AccountRequestForm(forms.Form):
     login_shell = forms.ChoiceField(required=False,choices=SHELL_CHOICES)
 
     blanca = forms.BooleanField(required=False)
-    janus = forms.BooleanField(required=False)
     summit = forms.BooleanField(required=False)
     petalibrary_active = forms.BooleanField(required=False)
     petalibrary_archive = forms.BooleanField(required=False)
@@ -113,7 +112,6 @@ class ProjectAccountRequestForm(AccountRequestForm):
     class Meta:
         exclude = (
             'blanca',
-            'janus',
             'summit',
             'petalibrary_active',
             'petalibrary_archive',

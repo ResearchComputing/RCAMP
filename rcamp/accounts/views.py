@@ -39,7 +39,7 @@ class AccountRequestCreateView(FormView):
         role = form.cleaned_data.get('role')
 
         res_list = []
-        for k in ['blanca','janus','summit','petalibrary_active','petalibrary_archive',]:
+        for k in ['blanca','summit','petalibrary_active','petalibrary_archive',]:
             if form.cleaned_data.get(k):
                 res_list.append(k)
 
