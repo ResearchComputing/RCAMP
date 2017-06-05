@@ -106,7 +106,7 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
                     'project_id': 'ucb1',
                     'title': 'Test Project',
                     'description': 'A test project',
-                    'pi_emails': 'testuser@test.org,cuuser@cu.edu',
+                    'pi_emails': 'testuser@test.org, cuuser@cu.edu',
                     'managers': ['testuser','testcuuser'],
                     'collaborators': ['testuser','testcuuser'],
                     'organization':'ucb',
@@ -552,6 +552,8 @@ class AllocationRequestCreateTestCase(CbvCase):
         self.assertEquals(ar.time_requested,1234)
         self.assertEquals(ar.disk_space,1234)
         self.assertEquals(ar.software_request,'none')
+
+        self.assertEquals(ar.requester,self.user.username)
 
     def test_allocationrequest_create_missing_fields(self):
         request = RequestFactory().post(

@@ -103,6 +103,37 @@ DATABASES = {
     },
 }
 
+LDAPCONFS = {
+    'rcldap': {
+        'server': DATABASES['rcldap_test']['NAME'],
+        'bind_dn': DATABASES['rcldap_test']['USER'],
+        'bind_pw': DATABASES['rcldap_test']['PASSWORD'],
+        'base_dn': '',
+        'people_dn': '',
+        'ucb_dn': '',
+        'csu_dn': '',
+        'xsede_dn': '',
+        'internal_dn': '',
+        'group_dn': '',
+    },
+    'culdap': {
+        'server': DATABASES['culdap_test']['NAME'],
+        'bind_dn': DATABASES['culdap_test']['USER'],
+        'bind_pw': DATABASES['culdap_test']['PASSWORD'],
+        'base_dn': '',
+        'group_dn': '',
+        'people_dn': '',
+    },
+    'csuldap': {
+        'server': DATABASES['culdap_test']['NAME'],
+        'bind_dn': DATABASES['culdap_test']['USER'],
+        'bind_pw': DATABASES['culdap_test']['PASSWORD'],
+        'base_dn': '',
+        'group_dn': '',
+        'people_dn': '',
+    },
+}
+
 DATABASE_ROUTERS = ['lib.router.LdapRouter',]
 
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
@@ -140,6 +171,11 @@ STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATICFILES_DIRS = (
     os.path.join(os.path.dirname(os.path.abspath(__file__)),'static'),
 )
+
+# Media files (User-uploaded files)
+# https://docs.djangoproject.com/en/1.8/ref/settings/#media-root
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media','')
 
 # GRAPPELLI ADMIN SETTINGS
 GRAPPELLI_ADMIN_TITLE = 'RCAMP'

@@ -66,7 +66,7 @@ class AllocationTestCase(TestCase):
 
         self.alloc_dict = {
             'project': self.proj,
-            'allocation_id': 'ucb1_2',
+            'allocation_id': 'ucb1_summit2',
             'amount': '50000',
             'start_date': sdate_tz,
             'end_date': edate_tz,
@@ -78,7 +78,7 @@ class AllocationTestCase(TestCase):
         del alloc_dict['allocation_id']
         alloc = Allocation.objects.create(**alloc_dict)
 
-        self.assertEqual(alloc.allocation_id,'ucb1_3')
+        self.assertEqual(alloc.allocation_id,'ucb1_summit3')
 
 class AllocationCreateTestCase(TestCase):
     def setUp(self):

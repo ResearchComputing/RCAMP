@@ -73,20 +73,9 @@ class AccountRequest(models.Model):
     def __unicode__(self):
         return '%s_%s'%(self.username,self.request_date)
 
-    @classmethod
-    def from_db(cls,db,field_names,values):
-        instance = super(AccountRequest,cls).from_db(db,field_names,values)
-        # Store original field values on the instance
-        instance._loaded_values = dict(zip(field_names,values))
-        return instance
-
     def save(self,*args,**kwargs):
-        # Is model being loaded from db?
-        old_status = 'a'
-        if hasattr(self, '_loaded_values'):
-            old_status = self._loaded_values['status']
-        # Check for change in approval status
-        if (self.status == 'a') and (old_status != 'a'):
+        # Has model already been approved?
+        if (self.status == 'a') and (not self.approved_on):
             # Approval process
             logger.info('Approving account request: '+self.username)
             self.approved_on=timezone.now()
@@ -229,7 +218,7 @@ class RcLdapUserManager(models.Manager):
             )
 
         # Add CU users to ucb posix group
-        if organization == 'ucb':
+        if ('ucb' in settings.LICENSE_GROUPS) and (organization == 'ucb'):
             license_grp = settings.LICENSE_GROUPS['ucb']
             ucb_grps = RcLdapGroup.objects.filter(name=license_grp)
             if ucb_grps.count() > 0:

@@ -34,7 +34,7 @@ class AccountRequestEndpointTestCase(TestCase):
             last_name='user',
             email='tu@tu.org',
             login_shell='/bin/bash',
-            resources_requested='janus,summit',
+            resources_requested='summit',
             organization='ucb',
             role='staff',
             status='p'
@@ -52,13 +52,13 @@ class AccountRequestEndpointTestCase(TestCase):
         self.ar2.projects.add(self.proj)
 
         del ar_dict['resources_requested']
-        del ar_dict['approved_on']
         ar_dict.update(dict(
             username='testuser3',
             email='tu3@tu.org',
             status='a',
             notes='approved!',
-            id_verified_by='admin'
+            id_verified_by='admin',
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,05,01)),
         ))
         self.ar3 = AccountRequest.objects.create(**ar_dict)
 
@@ -73,7 +73,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'status': u'p',
                 u'first_name': u'test',
                 u'last_name': u'user',
-                u'resources_requested': u'janus,summit',
+                u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu@tu.org',
             },
@@ -82,7 +82,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'status': u'a',
                 u'first_name': u'test',
                 u'last_name': u'user',
-                u'resources_requested': u'janus,summit',
+                u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
                 u'approved_on': u'2016-04-01T06:00:00Z',
@@ -116,7 +116,7 @@ class AccountRequestEndpointTestCase(TestCase):
             u'status': u'p',
             u'first_name': u'test',
             u'last_name': u'user',
-            u'resources_requested': u'janus,summit',
+            u'resources_requested': u'summit',
             u'organization': u'ucb',
             u'email': u'tu@tu.org',
         }
@@ -136,7 +136,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'status': u'a',
                 u'first_name': u'test',
                 u'last_name': u'user',
-                u'resources_requested': u'janus,summit',
+                u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
                 u'approved_on': u'2016-04-01T06:00:00Z',
@@ -160,7 +160,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'status': u'a',
                 u'first_name': u'test',
                 u'last_name': u'user',
-                u'resources_requested': u'janus,summit',
+                u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
                 u'approved_on': u'2016-04-01T06:00:00Z',
@@ -371,7 +371,7 @@ class AllocationEndpointTestCase(TestCase):
         expected_content = [
             {
                 u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_1',
+                u'allocation_id': u'ucb1_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -392,7 +392,7 @@ class AllocationEndpointTestCase(TestCase):
             },
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb1_2',
+                u'allocation_id': u'ucb1_summit2',
                 u'created_on': u'2016-04-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -413,7 +413,7 @@ class AllocationEndpointTestCase(TestCase):
             },
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_1',
+                u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -442,12 +442,12 @@ class AllocationEndpointTestCase(TestCase):
         self.assertEquals(res.status_code, 405)
 
     def test_alloc_detail(self):
-        res = self.client.get('/api/allocations/ucb1_1/')
+        res = self.client.get('/api/allocations/ucb1_summit1/')
         self.assertEquals(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
             u'end_date': u'2017-02-02',
-            u'allocation_id': u'ucb1_1',
+            u'allocation_id': u'ucb1_summit1',
             u'created_on': u'2016-06-01',
             u'project': {
                 u'collaborators': u"[u'tu@tu.org']",
@@ -479,7 +479,7 @@ class AllocationEndpointTestCase(TestCase):
         expected_content = [
             {
                 u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_1',
+                u'allocation_id': u'ucb1_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -500,7 +500,7 @@ class AllocationEndpointTestCase(TestCase):
             },
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_1',
+                u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
@@ -534,7 +534,7 @@ class AllocationEndpointTestCase(TestCase):
         expected_content = [
             {
                 u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_1',
+                u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
                     u'collaborators': u"[u'tu@tu.org']",
