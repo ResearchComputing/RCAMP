@@ -158,6 +158,7 @@ class RcLdapUserManager(models.Manager):
         username = kwargs.get('username')
         if username is not None:
             username = str(username).strip()
+            username = username.lower()
         first_name = kwargs.get('first_name')
         last_name = kwargs.get('last_name')
         email = kwargs.get('email')

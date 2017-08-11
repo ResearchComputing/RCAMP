@@ -9,7 +9,8 @@
 
 {% block jumbotron_heading %}<h1>Create a new project</h1>{% endblock %}
 {% block jumbotron_subheading %}
-<p>Create a new Research Computing project</p>
+<p>Create a new Research Computing project.</p>
+<p>This form will normally be submitted by the PI of a research group.</p>
 {% endblock %}
 
 {% block container %}
@@ -74,6 +75,17 @@
 
   <fieldset>
     <legend>Describe your project</legend>
+    <div class="alert alert-info" role="alert">
+      The Project Description should include:
+      <ul>
+        <li>Concise description of the research project and its significance (3-5 sentences)</li>
+        <li>Estimated Project timeframe/duration (normally minimum 1 year, maximum 5 years)</li>
+        <li>Concise description of the related computational work (3-5 sentences)</li>
+        <li>Goals (typically degrees, publications, presentations, data products)</li>
+        <li>Grants that support this project, specifically grants that are directly related to work performed on RC resources. If possible, please include the name of the funding agency, the grant number, and its dollar value.</li>
+        <li>General description of the data storage, sharing and management for the project, and beyond if applicable (minimum 2-3 sentences).</li>
+      </ul>
+    </div>
     {% if form.title.errors %}
     <div class="form-group has-error has-feedback">
     {% else %}
@@ -135,6 +147,11 @@
 
   <fieldset>
     <legend>Project Managers</legend>
+    <div class="mailto-help">
+      <small>
+        These accounts will be authorized to make changes to the project and to submit allocation requests and should include the research group PI.
+      </small>
+    </div>
     {{ form.managers }}
     {% if form.managers.errors %}
     <div class="alert alert-danger alert-dismissable">
@@ -146,6 +163,11 @@
 
   <fieldset>
     <legend>Project Collaborators</legend>
+    <div class="mailto-help">
+      <small>
+        These accounts will be able to run compute jobs in this project's allocations.
+      </small>
+    </div>
     {{ form.collaborators }}
     {% if form.collaborators.errors %}
     <div class="alert alert-danger alert-dismissable">
