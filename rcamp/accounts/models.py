@@ -23,6 +23,11 @@ ORGANIZATIONS = (
     ('xsede','XSEDE'),
     ('internal','Internal'),
 )
+
+SUFFIXES = {
+    'csu': 'colostate.edu',
+}
+
 REQUEST_ROLES = (
     ('student','Student',),
     ('postdoc','Post Doc',),
@@ -151,7 +156,7 @@ class RcLdapUserManager(models.Manager):
         org = kwargs.pop('organization', None)
         obj = self.model(**kwargs)
         self._for_write = True
-        obj.save(force_insert=True,using=self.db,organization=org)
+        obj.save(force_insert=True,using=self.db)
         return obj
 
     def create_user_from_request(self,**kwargs):
@@ -180,7 +185,7 @@ class RcLdapUserManager(models.Manager):
         user_fields['last_name'] = last_name.strip()
         user_fields['full_name'] = '%s, %s' % (user_fields['last_name'],user_fields['first_name'])
         user_fields['email'] = email
-        user_fields['username'] = username
+        user_fields['username'] = get_suffixed_username(username,organization)
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
@@ -207,15 +212,13 @@ class RcLdapUserManager(models.Manager):
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,
                 gid=user_fields['gid'],
-                members=[username],
-                organization=organization
+                members=[username]
             )
         sgrp_gid = id_tracker.get_next_id()
         sgrp = RcLdapGroup.objects.create(
                 name='%sgrp'%username,
                 gid=sgrp_gid,
-                members=[username],
-                organization=organization
+                members=[username]
             )
 
         # Add CU users to ucb posix group
@@ -225,7 +228,7 @@ class RcLdapUserManager(models.Manager):
             if ucb_grps.count() > 0:
                 ucb_grp = ucb_grps[0]
                 ucb_grp.members.append(username)
-                ucb_grp.save(organization='ucb')
+                ucb_grp.save()
 
         return user
 
@@ -233,15 +236,6 @@ class RcLdapUser(LdapUser):
     class Meta:
         verbose_name = 'LDAP user'
         verbose_name_plural = 'LDAP users'
-
-    def __init__(self,*args,**kwargs):
-        super(RcLdapUser,self).__init__(*args,**kwargs)
-        rdn = self.dn.lower().replace(self.base_dn.lower(), '')
-        rdn_list = rdn.split(',')
-        self.org = ''
-        if len(rdn_list) > 2:
-            self.org = rdn_list[-2]
-            self.base_dn = ','.join([self.org,self.base_dn])
 
     objects = RcLdapUserManager()
 
@@ -254,27 +248,11 @@ class RcLdapUser(LdapUser):
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
     #curcPerson attributes
+    organization = ldap_fields.CharField(db_column='organizationName',choices=ORGANIZATIONS)
     role = ldap_fields.ListField(db_column='curcRole',blank=True,null=True)
     affiliation = ldap_fields.ListField(db_column='curcAffiliation',blank=True,null=True)
 
-    @property
-    def organization(self):
-        return self.org
-
-    def _set_base_dn(self,org):
-        if org in [o[0] for o in ORGANIZATIONS]:
-            ou = 'ou={}'.format(org)
-            self.org = ou
-            if ou not in self.base_dn:
-                self.base_dn = ','.join([ou,self.base_dn])
-        else:
-            raise ValueError('Invalid organization specified: {}'.format(org))
-
     def save(self,*args,**kwargs):
-        org = kwargs.pop('organization', None)
-        if org:
-            self._set_base_dn(org)
-
         # If no UID/GID specified, auto-assign
         if (self.uid == None) and (self.gid == None):
             id_tracker = IdTracker.objects.get(category='posix')
@@ -318,10 +296,9 @@ CsuLdapUser._meta.get_field('username').column = 'sAMAccountName'
 
 class RcLdapGroupManager(models.Manager):
     def create(self,*args,**kwargs):
-        org = kwargs.pop('organization', None)
         obj = self.model(**kwargs)
         self._for_write = True
-        obj.save(force_insert=True,using=self.db,organization=org)
+        obj.save(force_insert=True,using=self.db)
         return obj
 
 class RcLdapGroup(ldapdb.models.Model):
@@ -329,22 +306,12 @@ class RcLdapGroup(ldapdb.models.Model):
         verbose_name = 'LDAP group'
         verbose_name_plural = 'LDAP groups'
 
-    def __init__(self,*args,**kwargs):
-        super(RcLdapGroup,self).__init__(*args,**kwargs)
-        rdn = self.dn.lower().replace(self.base_dn.lower(), '')
-        rdn_list = rdn.split(',')
-        self.org = ''
-        if len(rdn_list) > 2:
-            self.org = rdn_list[-2]
-            self.base_dn = ','.join([self.org,self.base_dn])
-
     objects = RcLdapGroupManager()
 
     rdn_key = 'name'
     base_dn =  settings.LDAPCONFS['rcldap']['group_dn']
     object_classes = ['top','posixGroup']
     # posixGroup attributes
-    # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
     name = ldap_fields.CharField(db_column='cn', max_length=200)
     members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
@@ -355,22 +322,7 @@ class RcLdapGroup(ldapdb.models.Model):
     def __unicode__(self):
         return self.name
 
-    @property
-    def organization(self):
-        return self.org
-
-    def _set_base_dn(self,org):
-        if org in [o[0] for o in ORGANIZATIONS]:
-            ou = 'ou={}'.format(org)
-            self.org = ou
-            self.base_dn = ','.join([ou,self.base_dn])
-        else:
-            raise ValueError('Invalid organization specified: {}'.format(org))
-
     def save(self,*args,**kwargs):
-        org = kwargs.pop('organization', None)
-        if org:
-            self._set_base_dn(org)
         force_insert = kwargs.pop('force_insert',None)
 
         # If no GID specified, auto-assign
@@ -382,5 +334,11 @@ class RcLdapGroup(ldapdb.models.Model):
         super(RcLdapGroup,self).save(*args,**kwargs)
 
 
-def date_to_sp_expire (date_, epoch=datetime.date(year=1970, day=1, month=1)):
+def date_to_sp_expire(date_, epoch=datetime.date(year=1970, day=1, month=1)):
     return (date_ - epoch).days
+
+def get_suffixed_username(username,organization):
+    """Get the organizationally-suffixed username for use with RC LDAP"""
+    suffix = SUFFIXES.get(organization,None)
+    suffixed_username = '{}@{}'.format(username,suffix) if suffix else username
+    return suffixed_username

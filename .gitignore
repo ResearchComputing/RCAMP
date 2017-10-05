@@ -53,6 +53,7 @@ coverage.xml
 local_*
 db.*
 media/
+*.sqlite
 
 # Sphinx documentation
 docs/_build/

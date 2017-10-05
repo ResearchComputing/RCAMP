@@ -1,12 +1,14 @@
 from django.contrib import admin
 from django import forms
 from lib.fields import LdapCsvField
-from accounts.models import RcLdapUser
-from accounts.models import CuLdapUser
-from accounts.models import RcLdapGroup
-from accounts.models import IdTracker
-from accounts.models import AccountRequest
-from accounts.models import ORGANIZATIONS
+from accounts.models import (
+    RcLdapUser,
+    CuLdapUser,
+    RcLdapGroup,
+    IdTracker,
+    AccountRequest,
+    ORGANIZATIONS,
+)
 from projects.models import Project
 
 
@@ -36,12 +38,9 @@ class AccountRequestAdminForm(forms.ModelForm):
         if all(conditions):
             un = self.cleaned_data['username']
             org = self.cleaned_data['organization']
-            rc_users = RcLdapUser.objects.filter(username=un)
-            for user in rc_users:
-                # org formatted as ou=ucb, so it must be parsed
-                user_org = user.org.split('=')[-1]
-                if user_org == org:
-                    raise forms.ValidationError('RC Account already exists: {}'.format(un))
+            rc_users = RcLdapUser.objects.filter(username=un,organization=org)
+            if rc_users.count() > 0:
+                raise forms.ValidationError('RC Account already exists: {}'.format(un))
 
 @admin.register(AccountRequest)
 class AccountRequestAdmin(admin.ModelAdmin):
@@ -71,9 +70,7 @@ class RcLdapUserForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         instance = kwargs.get('instance')
         if instance:
-            self.base_fields['organization'].initial = instance.org.split('=')[-1].lower()
             self.base_fields['dn'].widget.attrs['readonly'] = True
-            self.base_fields['organization'].widget.attrs['disabled'] = True
         super(RcLdapUserForm,self).__init__(*args,**kwargs)
         try:
             self.initial['role'] = ','.join(self.instance.role)
@@ -141,19 +138,13 @@ class RcLdapUserAdmin(admin.ModelAdmin):
         del actions['delete_selected']
         return actions
 
-    def save_model(self, request, obj, form, change):
-        org = form.cleaned_data['organization'] or None
-        obj.save(organization=org)
-
 # Overrides default admin form for RcLdapGroups to allow
 # for filtered multiselect widget.
 class RcLdapGroupForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         instance = kwargs.get('instance')
         if instance:
-            self.base_fields['organization'].initial = instance.org.split('=')[-1].lower()
             self.base_fields['dn'].widget.attrs['readonly'] = True
-            self.base_fields['organization'].widget.attrs['disabled'] = True
         super(RcLdapGroupForm,self).__init__(*args,**kwargs)
         user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
             for u in RcLdapUser.objects.all().order_by('username'))
@@ -166,13 +157,10 @@ class RcLdapGroupForm(forms.ModelForm):
                                         is_stacked=False)
         self.fields['dn'].required = False
 
-    organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
-
     class Meta:
         model = RcLdapGroup
         fields = [
             'dn',
-            'organization',
             'name',
             'gid',
             'members',
@@ -180,7 +168,7 @@ class RcLdapGroupForm(forms.ModelForm):
 
 @admin.register(RcLdapGroup)
 class RcLdapGroupAdmin(admin.ModelAdmin):
-    list_display = ['name','gid','members','organization',]
+    list_display = ['name','gid','members',]
     search_fields = ['name']
     form = RcLdapGroupForm
 
@@ -190,8 +178,5 @@ class RcLdapGroupAdmin(admin.ModelAdmin):
         del actions['delete_selected']
         return actions
 
-    def save_model(self, request, obj, form, change):
-        org = form.cleaned_data['organization'] or None
-        obj.save(organization=org)
 
 admin.site.register(IdTracker)
