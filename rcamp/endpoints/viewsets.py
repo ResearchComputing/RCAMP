@@ -1,13 +1,19 @@
-from rest_framework import viewsets
-from rest_framework import generics
-from rest_framework import filters
-
-from endpoints.serializers import AccountRequestSerializer
-from endpoints.filters import AccountRequestFilter
-from endpoints.serializers import ProjectSerializer
-from endpoints.filters import ProjectFilter
-from endpoints.serializers import AllocationSerializer
-from endpoints.filters import AllocationFilter
+from rest_framework import (
+    viewsets,
+    generics,
+    filters,
+    permissions
+)
+from endpoints.filters import (
+    AccountRequestFilter,
+    ProjectFilter,
+    AllocationFilter
+)
+from endpoints.serializers import (
+    AccountRequestSerializer,
+    ProjectSerializer,
+    AllocationSerializer
+)
 
 from accounts.models import AccountRequest
 from projects.models import Project
@@ -15,10 +21,11 @@ from projects.models import Allocation
 
 
 # class AccountRequestList(generics.ListAPIView):
-class AccountRequestList(viewsets.ReadOnlyModelViewSet):
+class AccountRequestList(viewsets.ModelViewSet):
     queryset = AccountRequest.objects.all()
     serializer_class = AccountRequestSerializer
     filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
     search_fields = ('username','first_name','last_name','email',)
     filter_class = AccountRequestFilter
     lookup_field = 'username'
