@@ -104,8 +104,17 @@ class AccountRequestEndpointTestCase(TestCase):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_ar_post(self):
-        res = self.client.post('/api/accountrequests/')
-        self.assertEquals(res.status_code, 405)
+        post_data = dict(
+            username = u'newuser',
+            status = u'p',
+            first_name = u'test',
+            last_name = u'user',
+            resources_requested = u'summit',
+            organization = u'ucb',
+            email = u'newtu@tu.org',
+        )
+        res = self.client.post('/api/accountrequests/', data=post_data)
+        self.assertEquals(res.status_code, 201)
 
     def test_ar_detail(self):
         res = self.client.get('/api/accountrequests/testuser1/')
