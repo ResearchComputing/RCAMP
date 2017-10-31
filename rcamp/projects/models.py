@@ -19,8 +19,8 @@ class Project(models.Model):
     )
 
     pi_emails = fields.ListField()
-    managers = fields.ListField()
-    collaborators = fields.ListField()
+    managers = fields.ListField(delimiter='|')
+    collaborators = fields.ListField(delimiter='|')
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS)
     title = models.CharField(max_length=256)
     description = models.TextField()

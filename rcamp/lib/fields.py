@@ -10,7 +10,7 @@ class ListField(models.TextField):
     description = "Stores a python list"
 
     def __init__(self, *args, **kwargs):
-        self.delimiter = kwargs.get('delimiter',',')
+        self.delimiter = kwargs.pop('delimiter',',')
         super(ListField, self).__init__(*args, **kwargs)
 
     def from_db_value(self, value, expression, connection, context):
