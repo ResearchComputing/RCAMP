@@ -14,7 +14,7 @@ def get_user_choices():
                 username = username + '@colostate.edu'
         user_display = '{0} ({1} {2})'.format(
             username, user.first_name, user.last_name)
-        yield (username, user_display)
+        yield (user.dn, user_display)
 
 
 class ProjectForm(forms.ModelForm):

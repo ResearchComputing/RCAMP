@@ -34,6 +34,26 @@ class Project(models.Model):
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     deactivated = models.BooleanField(default=False)
 
+    @property
+    def manager_list(self):
+        return self._get_display_users('managers')
+
+    @property
+    def collaborator_list(self):
+        return self._get_display_users('collaborators')
+
+    def _get_display_users(self,field_name):
+        model_field = getattr(self,field_name)
+        display_list = []
+        for dn in model_field:
+            username, org, __ = dn.split(',',2)
+            __, username = username.split('=')
+            __, org = org.split('=')
+            if org == 'csu':
+                username += '@colostate.edu'
+            display_list.append(username)
+        return display_list
+
     def __unicode__(self):
         return self.project_id
 
