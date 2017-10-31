@@ -10,13 +10,14 @@ class ListField(models.TextField):
     description = "Stores a python list"
 
     def __init__(self, *args, **kwargs):
+        self.delimiter = kwargs.get('delimiter',',')
         super(ListField, self).__init__(*args, **kwargs)
 
     def from_db_value(self, value, expression, connection, context):
         if not value:
             return []
         else:
-            return value.split(',')
+            return value.split(self.delimiter)
 
     def to_python(self, value):
         if not value:
@@ -28,13 +29,13 @@ class ListField(models.TextField):
                 val = ast.literal_eval(value)
                 return val
             except SyntaxError,ValueError:
-                return value.split(',')
+                return value.split(self.delimiter)
 
     def get_prep_value(self, value):
         if isinstance(value, list):
-            return ','.join(value)
+            return self.delimiter.join(value)
         else:
-            return ','.join(ast.literal_eval(value))
+            return self.delimiter.join(ast.literal_eval(value))
 
     def value_to_string(self, obj):
         value = self._get_val_from_obj(obj)
