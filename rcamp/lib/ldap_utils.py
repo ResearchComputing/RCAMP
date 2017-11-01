@@ -37,7 +37,10 @@ def authenticate(dn,pwd,ldap_conf_key):
 
 def get_suffixed_username(username,organization):
     suffix = ORGANIZATION_INFO[organization]['suffix']
-    return '{0}@{1}'.format(username,suffix)
+    suffixed_username = username
+    if suffix:
+        suffixed_username = '{0}@{1}'.format(username,suffix)
+    return suffixed_username
 
 def get_ldap_username_and_org(suffixed_username):
     username = suffixed_username

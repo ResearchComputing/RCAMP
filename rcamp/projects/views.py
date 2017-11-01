@@ -73,9 +73,9 @@ class ProjectCreateView(FormView):
     form_class = ProjectForm
 
     def form_valid(self, form):
-        creator = self.request.user
-        if creator.username not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(creator.username)
+        creator = RcLdapUser.objects.get_user_from_suffixed_username(self.request.user)
+        if creator.dn not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(creator.dn)
         project = Project.objects.create(**form.cleaned_data)
         project_created_by_user.send(sender=project.__class__, project=project)
         self.success_url = reverse_lazy(
@@ -91,8 +91,9 @@ class ProjectEditView(FormView):
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
+        user = RcLdapUser.objects.get_user_from_suffixed_username(request.user)
         self.object = get_object_or_404(Project,pk=pk)
-        if request.user.username not in self.object.managers:
+        if user.dn not in self.object.managers:
             return redirect('projects:project-detail', pk=pk)
         else:
             return super(ProjectEditView,self).get(request,*args,**kwargs)
@@ -101,7 +102,8 @@ class ProjectEditView(FormView):
         path_cmp = self.request.path.split('/')
         pk = int(path_cmp[-2])
         self.object = get_object_or_404(Project,pk=pk)
-        if request.user.username not in self.object.managers:
+        user = RcLdapUser.objects.get_user_from_suffixed_username(request.user)
+        if user.dn not in self.object.managers:
             return redirect('projects:project-detail', pk=pk)
         else:
             return super(ProjectEditView,self).post(request,*args,**kwargs)
@@ -121,9 +123,9 @@ class ProjectEditView(FormView):
         return initial
 
     def form_valid(self, form):
-        editor = self.request.user
-        if editor.username not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(editor.username)
+        editor = RcLdapUser.objects.get_user_from_suffixed_username(self.request.user)
+        if editor.dn not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(editor.dn)
         project = Project.objects.filter(
                 pk=self.object.pk
             ).update(
