@@ -17,12 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 # Create your models here.
-ORGANIZATIONS = (
-    ('ucb','University of Colorado Boulder'),
-    ('csu','Colorado State University'),
-    ('xsede','XSEDE'),
-    ('internal','Internal'),
-)
+ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in ldap_utils.ORGANIZATION_INFO.iteritems()])
+
 REQUEST_ROLES = (
     ('student','Student',),
     ('postdoc','Post Doc',),
