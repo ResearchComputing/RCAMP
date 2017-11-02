@@ -30,7 +30,7 @@
   {% endif %}
 
   <legend>Project: {{ object.project_id }}
-    {% if user.username in object.managers %}<a href="{% url 'projects:project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
+    {% if is_manager %}<a href="{% url 'projects:project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
   </legend>
   <div class="mailto-help">
       <small>
@@ -83,7 +83,7 @@
     </table>
   </div>
 
-  {% if user.username in object.managers %}
+  {% if is_manager %}
   <legend>References and publications for {{ object.project_id }}</legend>
   <ul class="list-group">
     {% for reference in references %}
@@ -103,7 +103,7 @@
   </ul>
   {% endif %}
 
-  {% if user.username in object.managers %}
+  {% if is_manager %}
   <legend>Allocations and Requests for {{ object.project_id }}</legend>
   <ul class="list-group">
     {% for allocation_request in allocation_requests %}
