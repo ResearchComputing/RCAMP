@@ -37,13 +37,17 @@ class ProjectAccessMixin(object):
             is_manager = True
         return is_manager
 
+    def get_manager_from_request_user(self, request_user):
+        user = RcLdapUser.objects.get_user_from_suffixed_username(request_user.username)
+        return user
+
     def get_manager_or_redirect(self,username,project,redirect_view='projects:project-detail'):
         user = RcLdapUser.objects.get_user_from_suffixed_username(username)
         if user and user.dn in project.managers:
             return user
         return redirect(redirect_view, pk=project.pk)
 
-class ProjectListView(ListView):
+class ProjectListView(ListView,ProjectAccessMixin):
     model = Project
     template_name = 'project-list.html'
 
@@ -57,6 +61,7 @@ class ProjectListView(ListView):
         context = super(ProjectListView,self).get_context_data(**kwargs)
 
         username = self.request.user.username
+        context['ldap_user'] = RcLdapUser.objects.get_user_from_suffixed_username(username)
         if username.endswith('@colostate.edu'):
             general_account = 'csu-general'
         else:
@@ -76,7 +81,7 @@ class ProjectDetailView(DetailView,ProjectAccessMixin):
         references = Reference.objects.filter(project=self.object)
         allocations = Allocation.objects.filter(project=self.object)
         allocation_requests = AllocationRequest.objects.filter(project=self.object)
-        context['is_manager'] = self.is_manager(self.request.user,self.object)
+        context['ldap_user'] = self.get_manager_from_request_user(self.request.user)
         context['references'] = references
         context['allocations'] = allocations
         context['allocation_requests'] = allocation_requests
