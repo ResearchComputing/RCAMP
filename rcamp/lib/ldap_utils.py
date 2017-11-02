@@ -3,25 +3,6 @@ from ldapdb import escape_ldap_filter
 import ldap
 
 
-ORGANIZATION_INFO = {
-    'ucb': {
-        'long_name': 'University of Colorado Boulder'
-        'suffix': None
-    },
-    'csu': {
-        'long_name': 'Colorado State University'
-        'suffix': 'colostate.edu'
-    },
-    'xsede': {
-        'long_name': 'XSEDE'
-        'suffix': 'xsede.org'
-    },
-    'internal': {
-        'long_name': 'Research Computing - Administrative'
-        'suffix': None
-    }
-}
-
 def authenticate(dn,pwd,ldap_conf_key):
     # Setup connection
     ldap_conf = settings.LDAPCONFS[ldap_conf_key]
@@ -36,7 +17,10 @@ def authenticate(dn,pwd,ldap_conf_key):
         return False
 
 def get_suffixed_username(username,organization):
-    suffix = ORGANIZATION_INFO[organization]['suffix']
+    try:
+        suffix = settings.ORGANIZATION_INFO[organization]['suffix']
+    except KeyError:
+        suffix = None
     suffixed_username = username
     if suffix:
         suffixed_username = '{0}@{1}'.format(username,suffix)
@@ -47,7 +31,7 @@ def get_ldap_username_and_org(suffixed_username):
     org = 'ucb'
     if '@' in suffixed_username:
         username, suffix = suffixed_username.split('@')
-        for k,v in ORGANIZATION_INFO.iteritems():
+        for k,v in settings.ORGANIZATION_INFO.iteritems():
             if v['suffix'] == suffix:
                 org = k
                 break

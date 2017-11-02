@@ -191,6 +191,25 @@ LICENSE_GROUPS = {
     'ucb': 'ucb'
 }
 
+ORGANIZATION_INFO = {
+    'ucb': {
+        'long_name': 'University of Colorado Boulder',
+        'suffix': None
+    },
+    'csu': {
+        'long_name': 'Colorado State University',
+        'suffix': 'colostate.edu'
+    },
+    'xsede': {
+        'long_name': 'XSEDE',
+        'suffix': 'xsede.org'
+    },
+    'internal': {
+        'long_name': 'Research Computing - Administrative',
+        'suffix': None
+    }
+}
+
 try:
     from local_settings import *
 except:

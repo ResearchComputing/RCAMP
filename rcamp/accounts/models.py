@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 # Create your models here.
-ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in ldap_utils.ORGANIZATION_INFO.iteritems()])
+ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in settings.ORGANIZATION_INFO.iteritems()])
 
 REQUEST_ROLES = (
     ('student','Student',),
@@ -188,8 +188,8 @@ class RcLdapUserManager(models.Manager):
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
-        org_un = ldap_utils.get_suffixed_username(user_fields['username'],organization)
-        user_fields['home_directory'] = '/home/%s' % org_un
+        suffixed_username = ldap_utils.get_suffixed_username(user_fields['username'],organization)
+        user_fields['home_directory'] = '/home/%s' % suffixed_username
         user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
 
@@ -242,8 +242,10 @@ class RcLdapUser(LdapUser):
         rdn_list = rdn.split(',')
         self.org = ''
         if len(rdn_list) > 2:
-            self.org = rdn_list[-2]
-            self.base_dn = ','.join([self.org,self.base_dn])
+            ou = rdn_list[-2]
+            __, org = ou.split('=')
+            self.org = org
+            self.base_dn = ','.join([ou,self.base_dn])
 
     objects = RcLdapUserManager()
 
@@ -263,10 +265,15 @@ class RcLdapUser(LdapUser):
     def organization(self):
         return self.org
 
+    @property
+    def effective_uid(self):
+        suffixed_username = ldap_utils.get_suffixed_username(self.username,self.organization)
+        return suffixed_username
+
     def _set_base_dn(self,org):
-        if org in [o[0] for o in ORGANIZATIONS]:
+        if org in settings.ORGANIZATION_INFO.keys():
             ou = 'ou={}'.format(org)
-            self.org = ou
+            self.org = org
             if ou not in self.base_dn:
                 self.base_dn = ','.join([ou,self.base_dn])
         else:
@@ -337,7 +344,9 @@ class RcLdapGroup(ldapdb.models.Model):
         rdn_list = rdn.split(',')
         self.org = ''
         if len(rdn_list) > 2:
-            self.org = rdn_list[-2]
+            ou = rdn_list[-2]
+            __, org = ou.split('=')
+            self.org = org
             self.base_dn = ','.join([self.org,self.base_dn])
 
     objects = RcLdapGroupManager()
@@ -361,11 +370,17 @@ class RcLdapGroup(ldapdb.models.Model):
     def organization(self):
         return self.org
 
+    @property
+    def effective_cn(self):
+        suffixed_name = ldap_utils.get_suffixed_username(self.name,self.organization)
+        return suffixed_name
+
     def _set_base_dn(self,org):
-        if org in [o[0] for o in ORGANIZATIONS]:
+        if org in settings.ORGANIZATION_INFO.keys():
             ou = 'ou={}'.format(org)
-            self.org = ou
-            self.base_dn = ','.join([ou,self.base_dn])
+            self.org = org
+            if ou not in self.base_dn:
+                self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
 

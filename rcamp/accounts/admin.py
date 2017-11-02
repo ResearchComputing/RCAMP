@@ -115,6 +115,7 @@ class RcLdapUserForm(forms.ModelForm):
 class RcLdapUserAdmin(admin.ModelAdmin):
     list_display = [
         'username',
+        'effective_uid',
         'first_name',
         'last_name',
         'email',
@@ -180,7 +181,7 @@ class RcLdapGroupForm(forms.ModelForm):
 
 @admin.register(RcLdapGroup)
 class RcLdapGroupAdmin(admin.ModelAdmin):
-    list_display = ['name','gid','members','organization',]
+    list_display = ['name','effective_cn','gid','members','organization',]
     search_fields = ['name']
     form = RcLdapGroupForm
 
