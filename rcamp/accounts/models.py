@@ -145,10 +145,10 @@ class LdapUser(ldapdb.models.Model):
 class RcLdapUserManager(models.Manager):
     def get_user_from_suffixed_username(self,suffixed_username):
         username, organization = ldap_utils.get_ldap_username_and_org(suffixed_username)
-        try:
-            user = self.get_queryset().filter(username=username,organization=organization)
-        except RcLdapUser.DoesNotExist:
-            user = None
+        users = [u for u in self.get_queryset().filter(username=username) if u.organization == organization]
+        user = None
+        if len(users) > 0:
+            user = users[0]
         return user
 
     def create(self,*args,**kwargs):
