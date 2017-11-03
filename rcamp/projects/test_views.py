@@ -24,7 +24,8 @@ import mock
 
 
 class RcLdapUserMock (object):
-    def __init__ (self, username, first_name, last_name, organization):
+    def __init__ (self, dn, username, first_name, last_name, organization):
+        self.dn = dn
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
@@ -33,53 +34,15 @@ class RcLdapUserMock (object):
 
 class RcLdapUserQuerySet (object):
     order_by = mock.MagicMock(return_value=[
-        RcLdapUserMock('testuser', 'Test', 'User','ou=ucb'),
-        RcLdapUserMock('testcuuser', 'Test', 'CUUser','ou=ucb'),
-        RcLdapUserMock('testrequester', 'Test', 'Requester','ou=ucb'),
-        RcLdapUserMock('testcsurequester', 'Test', 'Requester','ou=csu'),
+        RcLdapUserMock('uid=testuser,ou=ucb,dc=admin,dc=org', 'testuser', 'Test', 'User','ou=ucb'),
+        RcLdapUserMock('uid=testcuuser,ou=ucb,dc=admin,dc=org', 'testcuuser', 'Test', 'CUUser','ou=ucb'),
+        RcLdapUserMock('uid=testrequester,ou=ucb,dc=admin,dc=org', 'testrequester', 'Test', 'Requester','ou=ucb'),
+        RcLdapUserMock('uid=testcsurequester,ou=csu,dc=admin,dc=org', 'testcsurequester', 'Test', 'Requester','ou=csu'),
     ])
 
 
 class RcLdapUserObjectManager (object):
     all = mock.MagicMock(return_value=RcLdapUserQuerySet())
-
-
-# This test case covers the project list view.
-class ProjectListTestCase(CbvCase):
-    def setUp(self):
-        user_dict = {
-            'username': 'testuser',
-            'first_name': 'Test',
-            'last_name': 'User',
-            'email': 'testuser@test.org',
-        }
-        User.objects.create(**user_dict)
-        proj_dict = {
-            'pi_emails': ['testuser@test.org'],
-            'managers': ['testuser'],
-            'collaborators': ['testuser'],
-            'organization': 'ucb',
-            'project_id': 'ucb1',
-            'title': 'Test project',
-            'description': 'Test project.',
-        }
-        Project.objects.create(**proj_dict)
-        super(ProjectListTestCase,self).setUp()
-
-    def test_get(self):
-        request = RequestFactory().get('/projects/list')
-        request.user = User.objects.get()
-        view = ProjectListView()
-        view = ProjectListTestCase.setup_view(view,request)
-        queryset = view.get_queryset()
-
-        test_queryset = Project.objects.filter(project_id='ucb1')
-        self.assertEqual(queryset.count(), test_queryset.count())
-
-    def test_get_unauthed(self):
-        response = self.client.get('/projects/list')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.endswith('/login?next=/projects/list'))
 
 # This test case covers the project creation page.
 @mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
@@ -107,8 +70,8 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
                     'title': 'Test Project',
                     'description': 'A test project',
                     'pi_emails': 'testuser@test.org, cuuser@cu.edu',
-                    'managers': ['testuser','testcuuser'],
-                    'collaborators': ['testuser','testcuuser'],
+                    'managers': ['uid=testuser,ou=ucb,dc=admin,dc=org','uid=testcuuser,ou=ucb,dc=admin,dc=org'],
+                    'collaborators': ['uid=testuser,ou=ucb,dc=admin,dc=org','uid=testcuuser,ou=ucb,dc=admin,dc=org'],
                     'organization':'ucb',
                 }
             )
@@ -122,8 +85,8 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
         self.assertEquals(proj.title,'Test Project')
         self.assertEquals(proj.description,'A test project')
         self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu'])
-        self.assertEquals(proj.managers,['testuser','testcuuser','testrequester'])
-        self.assertEquals(proj.collaborators,['testuser','testcuuser'])
+        self.assertEquals(proj.managers,['uid=testuser,ou=ucb,dc=admin,dc=org','uid=testcuuser,ou=ucb,dc=admin,dc=org','uid=testrequester,ou=ucb,dc=admin,dc=org'])
+        self.assertEquals(proj.collaborators,['uid=testuser,ou=ucb,dc=admin,dc=org','uid=testcuuser,ou=ucb,dc=admin,dc=org'])
         self.assertEquals(proj.organization,'ucb')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
