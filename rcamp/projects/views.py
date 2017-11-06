@@ -52,20 +52,19 @@ class ProjectListView(ListView,ProjectAccessMixin):
     template_name = 'project-list.html'
 
     def get_queryset(self):
-        user = self.request.user.username
+        username = self.request.user.username
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
         return Project.objects.filter(
-            Q(collaborators__contains=user) | Q(managers__contains=user)
+            Q(collaborators__contains=ldap_user.dn) | Q(managers__contains=ldap_user.dn)
         )
 
     def get_context_data(self, **kwargs):
         context = super(ProjectListView,self).get_context_data(**kwargs)
 
         username = self.request.user.username
-        context['ldap_user'] = RcLdapUser.objects.get_user_from_suffixed_username(username)
-        if username.endswith('@colostate.edu'):
-            general_account = 'csu-general'
-        else:
-            general_account = 'ucb-general'
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
+        context['ldap_user'] = ldap_user
+        general_account = '{}-general'.format(ldap_user.organization)
         context['general_account'] = general_account
         context['general_request_subject'] = GENERAL_ACCOUNT_REQUEST_SUBJECT.format(username=username, general_account=general_account)
         context['general_request_body'] = GENERAL_ACCOUNT_REQUEST_BODY.format(username=username, general_account=general_account)

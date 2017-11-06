@@ -42,41 +42,41 @@
   </div>
   <div class="table-responsive">
     <table class="table table-striped">
-      <tr>
+      <tr id="table-id-row">
         <td><strong>Project ID</strong></td>
         <td>{{ object.project_id }}</td>
       </tr>
-      <tr>
+      <tr id="table-organization-row">
         <td><strong>Organization</strong></td>
         <td>{{ object.organization | upper }}</td>
       </tr>
-      <tr>
+      <tr id="table-title-row">
         <td><strong>Title</strong></td>
         <td>{{ object.title }}</td>
       </tr>
-      <tr>
+      <tr id="table-description-row">
         <td><strong>Description</strong></td>
         <td>{{ object.description }}</td>
       </tr>
-      <tr>
+      <tr id="table-pi_emails-row">
         <td><strong>PI Emails</strong></td>
         <td>{% for pi_email in object.pi_emails %}
           {{ pi_email }}{% if not forloop.last %},&nbsp;{% endif %}
         {% endfor %}</td>
       </tr>
-      <tr>
+      <tr id="table-manager_list-row">
         <td><strong>Project Managers</strong></td>
         <td>{% for manager in object.manager_list %}
           {{ manager }}{% if not forloop.last %},&nbsp;{% endif %}
         {% endfor %}</td>
       </tr>
-      <tr>
+      <tr id="table-collaborator_list-row">
         <td><strong>Project Collaborators</strong></td>
         <td>{% for collaborator in object.collaborator_list %}
           {{ collaborator }}{% if not forloop.last %},&nbsp;{% endif %}
         {% endfor %}</td>
       </tr>
-      <tr>
+      <tr id="table-created_on-row">
         <td><strong>Created On</strong></td>
         <td>{{ object.created_on }}</td>
       </tr>

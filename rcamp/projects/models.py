@@ -49,7 +49,7 @@ class Project(models.Model):
             username, org, __ = dn.split(',',2)
             __, username = username.split('=')
             __, org = org.split('=')
-            if org == 'csu':
+            if org.lower() == 'csu':
                 username += '@colostate.edu'
             display_list.append(username)
         return display_list

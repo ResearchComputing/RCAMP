@@ -1,17 +1,22 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
 from django.contrib.auth.models import User
 import datetime
 import mock
+import copy
 
 from accounts.models import RcLdapUser
 from projects.models import Project
 
 
+ucb_user_dn = 'uid=testuser,ou=UCB,ou=People,dc=rc,dc=int,dc=colorado,dc=edu'
+csu_user_dn = 'uid=testuser,ou=CSU,ou=People,dc=rc,dc=int,dc=colorado,dc=edu'
+
 project_dict = dict(
     pi_emails = ['testpi@test.org'],
-    managers = ['uid=testuser,ou=UCB,ou=People,dc=rc,dc=int,dc=colorado,dc=edu'],
-    collaborators = ['uid=testuser,ou=UCB,ou=People,dc=rc,dc=int,dc=colorado,dc=edu'],
+    managers = [ucb_user_dn],
+    collaborators = [ucb_user_dn,csu_user_dn],
     organization = 'ucb',
     project_id = 'ucb1',
     title = 'Test project',
@@ -62,6 +67,14 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         password_input = self.browser.find_element_by_id('id_password')
         password_input.send_keys(password)
         self.browser.find_element_by_css_selector('#login-form button').click()
+        # Add a suffixed user to LDAP
+        csu_ldap_user_dict = copy.deepcopy(ldap_user_dict)
+        csu_ldap_user_dict['uid'] = 1011
+        csu_ldap_user_dict['gid'] = 1011
+        try:
+            csu_ldap_user = RcLdapUser.objects.create(organization='csu',**csu_ldap_user_dict)
+        except:
+            pass
 
     def test_project_list_as_manager(self):
         project = Project.objects.create(**project_dict)
@@ -77,3 +90,22 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         edit_link = self.browser.find_element_by_css_selector('a.project-edit-link')
         reference_create_link = self.browser.find_element_by_css_selector('#reference-add-link')
         request_create_link = self.browser.find_element_by_css_selector('#allocation-request-link')
+
+    def test_project_details_as_collaborator(self):
+        collab_project_dict = copy.deepcopy(project_dict)
+        collab_project_dict['managers'] = [csu_user_dn]
+        collab_project_dict['collaborators'] = [csu_user_dn,ucb_user_dn]
+        project = Project.objects.create(**collab_project_dict)
+        self.browser.get(self.live_server_url + '/projects/list/{}/'.format(project.pk))
+        # Manager features disabled?
+        with self.assertRaises(NoSuchElementException):
+            self.browser.find_element_by_css_selector('a.project-edit-link')
+        with self.assertRaises(NoSuchElementException):
+            self.browser.find_element_by_css_selector('#reference-add-link')
+        with self.assertRaises(NoSuchElementException):
+            self.browser.find_element_by_css_selector('#allocation-request-link')
+        # Member fields render suffixed and unsuffixed names correctly?
+        manager_list_td = self.browser.find_element_by_css_selector("#table-manager_list-row td:nth-child(2)")
+        self.assertEqual(manager_list_td.text,'testuser@colostate.edu')
+        collaborator_list_td = self.browser.find_element_by_css_selector("#table-collaborator_list-row td:nth-child(2)")
+        self.assertEqual(collaborator_list_td.text,'testuser@colostate.edu,  testuser')
