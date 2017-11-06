@@ -54,12 +54,7 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         cls.browser.quit()
         super(ProjectListTestCase,cls).tearDownClass()
 
-    def setUp(self):
-        super(ProjectListTestCase,self).setUp()
-        # Create test auth user
-        username = 'testuser'
-        password = 'password'
-        self.user = User.objects.create_user(username, 'testuser@test.org', password)
+    def _login(self,username,password):
         # Log into RCAMP
         self.browser.get(self.live_server_url + '/login')
         username_input = self.browser.find_element_by_id('id_username')
@@ -67,6 +62,17 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         password_input = self.browser.find_element_by_id('id_password')
         password_input.send_keys(password)
         self.browser.find_element_by_css_selector('#login-form button').click()
+
+    def _logout(self):
+        self.browser.get(self.live_server_url + '/logout')
+
+    def setUp(self):
+        super(ProjectListTestCase,self).setUp()
+        # Create test auth user
+        username = 'testuser'
+        password = 'password'
+        self.user = User.objects.create_user(username,'testuser@test.org',password)
+        self._login(username,password)
         # Add a suffixed user to LDAP
         csu_ldap_user_dict = copy.deepcopy(ldap_user_dict)
         csu_ldap_user_dict['uid'] = 1011
@@ -82,6 +88,21 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         list_items = self.browser.find_elements_by_css_selector('.list-group > a')
         self.assertIn('/projects/list/{}/'.format(project.pk),list_items[0].get_attribute('href'))
         self.assertIn('/projects/create',list_items[1].get_attribute('href'))
+
+    def test_project_details_as_suffixed_user(self):
+        csu_project_dict = copy.deepcopy(project_dict)
+        csu_project_dict['managers'] = [csu_user_dn]
+        csu_project_dict['collaborators'] = [csu_user_dn,ucb_user_dn]
+        project = Project.objects.create(**csu_project_dict)
+        # Create test CSU auth user
+        username = 'testuser@colostate.edu'
+        password = 'password'
+        self.user = User.objects.create_user(username,'testuser@csutest.org',password)
+        self._logout()
+        self._login(username,password)
+        self.browser.get(self.live_server_url + '/projects/list')
+        list_items = self.browser.find_elements_by_css_selector('.list-group > a')
+        self.assertIn('/projects/list/{}/'.format(project.pk),list_items[0].get_attribute('href'))
 
     def test_project_details_as_manager(self):
         project = Project.objects.create(**project_dict)
