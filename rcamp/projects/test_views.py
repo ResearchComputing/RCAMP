@@ -21,6 +21,7 @@ from projects.views import ReferenceEditView
 from projects.views import AllocationRequestCreateView
 
 import mock
+from unittest import skip
 
 
 class RcLdapUserMock (object):
@@ -44,6 +45,7 @@ class RcLdapUserQuerySet (object):
 class RcLdapUserObjectManager (object):
     all = mock.MagicMock(return_value=RcLdapUserQuerySet())
 
+@skip("Functional tests will deprecate.")
 # This test case covers the project creation page.
 @mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
 class ProjectCreateTestCase(BaseCase,CbvCase):
@@ -211,7 +213,7 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
                 **{}
             )
 
-
+@skip("Functional tests will deprecate.")
 # This test case covers the project edit page.
 @mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
 class ProjectEditTestCase(BaseCase,CbvCase):
@@ -343,6 +345,7 @@ class ProjectEditTestCase(BaseCase,CbvCase):
                 [u'This field is required.']
             )
 
+@skip("Functional tests will deprecate.")
 # This test case covers the reference creation page.
 class ReferenceCreateTestCase(CbvCase):
     def setUp(self):
@@ -401,6 +404,7 @@ class ReferenceCreateTestCase(CbvCase):
                 [u'This field is required.']
             )
 
+@skip("Functional tests will deprecate.")
 # This test case covers the reference edit page.
 class ReferenceEditTestCase(CbvCase):
     def setUp(self):
@@ -463,6 +467,7 @@ class ReferenceEditTestCase(CbvCase):
                 [u'This field is required.']
             )
 
+@skip("Functional tests will deprecate.")
 # This test case covers the Allocation Request create page
 class AllocationRequestCreateTestCase(CbvCase):
     def setUp(self):

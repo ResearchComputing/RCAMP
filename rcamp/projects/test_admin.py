@@ -11,14 +11,17 @@ from accounts.test_admin import AdminTestCase
 from projects.models import Project
 from projects.models import Allocation
 
+from unittest import skip
 
 
+@skip("Functional tests will deprecate.")
 class ProjectsAdminTestCase(AdminTestCase):
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_index(self):
         response = self.client.get('/admin/projects/')
         self.assertContains(response, "Projects")
 
+@skip("Functional tests will deprecate.")
 class AdminProjectTestCase(ProjectsAdminTestCase):
     def setUp(self):
         self.test_proj = Project.objects.create(**{
@@ -128,11 +131,13 @@ class AdminProjectTestCase(ProjectsAdminTestCase):
         qs = Project.objects.filter(project_id='ucb1')
         self.assertEquals(qs.count(), 0)
 
+@skip("Functional tests will deprecate.")
 class AllocationsAdminTestCase(AdminTestCase):
     def test_index(self):
         response = self.client.get('/admin/projects/')
         self.assertContains(response, "Allocations")
 
+@skip("Functional tests will deprecate.")
 class AdminAllocationTestCase(AllocationsAdminTestCase):
     def setUp(self):
         self.test_proj = Project.objects.create(**{

@@ -274,7 +274,7 @@ class RcLdapUser(LdapUser):
         if org in settings.ORGANIZATION_INFO.keys():
             ou = 'ou={}'.format(org)
             self.org = org
-            if ou not in self.base_dn:
+            if ou not in self.base_dn.lower():
                 self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
@@ -347,7 +347,7 @@ class RcLdapGroup(ldapdb.models.Model):
             ou = rdn_list[-2]
             __, org = ou.split('=')
             self.org = org
-            self.base_dn = ','.join([self.org,self.base_dn])
+            self.base_dn = ','.join([ou,self.base_dn])
 
     objects = RcLdapGroupManager()
 
@@ -379,7 +379,7 @@ class RcLdapGroup(ldapdb.models.Model):
         if org in settings.ORGANIZATION_INFO.keys():
             ou = 'ou={}'.format(org)
             self.org = org
-            if ou not in self.base_dn:
+            if ou not in self.base_dn.lower():
                 self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))

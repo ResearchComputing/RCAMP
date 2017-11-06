@@ -36,10 +36,10 @@ ldap_user_dict = dict(
     home_directory='/home/testuser'
 )
 
-class ProjectListTestCase(StaticLiveServerTestCase):
+class ProjectDetailsTestCase(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(cls):
-        super(ProjectListTestCase,cls).setUpClass()
+        super(ProjectDetailsTestCase,cls).setUpClass()
         # Start the web driver
         cls.browser = webdriver.PhantomJS()
         cls.browser.set_window_size(1366, 768)
@@ -52,7 +52,7 @@ class ProjectListTestCase(StaticLiveServerTestCase):
     @classmethod
     def tearDownClass(cls):
         cls.browser.quit()
-        super(ProjectListTestCase,cls).tearDownClass()
+        super(ProjectDetailsTestCase,cls).tearDownClass()
 
     def _login(self,username,password):
         # Log into RCAMP
@@ -67,7 +67,7 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         self.browser.get(self.live_server_url + '/logout')
 
     def setUp(self):
-        super(ProjectListTestCase,self).setUp()
+        super(ProjectDetailsTestCase,self).setUp()
         # Create test auth user
         username = 'testuser'
         password = 'password'
@@ -89,7 +89,7 @@ class ProjectListTestCase(StaticLiveServerTestCase):
         self.assertIn('/projects/list/{}/'.format(project.pk),list_items[0].get_attribute('href'))
         self.assertIn('/projects/create',list_items[1].get_attribute('href'))
 
-    def test_project_details_as_suffixed_user(self):
+    def test_project_list_as_suffixed_user(self):
         csu_project_dict = copy.deepcopy(project_dict)
         csu_project_dict['managers'] = [csu_user_dn]
         csu_project_dict['collaborators'] = [csu_user_dn,ucb_user_dn]

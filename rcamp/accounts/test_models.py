@@ -127,16 +127,13 @@ class MockLdapTestCase(BaseCase):
     def test_rcuser_init(self):
         u = RcLdapUser.objects.get(username='testcuuser')
         self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ou=ucb')
+        self.assertEquals(u.org, 'ucb')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_set_base_dn(self):
         u = RcLdapUser.objects.get(username='testuser')
         u._set_base_dn('ucb')
-
         self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ou=ucb')
-
         self.assertRaises(ValueError, u._set_base_dn, 'fake')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
@@ -145,17 +142,6 @@ class MockLdapTestCase(BaseCase):
         u.first_name = 'Tested'
         u.save()
         self.assertEquals(u.first_name, 'Tested')
-
-    # @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    # def test_rcuser_update_new_base_dn(self):
-    #     u = RcLdapUser.objects.get(username='testuser')
-    #     u.first_name = 'Tested'
-    #     u.save(organization='cu')
-
-    #     u = RcLdapUser.objects.get(username='testuser')
-    #     self.assertEquals(u.base_dn, 'ou=cu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-    #     self.assertEquals(u.org, 'ou=cu')
-    #     self.assertEquals(u.first_name, 'Tested')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_rcuser_save(self):
@@ -193,7 +179,7 @@ class MockLdapTestCase(BaseCase):
         u.save(organization='ucb')
         self.assertEquals(u.uid, 1010)
         self.assertEquals(u.dn, 'uid=createtest,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ou=ucb')
+        self.assertEquals(u.org, 'ucb')
         self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
@@ -435,7 +421,7 @@ class AccountCreationTestCase(BaseCase):
         self.assertEquals(u.uid, 1001)
         self.assertEquals(u.gid, 1001)
         self.assertEquals(u.gecos, 'Request User,,,')
-        self.assertEquals(u.home_directory, '/home/requestuser')
+        self.assertEquals(u.home_directory, '/home/requestuser@xsede.org')
         self.assertEquals(u.login_shell, '/bin/bash')
         self.assertEquals(u.role, ['pi','faculty'])
 
