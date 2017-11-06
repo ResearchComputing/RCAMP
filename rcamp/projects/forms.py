@@ -7,7 +7,6 @@ from projects.models import Project
 
 
 def get_user_choices():
-    # import pdb;pdb.set_trace()
     for user in RcLdapUser.objects.all().order_by('username'):
         user_display = '{0} ({1} {2})'.format(
             user.effective_uid, user.first_name, user.last_name)
