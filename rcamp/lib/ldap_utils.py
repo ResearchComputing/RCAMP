@@ -15,3 +15,24 @@ def authenticate(dn,pwd,ldap_conf_key):
         return True
     except ldap.INVALID_CREDENTIALS:
         return False
+
+def get_suffixed_username(username,organization):
+    try:
+        suffix = settings.ORGANIZATION_INFO[organization]['suffix']
+    except KeyError:
+        suffix = None
+    suffixed_username = username
+    if suffix:
+        suffixed_username = '{0}@{1}'.format(username,suffix)
+    return suffixed_username
+
+def get_ldap_username_and_org(suffixed_username):
+    username = suffixed_username
+    org = 'ucb'
+    if '@' in suffixed_username:
+        username, suffix = suffixed_username.split('@')
+        for k,v in settings.ORGANIZATION_INFO.iteritems():
+            if v['suffix'] == suffix:
+                org = k
+                break
+    return username, org

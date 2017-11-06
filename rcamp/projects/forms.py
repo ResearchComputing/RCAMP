@@ -8,13 +8,9 @@ from projects.models import Project
 
 def get_user_choices():
     for user in RcLdapUser.objects.all().order_by('username'):
-        username = user.username
-        if (user.organization == 'ou=csu'):
-            if not user.organization.endswith('@colostate.edu'):
-                username = username + '@colostate.edu'
         user_display = '{0} ({1} {2})'.format(
-            username, user.first_name, user.last_name)
-        yield (username, user_display)
+            user.effective_uid, user.first_name, user.last_name)
+        yield (user.dn, user_display)
 
 
 class ProjectForm(forms.ModelForm):

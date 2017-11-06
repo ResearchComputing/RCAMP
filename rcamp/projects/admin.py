@@ -86,7 +86,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'created_on',
         'qos_addenda',
         'deactivated',
-        'collaborators',
+        'collaborator_list',
         # 'current_limit',
     ]
     search_fields = [

@@ -29,31 +29,49 @@ GENERAL_ACCOUNT_REQUEST_SUBJECT = "{general_account} account request: {username}
 GENERAL_ACCOUNT_REQUEST_BODY = "Please add me ({username}) to the {general_account} account. I will use it to [insert reason or activity here]."
 
 
-class ProjectListView(ListView):
+class ProjectAccessMixin(object):
+    def is_manager(self,request_user,project):
+        user = RcLdapUser.objects.get_user_from_suffixed_username(request_user.username)
+        is_manager = False
+        if user and user.dn in project.managers:
+            is_manager = True
+        return is_manager
+
+    def get_manager_from_request_user(self, request_user):
+        user = RcLdapUser.objects.get_user_from_suffixed_username(request_user.username)
+        return user
+
+    def get_manager_or_redirect(self,username,project,redirect_view='projects:project-detail'):
+        user = RcLdapUser.objects.get_user_from_suffixed_username(username)
+        if user and user.dn in project.managers:
+            return user
+        return redirect(redirect_view, pk=project.pk)
+
+class ProjectListView(ListView,ProjectAccessMixin):
     model = Project
     template_name = 'project-list.html'
 
     def get_queryset(self):
-        user = self.request.user.username
+        username = self.request.user.username
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
         return Project.objects.filter(
-            Q(collaborators__contains=user) | Q(managers__contains=user)
+            Q(collaborators__contains=ldap_user.dn) | Q(managers__contains=ldap_user.dn)
         )
 
     def get_context_data(self, **kwargs):
         context = super(ProjectListView,self).get_context_data(**kwargs)
 
         username = self.request.user.username
-        if username.endswith('@colostate.edu'):
-            general_account = 'csu-general'
-        else:
-            general_account = 'ucb-general'
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
+        context['ldap_user'] = ldap_user
+        general_account = '{}-general'.format(ldap_user.organization)
         context['general_account'] = general_account
         context['general_request_subject'] = GENERAL_ACCOUNT_REQUEST_SUBJECT.format(username=username, general_account=general_account)
         context['general_request_body'] = GENERAL_ACCOUNT_REQUEST_BODY.format(username=username, general_account=general_account)
 
         return context
 
-class ProjectDetailView(DetailView):
+class ProjectDetailView(DetailView,ProjectAccessMixin):
     model = Project
     template_name = 'project-detail.html'
 
@@ -62,6 +80,7 @@ class ProjectDetailView(DetailView):
         references = Reference.objects.filter(project=self.object)
         allocations = Allocation.objects.filter(project=self.object)
         allocation_requests = AllocationRequest.objects.filter(project=self.object)
+        context['ldap_user'] = self.get_manager_from_request_user(self.request.user)
         context['references'] = references
         context['allocations'] = allocations
         context['allocation_requests'] = allocation_requests
@@ -73,9 +92,9 @@ class ProjectCreateView(FormView):
     form_class = ProjectForm
 
     def form_valid(self, form):
-        creator = self.request.user
-        if creator.username not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(creator.username)
+        creator = RcLdapUser.objects.get_user_from_suffixed_username(self.request.user.username)
+        if creator and creator.dn not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(creator.dn)
         project = Project.objects.create(**form.cleaned_data)
         project_created_by_user.send(sender=project.__class__, project=project)
         self.success_url = reverse_lazy(
@@ -85,26 +104,22 @@ class ProjectCreateView(FormView):
         return super(ProjectCreateView, self).form_valid(form)
 
 
-class ProjectEditView(FormView):
+class ProjectEditView(FormView,ProjectAccessMixin):
     template_name = 'project-edit.html'
     form_class = ProjectEditForm
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         self.object = get_object_or_404(Project,pk=pk)
-        if request.user.username not in self.object.managers:
-            return redirect('projects:project-detail', pk=pk)
-        else:
-            return super(ProjectEditView,self).get(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.object)
+        return super(ProjectEditView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
         pk = int(path_cmp[-2])
         self.object = get_object_or_404(Project,pk=pk)
-        if request.user.username not in self.object.managers:
-            return redirect('projects:project-detail', pk=pk)
-        else:
-            return super(ProjectEditView,self).post(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.object)
+        return super(ProjectEditView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ProjectEditView, self).get_context_data(**kwargs)
@@ -121,9 +136,9 @@ class ProjectEditView(FormView):
         return initial
 
     def form_valid(self, form):
-        editor = self.request.user
-        if editor.username not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(editor.username)
+        editor = RcLdapUser.objects.get_user_from_suffixed_username(self.request.user.username)
+        if editor and editor.dn not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(editor.dn)
         project = Project.objects.filter(
                 pk=self.object.pk
             ).update(
@@ -150,26 +165,22 @@ class ReferenceDetailView(DetailView):
         context['project'] = self.project
         return context
 
-class ReferenceCreateView(FormView):
+class ReferenceCreateView(FormView,ProjectAccessMixin):
     template_name = 'reference-create.html'
     form_class = ReferenceForm
 
     def get(self, request, *args, **kwargs):
         project_pk = kwargs.get('project_pk')
         self.project = get_object_or_404(Project,pk=project_pk)
-        if request.user.username not in self.project.managers:
-            return redirect('projects:project-detail', pk=project_pk)
-        else:
-            return super(ReferenceCreateView,self).get(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        return super(ReferenceCreateView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
         project_pk = int(path_cmp[-3])
         self.project = get_object_or_404(Project,pk=project_pk)
-        if request.user.username not in self.project.managers:
-            return redirect('projects:project-detail', pk=project_pk)
-        else:
-            return super(ReferenceCreateView,self).post(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        return super(ReferenceCreateView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ReferenceCreateView,self).get_context_data(**kwargs)
@@ -191,7 +202,7 @@ class ReferenceCreateView(FormView):
         )
         return super(ReferenceCreateView,self).form_valid(form)
 
-class ReferenceEditView(FormView):
+class ReferenceEditView(FormView,ProjectAccessMixin):
     template_name = 'reference-edit.html'
     form_class = ReferenceForm
 
@@ -200,10 +211,8 @@ class ReferenceEditView(FormView):
         ref_pk = kwargs.get('pk')
         self.project = get_object_or_404(Project,pk=project_pk)
         self.object = get_object_or_404(Reference,pk=ref_pk)
-        if request.user.username not in self.project.managers:
-            return redirect('projects:project-detail', pk=project_pk)
-        else:
-            return super(ReferenceEditView,self).get(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        return super(ReferenceEditView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
@@ -211,10 +220,8 @@ class ReferenceEditView(FormView):
         ref_pk = int(path_cmp[-2])
         self.project = get_object_or_404(Project,pk=project_pk)
         self.object = get_object_or_404(Reference,pk=ref_pk)
-        if request.user.username not in self.project.managers:
-            return redirect('projects:project-detail', pk=project_pk)
-        else:
-            return super(ReferenceEditView,self).post(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        return super(ReferenceEditView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ReferenceEditView,self).get_context_data(**kwargs)
@@ -243,26 +250,22 @@ class ReferenceEditView(FormView):
         )
         return super(ReferenceEditView,self).form_valid(form)
 
-class AllocationRequestCreateView(FormView):
+class AllocationRequestCreateView(FormView,ProjectAccessMixin):
     template_name = 'allocation-request-create.html'
     form_class = AllocationRequestForm
 
     def get(self, request, *args, **kwargs):
         project_pk = kwargs.get('project_pk')
         self.project = get_object_or_404(Project,pk=project_pk)
-        if request.user.username not in self.project.managers:
-            return redirect('projects:project-detail', pk=project_pk)
-        else:
-            return super(AllocationRequestCreateView,self).get(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        return super(AllocationRequestCreateView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
         project_pk = int(path_cmp[-3])
         self.project = get_object_or_404(Project,pk=project_pk)
-        if request.user.username not in self.project.managers:
-            return redirect('projects:project-detail', pk=project_pk)
-        else:
-            return super(AllocationRequestCreateView,self).post(request,*args,**kwargs)
+        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        return super(AllocationRequestCreateView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(AllocationRequestCreateView,self).get_context_data(**kwargs)
