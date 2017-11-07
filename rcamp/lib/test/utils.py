@@ -7,7 +7,10 @@ import datetime
 import mock
 import copy
 
-from accounts.models import RcLdapUser
+from accounts.models import (
+    RcLdapUser,
+    RcLdapGroup
+)
 
 
 def assert_test_env():
@@ -22,7 +25,7 @@ def assert_test_env():
     return True
 
 def _purge_ldap_objects():
-    """Helper method for purgin LDAP objects between tests."""
+    """Helper method for purging LDAP objects between tests."""
     assert_test_env()
     ldap_users = RcLdapUser.objects.all()
     for user in ldap_users:
@@ -31,7 +34,7 @@ def _purge_ldap_objects():
     for group in ldap_groups:
         group.delete()
 
-@skipUnless(assert_test_env())
+@skipUnless(assert_test_env(),"Tests are not being run against a safe test environment!")
 class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
     """
     Subclass of the StaticLiveServerTestCase that ensures functional tests are being run against
@@ -62,7 +65,7 @@ class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
 
 class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
     """
-    This subclass of the StaticLiveServerTestCase provides methods for logging a user in and out
+    This subclass of the SafeStaticLiveServerTestCase provides methods for logging a user in and out
     using the selenium webdriver, the currently configured auth backends, and the user (not admin)
     login form. Two pairs of auth/ldap users are created during class set up:
     * un: testuser (UCB) pwd: password
@@ -131,8 +134,8 @@ class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
 
     def _create_user_pairs(self):
         # Create LDAP users to back auth users
-        self.ucb_ldap_user = RcLdapUser.objects.create(organization='ucb',**ucb_ldap_user_dict)
-        self.csu_ldap_user = RcLdapUser.objects.create(organization='csu',**csu_ldap_user_dict)
+        self.ucb_ldap_user = RcLdapUser.objects.create(organization='ucb',**self.ucb_ldap_user_dict)
+        self.csu_ldap_user = RcLdapUser.objects.create(organization='csu',**self.csu_ldap_user_dict)
         # Create auth users
         self.ucb_auth_user = User.objects.create_user(
             self.ucb_auth_user_dict['username'],
