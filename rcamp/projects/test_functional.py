@@ -2,7 +2,7 @@ from selenium.common.exceptions import NoSuchElementException
 from django.contrib.auth.models import User
 import copy
 
-from lib.test.utils import UserAuthenticatedLiveServerTestCase
+from lib.test.functional import UserAuthenticatedLiveServerTestCase
 from projects.models import Project
 
 

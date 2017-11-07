@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.test import override_settings
 from mock import MagicMock
 import mock
@@ -7,346 +6,110 @@ import ldap
 import copy
 
 from django.conf import settings
-from ldapdb.backends.ldap.compiler import query_as_ldap
 
+from lib.test.utils import SafeTestCase
+from lib.test.ldap import (
+    get_ldap_user_defaults,
+    build_mock_rcldap_user,
+    build_mock_rcldap_group,
+    LdapTestCase
+)
 # Import namespace for mock
 import accounts.models
-from accounts.models import IdTracker
-from accounts.models import AccountRequest
-from accounts.models import RcLdapUser
-from accounts.models import RcLdapGroup
-
-from mockldap import MockLdap
-# Create your tests here.
-
-
-admin = ('cn=admin', {'userPassword': ['test']})
-groups = ('ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
-people = ('ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
-cu_groups = ('ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
-cu_people = ('ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
-xsede_groups = ('ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top', 'posixGroup'], 'ou': ['groups']})
-xsede_people = ('ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-    'objectClass': ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'], 'ou': ['people']})
-test_user = (
-    'uid=testuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson','shadowAccount'],
-        'cn': ['user, test'],
-        'givenName': ['test'],
-        'sn': ['user'],
-        'mail': ['testuser@test.org'],
-        'uid': ['testuser'],
-        'modifytimestamp': ['20151106034324Z'],
-        'uidNumber': ['1000'],
-        'gidNumber': ['1000'],
-        'gecos': [''],
-        'homeDirectory': ['/home/testuser'],
-        'loginShell': ['/bin/bash']
-    }
-)
-test_cu_user = (
-    'uid=testcuuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top', 'person', 'inetorgperson', 'posixaccount','curcPerson','shadowAccount'],
-        'cn': ['user, test'],
-        'givenName': ['test'],
-        'sn': ['user'],
-        'mail': ['testuser@test.org'],
-        'uid': ['testcuuser'],
-        'modifytimestamp': ['20151106034324Z'],
-        'uidNumber': ['1200'],
-        'gidNumber': ['1200'],
-        'gecos': [''],
-        'homeDirectory': ['/home/cu/testuser'],
-        'loginShell': ['/bin/bash']
-    }
-)
-test_group = (
-    'cn=testgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top','posixGroup'],
-        'cn': ['testgrp'],
-        'gidNumber': ['1000'],
-        'memberUid': ['testuser']
-    }
+from accounts.models import (
+    IdTracker,
+    AccountRequest,
+    RcLdapUser,
+    RcLdapGroup
 )
 
-test_license_group = (
-    'cn=ucb,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu', {
-        'objectClass': ['top','posixGroup'],
-        'cn': ['ucb'],
-        'gidNumber': ['1010'],
-        'memberUid': []
-    }
-)
 
-# Base class to set up mock LDAP server for the remainder
-# of the test cases.
-#
-# In each test that interacts with the mock LDAP, the
-# DATABASE_ROUTERS setting will need to be overridden
-# with the LDAP router for test.
-class BaseCase(TestCase):
-    directory = dict([admin, groups, cu_groups, xsede_groups, people, cu_people, xsede_people, test_user, test_cu_user, test_group, test_license_group])
+class RcLdapUserTestCase(LdapTestCase):
+    def test_create_ldap_user(self):
+        ldap_user_dict = get_ldap_user_defaults()
+        with self.assertRaises(ValueError):
+            RcLdapUser.objects.create(**ldap_user_dict)
+        with self.assertRaises(ValueError):
+            RcLdapUser.objects.create(organization='invalid_org',**ldap_user_dict)
+        ldap_users = RcLdapUser.objects.all()
+        self.assertEquals(ldap_users.count(),0)
+        # Create ucb user
+        RcLdapUser.objects.create(organization='ucb',**ldap_user_dict)
+        ucb_user = RcLdapUser.objects.get(uid=1010)
+        self.assertEquals(ucb_user.dn.lower(),'uid=testuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(ucb_user.organization,'ucb')
+        self.assertEquals(ucb_user.effective_uid,'testuser')
+        self.assertEquals(ucb_user.username,'testuser')
+        # Create csu user
+        csu_ldap_user_dict = get_ldap_user_defaults()
+        csu_ldap_user_dict.update(dict(uid=1011,gid=1011))
+        RcLdapUser.objects.create(organization='csu',**csu_ldap_user_dict)
+        csu_user = RcLdapUser.objects.get(uid=1011)
+        self.assertEquals(csu_user.dn.lower(),'uid=testuser,ou=csu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(csu_user.organization,'csu')
+        self.assertEquals(csu_user.effective_uid,'testuser@colostate.edu')
+        self.assertEquals(csu_user.username,'testuser')
 
-    @classmethod
-    def setUpClass(cls):
-        cls.mockldap = MockLdap(cls.directory)
+    def test_get_ldap_user_from_suffixed_username(self):
+        ucb_ldap_user_dict = get_ldap_user_defaults()
+        csu_ldap_user_dict = get_ldap_user_defaults()
+        csu_ldap_user_dict.update(dict(uid=1011,gid=1011))
+        RcLdapUser.objects.create(organization='ucb',**ucb_ldap_user_dict)
+        RcLdapUser.objects.create(organization='csu',**csu_ldap_user_dict)
+        ucb_user = RcLdapUser.objects.get_user_from_suffixed_username('testuser')
+        self.assertEquals(ucb_user.uid,1010)
+        csu_user = RcLdapUser.objects.get_user_from_suffixed_username('testuser@colostate.edu')
+        self.assertEquals(csu_user.uid,1011)
 
-    @classmethod
-    def tearDownClass(cls):
-        del cls.mockldap
-
-    def setUp(self):
-        self.mockldap.start()
-        self.ldapobj = self.mockldap[settings.DATABASES['rcldap_test']['NAME']]
-
-    def tearDown(self):
-        self.mockldap.stop()
-        del self.ldapobj
-
-# Ensure basic functionality of the mock LDAP server
-# before continuing onto the remainder of the test suite.
-class MockLdapTestCase(BaseCase):
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_read(self):
-        u = RcLdapUser.objects.get(username='testuser')
-
-        self.assertEquals(u.home_directory, '/home/testuser')
-        self.assertEquals(u.uid, 1000)
-        self.assertEquals(u.username, 'testuser')
-        self.assertEquals(u.modified_date, datetime.datetime(2015,11,06,03,43,24))
-
-        self.assertRaises(RcLdapUser.DoesNotExist, RcLdapUser.objects.get,
-                        username='does_not_exist')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_init(self):
-        u = RcLdapUser.objects.get(username='testcuuser')
-        self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ucb')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_set_base_dn(self):
-        u = RcLdapUser.objects.get(username='testuser')
-        u._set_base_dn('ucb')
-        self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertRaises(ValueError, u._set_base_dn, 'fake')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_update(self):
-        u = RcLdapUser.objects.get(username='testuser')
-        u.first_name = 'Tested'
-        u.save()
-        self.assertEquals(u.first_name, 'Tested')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_save(self):
-        user_dict = dict(
-                username='createtest',
-                first_name='c',
-                last_name='u',
-                full_name='u, c',
-                email='cu@cu.org',
-                modified_date=datetime.datetime(2015,11,06,03,43,24),
-                uid=1010,
-                gid=1010,
-                gecos='c u,,,',
-                home_directory='/home/createtest'
-            )
-        u = RcLdapUser(**user_dict)
-        u.save()
-        self.assertEquals(u.uid, 1010)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_save_with_org(self):
-        user_dict = dict(
-                username='createtest',
-                first_name='c',
-                last_name='u',
-                full_name='u, c',
-                email='cu@cu.org',
-                modified_date=datetime.datetime(2015,11,06,03,43,24),
-                uid=1010,
-                gid=1010,
-                gecos='c u,,,',
-                home_directory='/home/ucb/createtest'
-            )
-        u = RcLdapUser(**user_dict)
-        u.save(organization='ucb')
-        self.assertEquals(u.uid, 1010)
-        self.assertEquals(u.dn, 'uid=createtest,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.org, 'ucb')
-        self.assertEquals(u.base_dn, 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_save_without_ids(self):
-        user_dict = dict(
-            username='createtest',
-            first_name='c',
-            last_name='u',
-            full_name='u, c',
-            email='cu@cu.org',
-            modified_date=datetime.datetime(2015,11,06,03,43,24),
-            uid=1010,
-            gecos='c u,,,',
-            home_directory='/home/ucb/createtest'
-        )
-        u = RcLdapUser(**user_dict)
-        u.save(organization='ucb')
-        self.assertEquals(u.gid, 1010)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_create(self):
-        user_dict = dict(
-                username='createtest',
-                first_name='c',
-                last_name='u',
-                full_name='u, c',
-                email='cu@cu.org',
-                modified_date=datetime.datetime(2015,11,06,03,43,24),
-                uid=1010,
-                gid=1010,
-                gecos='c u,,,',
-                home_directory='/home/createtest'
-            )
-        u = RcLdapUser.objects.create(**user_dict)
-        self.assertEquals(u.uid, 1010)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcuser_save_duplicate_uid_in_separate_ou(self):
-        user_dict = dict(
-                username='createtest',
-                first_name='c',
-                last_name='u',
-                full_name='u, c',
-                email='cu@cu.org',
-                modified_date=datetime.datetime(2015,11,06,03,43,24),
-                uid=1010,
-                gid=1010,
-                gecos='c u,,,',
-                home_directory='/home/ucb/createtest'
-            )
-        u = RcLdapUser(**user_dict)
-        u.save(organization='ucb')
-        self.assertEquals(u.dn, 'uid=createtest,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-
-        user_dict['uid'] = 1011
-        user_dict['gid'] = 1011
-        user_dict['home_directory'] = '/home/xsede/createtest'
-        v = RcLdapUser(**user_dict)
-        v.save(organization='xsede')
-        self.assertEquals(v.dn, 'uid=createtest,ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcgroup_save(self):
-        grp_dict = dict(
-                name='createtestgrp',
-                gid=1010,
-                members=['createtest']
-            )
-        g = RcLdapGroup(**grp_dict)
-        g.save(organization='ucb')
-        self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(g.gid, 1010)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcgroup_save_without_gid(self):
-        id_tracker = IdTracker.objects.create(**{
-            'category': 'posix',
-            'min_id': 1000,
-            'max_id': 1010,
-            'next_id': 1001
-        })
-        grp_dict = dict(
-            name='createtestgrp',
-            members=['createtest']
-        )
-        g = RcLdapGroup(**grp_dict)
-        g.save(organization='ucb')
-        self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(g.gid, 1001)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcgroup_create(self):
-        grp_dict = dict(
-                name='createtestgrp',
-                gid=1010,
-                members=['createtest'],
-                organization='ucb',
-            )
-        g = RcLdapGroup.objects.create(**grp_dict)
-        self.assertEquals(g.dn, 'cn=createtestgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(g.gid, 1010)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcgroup_read(self):
-        g = RcLdapGroup.objects.get(name='testgrp')
-
-        self.assertEquals(g.dn, 'cn=testgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(g.name, 'testgrp')
-        self.assertEquals(g.gid, 1000)
-        self.assertEquals(g.members, ['testuser'])
-
-        self.assertRaises(RcLdapGroup.DoesNotExist, RcLdapGroup.objects.get,
-                        name='does_not_exist')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_rcgroup_update(self):
-        g = RcLdapGroup.objects.get(name='testgrp')
-        g.name = 'testedgrp'
-        g.save()
-        self.assertEquals(g.dn, 'cn=testedgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(g.name, 'testedgrp')
-
-# This test case covers IdTracker functionality
-class IdTrackerTestCase(BaseCase):
-    def setUp(self):
-        super(IdTrackerTestCase,self).setUp()
-        idt = IdTracker(
+class IdTrackerTestCase(SafeTestCase):
+    def test_get_next_id(self):
+        idt = IdTracker.objects.create(
             category='posix',
             min_id=1000,
             max_id=1500,
             next_id=1001
         )
-        idt.save()
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_get_next_id(self):
-        idt = IdTracker.objects.get(category='posix')
-        self.assertEquals(idt.next_id, 1001)
-
-        next_id = idt.get_next_id()
+        with mock.patch('accounts.models.RcLdapUser.objects.filter',return_value=[]):
+            with mock.patch('accounts.models.RcLdapGroup.objects.filter',return_value=[]):
+                next_id = idt.get_next_id()
         self.assertEquals(next_id, 1001)
         self.assertEquals(idt.next_id, 1002)
 
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_get_next_id_no_initial_value(self):
-        idt = IdTracker.objects.get(category='posix')
-        idt.next_id = None
-        idt.save()
-        next_id = idt.get_next_id()
+        mock_ldap_user = build_mock_rcldap_user(uid=1000)
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500
+        )
+        side_effects = [[mock_ldap_user], []]
+        with mock.patch('accounts.models.RcLdapUser.objects.filter',side_effect=side_effects):
+            with mock.patch('accounts.models.RcLdapGroup.objects.filter',return_value=[]):
+                next_id = idt.get_next_id()
         self.assertEquals(next_id, 1001)
         self.assertEquals(idt.next_id, 1002)
 
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_get_next_id_conflict(self):
-        idt = IdTracker.objects.get(category='posix')
-        idt.next_id = 1000
-        idt.save()
-        next_id = idt.get_next_id()
-        self.assertEquals(next_id, 1001)
-        self.assertEquals(idt.next_id, 1002)
+        mock_ldap_user = build_mock_rcldap_user(uid=1002)
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1002
+        )
+        side_effects = [[mock_ldap_user], []]
+        with mock.patch('accounts.models.RcLdapUser.objects.filter',side_effect=side_effects):
+            with mock.patch('accounts.models.RcLdapGroup.objects.filter',return_value=[]):
+                next_id = idt.get_next_id()
+        self.assertEquals(next_id, 1003)
+        self.assertEquals(idt.next_id, 1004)
 
 # This test case covers creating an LDAP user from
 # a request dictionary.
 class MockCuUser():
     uid = 999000
 
-class AccountCreationTestCase(BaseCase):
+class AccountCreationTestCase(LdapTestCase):
     def setUp(self):
         super(AccountCreationTestCase,self).setUp()
         idt = IdTracker(
@@ -488,7 +251,7 @@ class MockLdapObjectManager():
     create_user_from_request = MagicMock(return_value={})
 
 # This test case covers AccountRequest model functionality.
-class AccountRequestTestCase(BaseCase):
+class AccountRequestTestCase(LdapTestCase):
     def setUp(self):
         super(AccountRequestTestCase,self).setUp()
         self.ar_dict = {

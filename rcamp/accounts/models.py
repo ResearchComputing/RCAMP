@@ -281,8 +281,9 @@ class RcLdapUser(LdapUser):
 
     def save(self,*args,**kwargs):
         org = kwargs.pop('organization', None)
-        if org:
-            self._set_base_dn(org)
+        if not org:
+            raise ValueError('No organization specified.')
+        self._set_base_dn(org)
 
         # If no UID/GID specified, auto-assign
         if (self.uid == None) and (self.gid == None):
