@@ -51,6 +51,21 @@ class RcLdapUserTestCase(LdapTestCase):
         self.assertEquals(csu_user.effective_uid,'testuser@colostate.edu')
         self.assertEquals(csu_user.username,'testuser')
 
+    def test_create_ldap_user_no_uid(self):
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1001
+        )
+        ldap_user_dict = get_ldap_user_defaults()
+        del ldap_user_dict['uid']
+        del ldap_user_dict['gid']
+        RcLdapUser.objects.create(organization='ucb',**ldap_user_dict)
+        ldap_user = RcLdapUser.objects.get(username='testuser')
+        self.assertEquals(ldap_user.uid,1001)
+        self.assertEquals(ldap_user.gid,1001)
+
     def test_get_ldap_user_from_suffixed_username(self):
         ucb_ldap_user_dict = get_ldap_user_defaults()
         csu_ldap_user_dict = get_ldap_user_defaults()
@@ -87,6 +102,19 @@ class RcLdapGroupTestCase(LdapTestCase):
         self.assertEquals(csu_group.organization,'csu')
         self.assertEquals(csu_group.effective_cn,'testusergrp@colostate.edu')
         self.assertEquals(csu_group.name,'testusergrp')
+
+    def test_create_ldap_group_no_gid(self):
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1001
+        )
+        ldap_group_dict = get_ldap_group_defaults()
+        del ldap_group_dict['gid']
+        RcLdapGroup.objects.create(organization='ucb',**ldap_group_dict)
+        ldap_group = RcLdapGroup.objects.get(name='testusergrp')
+        self.assertEquals(ldap_group.gid,1001)
 
 class IdTrackerTestCase(SafeTestCase):
     def test_get_next_id(self):
@@ -274,66 +302,43 @@ class AccountCreationTestCase(LdapTestCase):
         expire_days = (expire - datetime.date(1970, 1, 1)).days
         self.assertEquals(u.expires, expire_days)
 
-class MockLdapObjectManager():
-    create_user_from_request = MagicMock(return_value={})
-
-# This test case covers AccountRequest model functionality.
-class AccountRequestTestCase(LdapTestCase):
+class AccountRequestTestCase(SafeTestCase):
     def setUp(self):
         super(AccountRequestTestCase,self).setUp()
         self.ar_dict = {
             'username': 'testuser',
             'first_name': 'Test',
             'last_name': 'User',
-            'email': 'tu@tu.org',
+            'email': 'testuser@colorado.edu',
             'role': 'faculty',
             'organization': 'ucb',
             'login_shell': '/bin/bash',
         }
         ar = AccountRequest.objects.create(**self.ar_dict)
-        MockLdapObjectManager.create_user_from_request.reset_mock()
 
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_update_account_request(self):
         ar = AccountRequest.objects.get(username='testuser')
         self.assertEquals(ar.status,'p')
-        ar.status = 'p'
         ar.save()
         self.assertEquals(ar.status,'p')
         self.assertIsNone(ar.approved_on)
 
-    @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_update_approved_request(self):
+    def test_approve_request(self):
+        mock_ldap_manager = mock.MagicMock()
+        mock_ldap_manager.create_user_from_request.return_value = None
+        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
+            ar = AccountRequest.objects.get(username='testuser')
+            ar.status = 'a'
+            ar.save()
+        mock_ldap_manager.create_user_from_request.assert_called_once_with(**self.ar_dict)
+        self.assertIsNotNone(ar.approved_on)
+        # Create new approved request
         new_req = copy.deepcopy(self.ar_dict)
         new_req['username'] = 'testuser1'
-        new_req['email'] = 'tu1@tu.org'
-        new_req['status'] = 'a'
-        ar = AccountRequest.objects.create(**new_req)
-        ar.first_name = 'Bob'
-        ar.save()
-        self.assertEqual(MockLdapObjectManager.create_user_from_request.call_count, 1)
-
-    @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_create_and_approve_request(self):
-        new_req = copy.deepcopy(self.ar_dict)
-        new_req['username'] = 'testuser1'
-        new_req['email'] = 'tu1@tu.org'
-        new_req['status'] = 'a'
-        ar = AccountRequest.objects.create(**new_req)
+        new_req['email'] = 'testuser1@colorado.edu'
+        mock_ldap_manager.reset_mock()
+        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
+            ar = AccountRequest.objects.create(status='a',**new_req)
+        mock_ldap_manager.create_user_from_request.assert_called_once_with(**new_req)
         self.assertEquals(ar.status,'a')
         self.assertIsNotNone(ar.approved_on)
-
-    @mock.patch('accounts.models.RcLdapUser.objects',MockLdapObjectManager)
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_approve_account_request(self):
-        ar = AccountRequest.objects.get(username='testuser')
-        self.assertEquals(ar.status,'p')
-        ar.status = 'p'
-        ar.save()
-        ar.status = 'a'
-        ar.save()
-        self.assertEquals(ar.status,'a')
-        self.assertIsNotNone(ar.approved_on)
-        RcLdapUser.objects.create_user_from_request.assert_called_with(**self.ar_dict)

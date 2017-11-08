@@ -7,6 +7,7 @@ import unittest
 import copy
 
 from lib.test.utils import (
+    _assert_test_env_or_false,
     assert_test_env,
     _purge_ldap_objects
 )
@@ -17,7 +18,7 @@ from accounts.models import (
 )
 
 
-@unittest.skipUnless(assert_test_env(),"Tests are not being run against a safe test environment!")
+@unittest.skipUnless(_assert_test_env_or_false(),"Tests are not being run against a safe test environment!")
 class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
     """
     Subclass of the StaticLiveServerTestCase that ensures functional tests are being run against

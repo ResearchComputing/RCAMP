@@ -20,6 +20,18 @@ def assert_test_env():
     # Probably not running against prod LDAP.
     return True
 
+def _assert_test_env_or_false():
+    """
+    This method returns False if an AssertionError is thrown in assert_test_env. It exists only for
+    the unittest.skipUnless decorator, which requires a Boolean value and will not catch exceptions.
+    """
+    is_test_env = True
+    try:
+        assert_test_env()
+    except AssertionError:
+        is_test_env = False
+    return is_test_env
+
 def _purge_ldap_objects():
     """Helper method for purging LDAP objects between tests."""
     assert_test_env()
@@ -30,7 +42,7 @@ def _purge_ldap_objects():
     for group in ldap_groups:
         group.delete()
 
-@unittest.skipUnless(assert_test_env(),"Tests are not being run against a safe test environment!")
+@unittest.skipUnless(_assert_test_env_or_false(),"Tests are not being run against a safe test environment!")
 class SafeTestCase(TestCase):
     """
     Subclass of the Django framework TestCase that verifies that current host environment does not
