@@ -1,6 +1,8 @@
-from django.test import TestCase
-from django.test import override_settings
-from django.test import RequestFactory
+from django.test import (
+    TestCase,
+    override_settings,
+    RequestFactory
+)
 from django.http import Http404
 from mock import MagicMock
 import mock
@@ -8,22 +10,29 @@ import datetime
 
 from django.conf import settings
 
+from lib.test.utils import SafeTestCase
+from lib.test.functional import SafeStaticLiveServerTestCase
+
 from accounts.test_forms import CuBaseCase
-from accounts.views import ReasonView
-from accounts.views import AccountRequestReviewView
-from accounts.views import AccountRequestCreateView
-from accounts.views import SponsoredAccountRequestCreateView
-from accounts.views import ClassAccountRequestCreateView
-from accounts.views import ProjectAccountRequestCreateView
-from accounts.models import AccountRequest
-from accounts.models import IdTracker
+from accounts.views import (
+    ReasonView,
+    AccountRequestReviewView,
+    AccountRequestCreateView,
+    SponsoredAccountRequestCreateView,
+    ClassAccountRequestCreateView,
+    ProjectAccountRequestCreateView
+)
+from accounts.models import (
+    AccountRequest,
+    IdTracker
+)
 from projects.models import Project
 
 
 
 # Adds method for returning Class-Based View instance, so that
 # methods can be individually tested.
-class CbvCase(TestCase):
+class CbvCase(SafeTestCase):
     @staticmethod
     def setup_view(view,request,*args,**kwargs):
         # Mimic as_view() returned callable, but returns view instance.
@@ -74,35 +83,6 @@ class AccountRequestReviewTestCase(CbvCase):
 
 # This test case covers the general account request page.
 class AccountRequestTestCase(CuBaseCase,CbvCase):
-    @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_request_create(self):
-        request = RequestFactory().post(
-                '/accounts/account-request/create/general',
-                data={
-                    'organization':'ucb',
-                    'username':'testuser',
-                    'password':'testpass',
-                    'login_shell': '/bin/bash',
-                    'role': 'faculty',
-                    'summit':True,
-                    'petalibrary_archive':True,
-                }
-            )
-        view = AccountRequestCreateView.as_view()
-        response = view(request)
-
-        self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
-
-        ar = AccountRequest.objects.get(username='testuser')
-        self.assertEquals(ar.first_name,'test')
-        self.assertEquals(ar.last_name,'user')
-        self.assertEquals(ar.email,'testuser@test.org')
-        self.assertEquals(ar.role, 'faculty')
-        self.assertEquals(ar.login_shell,'/bin/bash')
-        self.assertEquals(ar.resources_requested,'summit,petalibrary_archive')
-        self.assertEquals(ar.organization,'ucb')
-
     @mock.patch('accounts.models.CuLdapUser.authenticate',MagicMock(return_value=True))
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_request_create_csu(self):

@@ -27,24 +27,37 @@ class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
     methods contain the same checks, as the database connection settings can be changed within the
     context of of individual test cases.
 
-    IMPORTANT: All RCAMP functional tests should inherit from this class.
+    CAUTION: During test set up and tear down, all LDAP users and groups will be purged from
+    the configured LDAP backend. For this reason assertions are made to verify the only the
+    researchcomputing/rc-test-ldap Docker image is configured. It is imperative that these assumptions not be changed.
+
+    This class depends upon the rc-test-ldap container (https://hub.docker.com/r/researchcomputing/rc-test-ldap/)
+    Selenium, and a PhantomJS driver.
+
+    All RCAMP functional tests should inherit from this class.
     """
     @classmethod
     def setUpClass(cls):
         assert_test_env()
+        # Start the web driver
+        cls.browser = webdriver.PhantomJS()
+        cls.browser.set_window_size(1366, 768)
         super(SafeStaticLiveServerTestCase,cls).setUpClass()
 
     @classmethod
     def tearDownClass(cls):
+        cls.browser.quit()
         assert_test_env()
         super(SafeStaticLiveServerTestCase,cls).tearDownClass()
 
     def setUp(self):
         assert_test_env()
+        _purge_ldap_objects()
         super(SafeStaticLiveServerTestCase,self).setUp()
 
     def tearDown(self):
         assert_test_env()
+        _purge_ldap_objects()
         super(SafeStaticLiveServerTestCase,self).tearDown()
 
 class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
@@ -58,9 +71,6 @@ class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
     CAUTION: During test set up and tear down, all LDAP users and groups will be purged from
     the configured LDAP backend. For this reason assertions are made to verify the only the
     researchcomputing/rc-test-ldap Docker image is configured. It is imperative that these assumptions not be changed.
-
-    This class depends upon the rc-test-ldap container (https://hub.docker.com/r/researchcomputing/rc-test-ldap/)
-    Selenium, and a PhantomJS driver.
     """
 
     def __init__(self,*args,**kwargs):
@@ -104,18 +114,6 @@ class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
             password = 'password'
         )
 
-    @classmethod
-    def setUpClass(cls):
-        super(UserAuthenticatedLiveServerTestCase,cls).setUpClass()
-        # Start the web driver
-        cls.browser = webdriver.PhantomJS()
-        cls.browser.set_window_size(1366, 768)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        super(UserAuthenticatedLiveServerTestCase,cls).tearDownClass()
-
     def _create_user_pairs(self):
         # Create LDAP users to back auth users
         self.ucb_ldap_user = RcLdapUser.objects.create(organization='ucb',**self.ucb_ldap_user_dict)
@@ -149,7 +147,3 @@ class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
         super(UserAuthenticatedLiveServerTestCase,self).setUp()
         # Create user pairs
         self._create_user_pairs()
-
-    def tearDown(self):
-        _purge_ldap_objects()
-        super(UserAuthenticatedLiveServerTestCase,self).tearDown()

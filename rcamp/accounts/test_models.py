@@ -1,5 +1,4 @@
 from django.test import override_settings
-from mock import MagicMock
 import mock
 import datetime
 import ldap
