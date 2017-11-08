@@ -10,6 +10,7 @@ from django.conf import settings
 from lib.test.utils import SafeTestCase
 from lib.test.ldap import (
     get_ldap_user_defaults,
+    get_ldap_group_defaults,
     build_mock_rcldap_user,
     build_mock_rcldap_group,
     LdapTestCase
@@ -60,6 +61,32 @@ class RcLdapUserTestCase(LdapTestCase):
         self.assertEquals(ucb_user.uid,1010)
         csu_user = RcLdapUser.objects.get_user_from_suffixed_username('testuser@colostate.edu')
         self.assertEquals(csu_user.uid,1011)
+
+class RcLdapGroupTestCase(LdapTestCase):
+    def test_create_ldap_group(self):
+        ldap_group_dict = get_ldap_group_defaults()
+        with self.assertRaises(ValueError):
+            RcLdapGroup.objects.create(**ldap_group_dict)
+        with self.assertRaises(ValueError):
+            RcLdapGroup.objects.create(organization='invalid_org',**ldap_group_dict)
+        ldap_groups = RcLdapGroup.objects.all()
+        self.assertEquals(ldap_groups.count(),0)
+        # Create ucb group
+        RcLdapGroup.objects.create(organization='ucb',**ldap_group_dict)
+        ucb_group = RcLdapGroup.objects.get(gid=1010)
+        self.assertEquals(ucb_group.dn.lower(),'cn=testusergrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(ucb_group.organization,'ucb')
+        self.assertEquals(ucb_group.effective_cn,'testusergrp')
+        self.assertEquals(ucb_group.name,'testusergrp')
+        # Create csu group
+        csu_ldap_group_dict = get_ldap_group_defaults()
+        csu_ldap_group_dict['gid'] = 1011
+        RcLdapGroup.objects.create(organization='csu',**csu_ldap_group_dict)
+        csu_group = RcLdapGroup.objects.get(gid=1011)
+        self.assertEquals(csu_group.dn.lower(),'cn=testusergrp,ou=csu,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(csu_group.organization,'csu')
+        self.assertEquals(csu_group.effective_cn,'testusergrp@colostate.edu')
+        self.assertEquals(csu_group.name,'testusergrp')
 
 class IdTrackerTestCase(SafeTestCase):
     def test_get_next_id(self):

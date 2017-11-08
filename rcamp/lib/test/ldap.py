@@ -23,6 +23,15 @@ def get_ldap_user_defaults():
     )
     return ldap_user_defaults
 
+def get_ldap_group_defaults():
+    """Return a dictionary of reasonable defaults for creating RcLdapGroup objects via the ORM."""
+    ldap_group_defaults = dict(
+        name = 'testusergrp',
+        gid = 1010,
+        members = ['uid=testusergrp,ou=UCB,ou=People,dc=rc,dc=int,dc=colorado,dc=edu']
+    )
+    return ldap_group_defaults
+
 def build_mock_rcldap_user(**kwargs):
     """
     Constructs a MagicMock object to represent an RcLdapUser. Takes available RcLdapUser attributes
@@ -39,13 +48,7 @@ def build_mock_rcldap_group(**kwargs):
     Constructs a MagicMock object to represent an RcLdapGroup. Takes available RcLdapGroup
     attributes as optional keyword arguments to replace default values.
     """
-    ldap_group_defaults = dict(
-        dn = 'cn=testusergrp,ou=UCB,ou=Groups,dc=rc,dc=int,dc=colorado,dc=edu',
-        name = 'testusergrp',
-        modified_date=datetime.datetime(2015,11,06,03,43,24),
-        gid = 1010,
-        members = ['uid=testusergrp,ou=UCB,ou=People,dc=rc,dc=int,dc=colorado,dc=edu']
-    )
+    ldap_group_defaults = get_ldap_group_defaults()
     ldap_group_defaults.update(kwargs)
     mock_ldap_group = mock.MagicMock(**ldap_group_defaults)
     return mock_ldap_group
