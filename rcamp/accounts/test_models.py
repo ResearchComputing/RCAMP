@@ -225,43 +225,25 @@ class AccountCreationTestCase(LdapTestCase):
         self.assertEquals(sgrp.members, ['testuser'])
         self.assertEquals(license_grp.members, ['testuser'])
 
-    def test_create_xsede_user_from_request(self):
-        user_dict = {
-            'username': 'requestuser',
-            'first_name': 'Request',
-            'last_name': 'User',
-            'email': 'requser@requests.org',
-            'role': 'faculty',
-            'organization': 'xsede',
-            'login_shell': '/bin/bash',
-        }
-        u = RcLdapUser.objects.create_user_from_request(**user_dict)
+    def test_create_suffixed_user_from_request(self):
+        dict_from_request = get_account_request_defaults()
+        dict_from_request.update(dict(email='testuser@colostate.edu',organization='csu'))
+        ldap_user = RcLdapUser.objects.create_user_from_request(**dict_from_request)
 
-        self.assertEquals(u.dn, 'uid=requestuser,ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
-        self.assertEquals(u.username, 'requestuser')
-        self.assertEquals(u.first_name, 'Request')
-        self.assertEquals(u.last_name, 'User')
-        self.assertEquals(u.full_name, 'User, Request')
-        self.assertEquals(u.email, 'requser@requests.org')
-        self.assertEquals(u.uid, 1001)
-        self.assertEquals(u.gid, 1001)
-        self.assertEquals(u.gecos, 'Request User,,,')
-        self.assertEquals(u.home_directory, '/home/requestuser@xsede.org')
-        self.assertEquals(u.login_shell, '/bin/bash')
-        self.assertEquals(u.role, ['pi','faculty'])
+        self.assertEquals(ldap_user.dn.lower(), 'uid=testuser,ou=csu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(ldap_user.uid, 1001)
+        self.assertEquals(ldap_user.gid, 1001)
+        self.assertEquals(ldap_user.home_directory, '/home/testuser@colostate.edu')
 
-        idt = IdTracker.objects.get(category='posix')
-        self.assertEquals(idt.next_id, 1003)
+        pgrp = RcLdapGroup.objects.get(name='testuserpgrp')
+        sgrp = RcLdapGroup.objects.get(name='testusergrp')
 
-        pgrp = RcLdapGroup.objects.get(name='requestuserpgrp')
-        sgrp = RcLdapGroup.objects.get(name='requestusergrp')
-
-        self.assertEquals(pgrp.dn, 'cn=requestuserpgrp,ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(pgrp.dn.lower(), 'cn=testuserpgrp,ou=csu,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(pgrp.gid, 1001)
-        self.assertEquals(sgrp.dn, 'cn=requestusergrp,ou=xsede,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(sgrp.dn.lower(), 'cn=testusergrp,ou=csu,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
         self.assertEquals(sgrp.gid, 1002)
-        for grp in [pgrp,sgrp]:
-            self.assertEquals(grp.members, ['requestuser'])
+        self.assertEquals(pgrp.members, ['testuser'])
+        self.assertEquals(sgrp.members, ['testuser'])
 
     def test_create_user_from_request_missing_fields(self):
         user_dict = {
@@ -289,22 +271,17 @@ class AccountCreationTestCase(LdapTestCase):
             )
 
     def test_create_user_from_request_sponsored(self):
-        user_dict = {
-            'username': 'requestuser',
-            'first_name': 'Request',
-            'last_name': 'User',
-            'email': 'requser@requests.org',
-            'role': 'sponsored',
-            'organization': 'ucb',
-            'login_shell': '/bin/bash',
-        }
-        u = RcLdapUser.objects.create_user_from_request(**user_dict)
+        dict_from_request = get_account_request_defaults()
+        dict_from_request['role'] = 'sponsored'
+        mock_cu_user = mock.MagicMock(uid=9999)
+        with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
+            ldap_user = RcLdapUser.objects.create_user_from_request(**dict_from_request)
 
-        self.assertEquals(u.dn, 'uid=requestuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(ldap_user.dn.lower(), 'uid=testuser,ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu')
         today = datetime.date.today()
         expire = today.replace(year=today.year+1)
         expire_days = (expire - datetime.date(1970, 1, 1)).days
-        self.assertEquals(u.expires, expire_days)
+        self.assertEquals(ldap_user.expires, expire_days)
 
 class AccountRequestTestCase(SafeTestCase):
     def setUp(self):
