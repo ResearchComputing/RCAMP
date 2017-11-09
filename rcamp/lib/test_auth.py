@@ -1,30 +1,25 @@
-from django.test import TestCase
-from django.test import override_settings
-from mock import MagicMock
-import mock
-
 from django.conf import settings
 from django.contrib.auth.models import User
-
+import mock
 import pam
 from lib.pam_backend import PamBackend
-
+from lib.test.ldap import (
+    LdapTestCase,
+    get_ldap_user_defaults
+)
 from accounts.models import RcLdapUser
-from accounts.test_models import BaseCase
-
-from mockldap import MockLdap
-
 
 
 # This test case covers functionality in the custom PAM Auth Backend
-class PamBackendTestCase(BaseCase):
+class PamBackendTestCase(LdapTestCase):
     def setUp(self):
         self.pb = PamBackend()
         super(PamBackendTestCase,self).setUp()
 
-    @mock.patch('pam.pam.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=True))
     def test_authenticate(self):
+        rc_user_defaults = get_ldap_user_defaults()
+        RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
         rc_user = RcLdapUser.objects.get(username='testuser')
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
@@ -38,9 +33,10 @@ class PamBackendTestCase(BaseCase):
         reauthed_user = self.pb.authenticate(username='testuser',password='passwd')
         self.assertEqual(reauthed_user,user)
 
-    @mock.patch('pam.pam.authenticate',MagicMock(return_value=False))
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=False))
     def test_authenticate_failed(self):
+        rc_user_defaults = get_ldap_user_defaults()
+        RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
         user = self.pb.authenticate(username='testuser',password='badpasswd')
@@ -48,9 +44,10 @@ class PamBackendTestCase(BaseCase):
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
 
-    @mock.patch('pam.pam.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=True))
     def test_authenticate_update_user(self):
+        rc_user_defaults = get_ldap_user_defaults()
+        RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
         rc_user = RcLdapUser.objects.get(username='testuser')
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
@@ -58,14 +55,15 @@ class PamBackendTestCase(BaseCase):
         self.assertIsNotNone(user)
 
         rc_user.first_name = 'pamtested'
-        rc_user.save()
+        rc_user.save(organization='ucb',)
 
         user = self.pb.authenticate(username='testuser',password='passwd')
         self.assertEqual(user.first_name,'pamtested')
 
-    @mock.patch('pam.pam.authenticate',MagicMock(return_value=True))
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
+    @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=True))
     def test_get_user(self):
+        rc_user_defaults = get_ldap_user_defaults()
+        RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
         user = self.pb.authenticate(username='testuser',password='passwd')
