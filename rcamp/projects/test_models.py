@@ -1,5 +1,3 @@
-from django.test import TestCase
-from django.test import override_settings
 from mock import MagicMock
 import mock
 import copy
@@ -7,14 +5,16 @@ import datetime
 import pytz
 
 from django.conf import settings
+from lib.test.utils import SafeTestCase
 
-from projects.models import Project
-from projects.models import Allocation
-from projects.models import AllocationRequest
+from projects.models import (
+    Project,
+    Allocation,
+    AllocationRequest
+)
 
 
-
-class ProjectTestCase(TestCase):
+class ProjectTestCase(SafeTestCase):
     def setUp(self):
         self.proj_dict = {
             'project_id': 'ucb1',
@@ -46,7 +46,7 @@ class ProjectTestCase(TestCase):
 
         self.assertEqual(proj.project_id,'ucb11')
 
-class AllocationTestCase(TestCase):
+class AllocationTestCase(SafeTestCase):
     def setUp(self):
         self.proj_dict = {
             'project_id': 'ucb1',
@@ -80,7 +80,7 @@ class AllocationTestCase(TestCase):
 
         self.assertEqual(alloc.allocation_id,'ucb1_summit3')
 
-class AllocationCreateTestCase(TestCase):
+class AllocationCreateTestCase(SafeTestCase):
     def setUp(self):
         super(AllocationCreateTestCase,self).setUp()
         self.proj = Project.objects.create(**{
@@ -129,7 +129,7 @@ class AllocationCreateTestCase(TestCase):
             )
 
 # This test case covers AllocationRequest model functionality.
-class AllocationRequestTestCase(TestCase):
+class AllocationRequestTestCase(SafeTestCase):
     def setUp(self):
         super(AllocationRequestTestCase,self).setUp()
         self.proj = Project.objects.create(**{

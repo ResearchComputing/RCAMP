@@ -88,19 +88,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    # Test LDAP configuration
-    'rcldap_test': {
-        'ENGINE': 'ldapdb.backends.ldap',
-        'NAME': 'ldap://localhost',
-        'USER': 'cn=admin,dc=nodomain',
-        'PASSWORD': 'test',
-    },
-    'culdap_test': {
-        'ENGINE': 'ldapdb.backends.ldap',
-        'NAME': 'ldap://localhost',
-        'USER': 'cn=admin,dc=nodomain',
-        'PASSWORD': 'test',
-    },
 }
 
 LDAPCONFS = {

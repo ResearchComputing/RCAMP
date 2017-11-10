@@ -57,15 +57,5 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-## Running Tests
-```
-cd RCAMP/rcamp
-python manage.py test
-```
-
-## Running the Dev Server
-The Dev server will be accessible by default at localhost:8000
-```
-cd RCAMP/rcamp
-python manage.py runserver
-```
+## Writing and Running Tests
+Documentation on use and installation of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).

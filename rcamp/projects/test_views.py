@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.test import RequestFactory
 from django.test import override_settings
 
@@ -7,22 +6,40 @@ from django.http.response import HttpResponseRedirect
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
-from accounts.test_models import BaseCase
-from accounts.test_views import CbvCase
-from projects.models import Project
-from projects.models import Reference
-from projects.models import AllocationRequest
+from lib.test.ldap import (
+    LdapTestCase,
+    get_ldap_user_defaults
+)
+from projects.models import (
+    Project,
+    Reference,
+    AllocationRequest
+)
 from projects.forms import RcLdapUser
-from projects.views import ProjectListView
-from projects.views import ProjectCreateView
-from projects.views import ProjectEditView
-from projects.views import ReferenceCreateView
-from projects.views import ReferenceEditView
-from projects.views import AllocationRequestCreateView
+from projects.views import (
+    ProjectListView,
+    ProjectCreateView,
+    ProjectEditView,
+    ReferenceCreateView,
+    ReferenceEditView,
+    AllocationRequestCreateView
+)
 
 import mock
 from unittest import skip
 
+
+# Adds method for returning Class-Based View instance, so that
+# methods can be individually tested.
+class CbvCase(LdapTestCase):
+    @staticmethod
+    def setup_view(view,request,*args,**kwargs):
+        # Mimic as_view() returned callable, but returns view instance.
+        # args and kwargs are the same you would pass to ``reverse()``
+        view.request = request
+        view.args = args
+        view.kwargs = kwargs
+        return view
 
 class RcLdapUserMock (object):
     def __init__ (self, dn, username, first_name, last_name, organization):
@@ -48,7 +65,7 @@ class RcLdapUserObjectManager (object):
 @skip("Functional tests will deprecate.")
 # This test case covers the project creation page.
 @mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
-class ProjectCreateTestCase(BaseCase,CbvCase):
+class ProjectCreateTestCase(CbvCase):
     def setUp(self):
         super(ProjectCreateTestCase,self).setUp()
         self.user = User.objects.create(**{
@@ -216,7 +233,7 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
 @skip("Functional tests will deprecate.")
 # This test case covers the project edit page.
 @mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
-class ProjectEditTestCase(BaseCase,CbvCase):
+class ProjectEditTestCase(CbvCase):
     def setUp(self):
         super(ProjectEditTestCase,self).setUp()
         self.user = User.objects.create(**{

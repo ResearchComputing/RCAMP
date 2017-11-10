@@ -33,26 +33,3 @@ class LdapRouter(object):
             else:
                 return 'rcldap'
         return None
-
-class TestLdapRouter(LdapRouter):
-    def db_for_read(self, model, **hints):
-        "Point all operations on LDAP models to the appropriate LDAP database"
-        if is_ldap_model(model):
-            if model._meta.object_name.startswith('Cu'):
-                return 'culdap_test'
-            elif model._meta.object_name.startswith('Csu'):
-                return 'culdap_test'
-            else:
-                return 'rcldap_test'
-        return None
-
-    def db_for_write(self, model, **hints):
-        "Point all operations on LDAP models to the appropriate LDAP database"
-        if is_ldap_model(model):
-            if model._meta.object_name.startswith('Cu'):
-                return 'culdap_test'
-            elif model._meta.object_name.startswith('Csu'):
-                return 'culdap_test'
-            else:
-                return 'rcldap_test'
-        return None
