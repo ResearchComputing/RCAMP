@@ -117,6 +117,9 @@ class IdTracker(models.Model):
                 uid += 1
 
 class LdapUser(ldapdb.models.Model):
+    class Meta:
+        managed = False
+
     rdn_key = 'username'
 
     # inetOrgPerson
@@ -233,6 +236,9 @@ class RcLdapUserManager(models.Manager):
 
 class RcLdapUser(LdapUser):
     class Meta:
+        managed = False
+
+    class Meta:
         verbose_name = 'LDAP user'
         verbose_name_plural = 'LDAP users'
 
@@ -299,6 +305,9 @@ class RcLdapUser(LdapUser):
         super(RcLdapUser,self).save(*args,**kwargs)
 
 class CuLdapUser(LdapUser):
+    class Meta:
+        managed = False
+
     base_dn = settings.LDAPCONFS['culdap']['people_dn']
     object_classes = []
     uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
@@ -314,6 +323,9 @@ class CuLdapUser(LdapUser):
         return authed
 
 class CsuLdapUser(LdapUser):
+    class Meta:
+        managed = False
+
     base_dn = settings.LDAPCONFS['csuldap']['people_dn']
     object_classes = []
 
@@ -338,6 +350,7 @@ class RcLdapGroup(ldapdb.models.Model):
     class Meta:
         verbose_name = 'LDAP group'
         verbose_name_plural = 'LDAP groups'
+        managed = False
 
     def __init__(self,*args,**kwargs):
         super(RcLdapGroup,self).__init__(*args,**kwargs)
