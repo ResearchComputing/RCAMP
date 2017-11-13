@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('projects', '0005_auto_20160322_1244'),
-        ('accounts', '0005_culdapuser_rcldapgroup_rcldapuser'),
+        ('accounts', '0003_auto_20160315_1517'),
     ]
 
     operations = [
