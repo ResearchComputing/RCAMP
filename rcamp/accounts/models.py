@@ -236,11 +236,9 @@ class RcLdapUserManager(models.Manager):
 
 class RcLdapUser(LdapUser):
     class Meta:
-        managed = False
-
-    class Meta:
         verbose_name = 'LDAP user'
         verbose_name_plural = 'LDAP users'
+        managed = False
 
     def __init__(self,*args,**kwargs):
         super(RcLdapUser,self).__init__(*args,**kwargs)

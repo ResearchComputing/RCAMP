@@ -85,6 +85,7 @@ class Migration(migrations.Migration):
             options={
                 'verbose_name': 'LDAP user',
                 'verbose_name_plural': 'LDAP users',
+                'managed': False,
             },
         ),
     ]
