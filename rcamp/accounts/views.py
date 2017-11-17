@@ -6,11 +6,11 @@ from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
 from accounts.models import CsuLdapUser
-from projects.models import Project
+# from projects.models import Project
 from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
 from accounts.forms import ClassAccountRequestForm
-from accounts.forms import ProjectAccountRequestForm
+# from accounts.forms import ProjectAccountRequestForm
 from mailer.signals import account_request_received
 
 
@@ -108,16 +108,16 @@ class ClassAccountRequestCreateView(AccountRequestCreateView):
         self.ar_dict['course_number'] = course_number
         return super(ClassAccountRequestCreateView,self).form_valid(form)
 
-class ProjectAccountRequestCreateView(AccountRequestCreateView):
-    template_name = 'project-account-request-create.html'
-    form_class = ProjectAccountRequestForm
-
-    def form_valid(self, form):
-        projs = form.cleaned_data.get('projects')
-        if not hasattr(self, 'ar_dict'):
-            self.ar_dict = {}
-        self.ar_dict['m2m_projects'] = projs
-        return super(ProjectAccountRequestCreateView,self).form_valid(form)
+# class ProjectAccountRequestCreateView(AccountRequestCreateView):
+#     template_name = 'project-account-request-create.html'
+#     form_class = ProjectAccountRequestForm
+#
+#     def form_valid(self, form):
+#         projs = form.cleaned_data.get('projects')
+#         if not hasattr(self, 'ar_dict'):
+#             self.ar_dict = {}
+#         self.ar_dict['m2m_projects'] = projs
+#         return super(ProjectAccountRequestCreateView,self).form_valid(form)
 
 class AccountRequestReviewView(TemplateView):
     template_name = 'account-request-review.html'

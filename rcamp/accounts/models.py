@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
+from django.contrib.auth.models import User
 from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
@@ -9,7 +10,7 @@ import logging
 import datetime
 import pam
 
-from projects.models import Project
+# from projects.models import Project
 
 from mailer.signals import account_created_from_request
 
@@ -37,6 +38,26 @@ SHELL_CHOICES = (
     ('/bin/tcsh','tcsh'),
 )
 
+class PortalUser(User):
+    class Meta:
+        proxy = True
+
+    @property
+    def organization(self):
+        _, organization = ldap_utils.get_ldap_username_and_org(self.username)
+        return organization
+
+    @property
+    def ldap_username(self):
+        ldap_username, _ = ldap_utils.get_ldap_username_and_org(self.username)
+        return ldap_username
+
+    def get_ldap_user(self):
+        """Return the RcLdapUser associated with this account."""
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(self.username)
+        return ldap_user
+
+
 class AccountRequest(models.Model):
     STATUSES = (
         ('p','Pending'),
@@ -52,7 +73,7 @@ class AccountRequest(models.Model):
 
     sponsor_email = models.EmailField(null=True,blank=True)
     course_number = models.CharField(max_length=128,null=True,blank=True)
-    projects = models.ManyToManyField(Project,blank=True)
+    # projects = models.ManyToManyField(Project,blank=True)
 
     login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)

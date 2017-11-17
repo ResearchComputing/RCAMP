@@ -16,17 +16,17 @@ class AccountRequestEndpointTestCase(TestCase):
 
     def setUp(self):
         super(AccountRequestEndpointTestCase,self).setUp()
-        proj_dict = dict(
-            pi_emails=['pi@pi.org'],
-            managers=['pi@pi.prg','opi@pi.org'],
-            collaborators=['tu@tu.org'],
-            organization='ucb',
-            title='Test Project',
-            description='A description.',
-            project_id='ucb1',
-            qos_addenda='+=viz'
-        )
-        self.proj = Project.objects.create(**proj_dict)
+        # proj_dict = dict(
+        #     pi_emails=['pi@pi.org'],
+        #     managers=['pi@pi.prg','opi@pi.org'],
+        #     collaborators=['tu@tu.org'],
+        #     organization='ucb',
+        #     title='Test Project',
+        #     description='A description.',
+        #     project_id='ucb1',
+        #     qos_addenda='+=viz'
+        # )
+        # self.proj = Project.objects.create(**proj_dict)
 
         ar_dict = dict(
             username='testuser1',
@@ -49,7 +49,7 @@ class AccountRequestEndpointTestCase(TestCase):
             status='a'
         ))
         self.ar2 = AccountRequest.objects.create(**ar_dict)
-        self.ar2.projects.add(self.proj)
+        # self.ar2.projects.add(self.proj)
 
         del ar_dict['resources_requested']
         ar_dict.update(dict(
@@ -86,7 +86,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
                 u'approved_on': u'2016-04-01T06:00:00Z',
-                u'projects': [u'http://testserver/api/projects/ucb1/'],
+                # u'projects': [u'http://testserver/api/projects/ucb1/'],
             },
             {
                 u'username': u'testuser3',
@@ -149,7 +149,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
                 u'approved_on': u'2016-04-01T06:00:00Z',
-                u'projects': [u'http://testserver/api/projects/ucb1/'],
+                # u'projects': [u'http://testserver/api/projects/ucb1/'],
             }
         ]
         res_content = json.loads(res.content)
@@ -173,7 +173,7 @@ class AccountRequestEndpointTestCase(TestCase):
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
                 u'approved_on': u'2016-04-01T06:00:00Z',
-                u'projects': [u'http://testserver/api/projects/ucb1/'],
+                # u'projects': [u'http://testserver/api/projects/ucb1/'],
             }
         ]
         res_content = json.loads(res.content)
