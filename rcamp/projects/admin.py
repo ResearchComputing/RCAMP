@@ -5,14 +5,13 @@ from django.utils.safestring import mark_safe
 from lib.fields import CsvField
 from accounts.models import (
     RcLdapUser,
-    PortalUser
+    User
 )
 from projects.models import (
     Project,
     Allocation,
     AllocationRequest
 )
-from projects.forms import get_user_choices
 
 
 
@@ -20,7 +19,7 @@ from projects.forms import get_user_choices
 # for filtered multiselect widget.
 class ProjectAdminForm(forms.ModelForm):
     managers = forms.ModelMultipleChoiceField(
-        queryset=PortalUser.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'managers',
@@ -28,7 +27,7 @@ class ProjectAdminForm(forms.ModelForm):
         )
     )
     collaborators = forms.ModelMultipleChoiceField(
-        queryset=PortalUser.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'collaborators',

@@ -4,7 +4,7 @@ from django.contrib import admin
 from lib.fields import MultiEmailField
 from accounts.models import (
     RcLdapUser,
-    PortalUser
+    User
 )
 from projects.models import Project
 
@@ -24,7 +24,7 @@ class ProjectForm(forms.ModelForm):
 
     pi_emails = MultiEmailField(required=True)
     managers = forms.ModelMultipleChoiceField(
-        queryset=PortalUser.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'managers',
@@ -32,7 +32,7 @@ class ProjectForm(forms.ModelForm):
         )
     )
     collaborators = forms.ModelMultipleChoiceField(
-        queryset=PortalUser.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'collaborators',
@@ -47,7 +47,7 @@ class ProjectEditForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea,required=True)
     pi_emails = MultiEmailField(required=True)
     managers = forms.ModelMultipleChoiceField(
-        queryset=PortalUser.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'managers',
@@ -55,7 +55,7 @@ class ProjectEditForm(forms.Form):
         )
     )
     collaborators = forms.ModelMultipleChoiceField(
-        queryset=PortalUser.objects.all(),
+        queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'collaborators',

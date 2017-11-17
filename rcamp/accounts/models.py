@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
@@ -38,10 +38,7 @@ SHELL_CHOICES = (
     ('/bin/tcsh','tcsh'),
 )
 
-class PortalUser(User):
-    class Meta:
-        proxy = True
-
+class User(AbstractUser):
     @property
     def organization(self):
         _, organization = ldap_utils.get_ldap_username_and_org(self.username)

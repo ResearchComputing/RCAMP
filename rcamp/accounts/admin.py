@@ -2,7 +2,7 @@ from django.contrib import admin
 from django import forms
 from lib.fields import LdapCsvField
 from accounts.models import (
-    PortalUser,
+    User,
     RcLdapUser,
     CuLdapUser,
     RcLdapGroup,
@@ -13,8 +13,8 @@ from accounts.models import (
 # from projects.models import Project
 
 
-@admin.register(PortalUser)
-class PortalUserAdmin(admin.ModelAdmin):
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
     list_display = ['username','organization','first_name','last_name','email']
     search_fields = ['username','first_name','last_name','email']
 

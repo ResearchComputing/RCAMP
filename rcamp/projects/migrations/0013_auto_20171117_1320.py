@@ -2,12 +2,13 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+from django.conf import settings
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0010_auto_20171117_1026'),
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ('projects', '0012_auto_20160928_1221'),
     ]
 
@@ -15,7 +16,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='allocationrequest',
             name='requester',
-            field=models.ForeignKey(blank=True, to='accounts.PortalUser', null=True),
+            field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True),
         ),
         migrations.RemoveField(
             model_name='project',
@@ -24,7 +25,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='collaborators',
-            field=models.ManyToManyField(related_name='collaborator_on', to='accounts.PortalUser'),
+            field=models.ManyToManyField(related_name='collaborator_on', to=settings.AUTH_USER_MODEL),
         ),
         migrations.RemoveField(
             model_name='project',
@@ -33,6 +34,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='project',
             name='managers',
-            field=models.ManyToManyField(related_name='manager_on', to='accounts.PortalUser'),
+            field=models.ManyToManyField(related_name='manager_on', to=settings.AUTH_USER_MODEL),
         ),
     ]

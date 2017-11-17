@@ -1,6 +1,8 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from accounts.models import RcLdapUser
+from accounts.models import (
+    RcLdapUser,
+    User
+)
 import pam
 
 
@@ -33,5 +35,5 @@ class PamBackend():
     def get_user(self, user_id):
         try:
             return User.objects.get(pk=user_id)
-        except User.DoesNotExist:
+    except PrtoalUser.DoesNotExist:
             return None

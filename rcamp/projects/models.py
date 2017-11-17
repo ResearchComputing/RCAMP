@@ -5,7 +5,7 @@ from django.db.models.functions import Substr, Lower
 from django.utils import timezone
 from lib import fields
 
-from accounts.models import PortalUser
+from accounts.models import User
 from mailer.signals import allocation_created_from_request
 
 class Cast(Func):
@@ -20,8 +20,8 @@ class Project(models.Model):
     )
 
     pi_emails = fields.ListField()
-    managers = models.ManyToManyField(PortalUser,related_name='manager_on')
-    collaborators = models.ManyToManyField(PortalUser,related_name='collaborator_on')
+    managers = models.ManyToManyField(User,related_name='manager_on')
+    collaborators = models.ManyToManyField(User,related_name='collaborator_on')
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS)
     title = models.CharField(max_length=256)
     description = models.TextField()
@@ -161,7 +161,7 @@ class AllocationRequest(models.Model):
     disk_space = models.IntegerField(default=0,null=True,blank=True)
     software_request = models.TextField(null=True,blank=True)
 
-    requester = models.ForeignKey(PortalUser,null=True,blank=True)
+    requester = models.ForeignKey(User,null=True,blank=True)
     request_date = models.DateTimeField(auto_now_add=True)
 
     status = models.CharField(max_length=16,choices=STATUSES,default='w')
