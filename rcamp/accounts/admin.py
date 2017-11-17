@@ -1,15 +1,22 @@
 from django.contrib import admin
 from django import forms
 from lib.fields import LdapCsvField
-from accounts.models import RcLdapUser
-from accounts.models import CuLdapUser
-from accounts.models import RcLdapGroup
-from accounts.models import IdTracker
-from accounts.models import AccountRequest
-from accounts.models import ORGANIZATIONS
+from accounts.models import (
+    PortalUser,
+    RcLdapUser,
+    CuLdapUser,
+    RcLdapGroup,
+    IdTracker,
+    AccountRequest,
+    ORGANIZATIONS
+)
 # from projects.models import Project
 
 
+@admin.register(PortalUser)
+class PortalUserAdmin(admin.ModelAdmin):
+    list_display = ['username','organization','first_name','last_name','email']
+    search_fields = ['username','first_name','last_name','email']
 
 class AccountRequestAdminForm(forms.ModelForm):
     # projects = forms.ModelMultipleChoiceField(
