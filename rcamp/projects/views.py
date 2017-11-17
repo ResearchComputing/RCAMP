@@ -34,21 +34,15 @@ GENERAL_ACCOUNT_REQUEST_BODY = "Please add me ({username}) to the {general_accou
 
 class ProjectAccessMixin(object):
     def is_manager(self,request_user,project):
-        user = RcLdapUser.objects.get_user_from_suffixed_username(request_user.username)
         is_manager = False
-        if user and user.dn in project.managers:
+        if request_user in project.managers.all():
             is_manager = True
         return is_manager
 
-    def get_manager_from_request_user(self, request_user):
-        user = RcLdapUser.objects.get_user_from_suffixed_username(request_user.username)
-        return user
-
-    def get_manager_or_redirect(self,username,project,redirect_view='projects:project-detail'):
-        user = RcLdapUser.objects.get_user_from_suffixed_username(username)
-        if user and user.dn in project.managers:
-            return user
-        return redirect(redirect_view, pk=project.pk)
+    def get_manager_or_redirect(self,request_user,project,redirect_view='projects:project-detail'):
+        if not self.is_manager(request_user,project):
+            return redirect(redirect_view, pk=project.pk)
+        return request_user
 
 class ProjectListView(ListView):
     model = Project
@@ -111,14 +105,14 @@ class ProjectEditView(FormView,ProjectAccessMixin):
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
         self.object = get_object_or_404(Project,pk=pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.object)
+        manager = self.get_manager_or_redirect(request.user,self.object)
         return super(ProjectEditView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
         pk = int(path_cmp[-2])
         self.object = get_object_or_404(Project,pk=pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.object)
+        manager = self.get_manager_or_redirect(request.user,self.object)
         return super(ProjectEditView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
@@ -136,9 +130,9 @@ class ProjectEditView(FormView,ProjectAccessMixin):
         return initial
 
     def form_valid(self, form):
-        editor = RcLdapUser.objects.get_user_from_suffixed_username(self.request.user.username)
-        if editor and editor.dn not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(editor.dn)
+        editor = self.request.user
+        if editor not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(editor.username)
         project = Project.objects.filter(
                 pk=self.object.pk
             ).update(
@@ -172,14 +166,14 @@ class ReferenceCreateView(FormView,ProjectAccessMixin):
     def get(self, request, *args, **kwargs):
         project_pk = kwargs.get('project_pk')
         self.project = get_object_or_404(Project,pk=project_pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        manager = self.get_manager_or_redirect(request.user,self.project)
         return super(ReferenceCreateView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
         project_pk = int(path_cmp[-3])
         self.project = get_object_or_404(Project,pk=project_pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        manager = self.get_manager_or_redirect(request.user,self.project)
         return super(ReferenceCreateView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
@@ -211,7 +205,7 @@ class ReferenceEditView(FormView,ProjectAccessMixin):
         ref_pk = kwargs.get('pk')
         self.project = get_object_or_404(Project,pk=project_pk)
         self.object = get_object_or_404(Reference,pk=ref_pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        manager = self.get_manager_or_redirect(request.user,self.project)
         return super(ReferenceEditView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -220,7 +214,7 @@ class ReferenceEditView(FormView,ProjectAccessMixin):
         ref_pk = int(path_cmp[-2])
         self.project = get_object_or_404(Project,pk=project_pk)
         self.object = get_object_or_404(Reference,pk=ref_pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        manager = self.get_manager_or_redirect(request.user,self.project)
         return super(ReferenceEditView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
@@ -257,14 +251,14 @@ class AllocationRequestCreateView(FormView,ProjectAccessMixin):
     def get(self, request, *args, **kwargs):
         project_pk = kwargs.get('project_pk')
         self.project = get_object_or_404(Project,pk=project_pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        manager = self.get_manager_or_redirect(request.user,self.project)
         return super(AllocationRequestCreateView,self).get(request,*args,**kwargs)
 
     def post(self, request, *args, **kwargs):
         path_cmp = self.request.path.split('/')
         project_pk = int(path_cmp[-3])
         self.project = get_object_or_404(Project,pk=project_pk)
-        manager = self.get_manager_or_redirect(request.user.username,self.project)
+        manager = self.get_manager_or_redirect(request.user,self.project)
         return super(AllocationRequestCreateView,self).post(request,*args,**kwargs)
 
     def get_context_data(self, **kwargs):
@@ -275,13 +269,13 @@ class AllocationRequestCreateView(FormView,ProjectAccessMixin):
     def form_valid(self, form):
         ar_dict = {
             'project': self.project,
-            'requester': self.request.user.username
+            'requester': self.request.user
         }
         ar_dict.update(form.cleaned_data)
         ar = AllocationRequest.objects.create(**ar_dict)
 
         try:
-            requester = RcLdapUser.objects.get(username=ar.requester)
+            requester = RcLdapUser.objects.get(username=ar.requester.username)
         except RcLdapUser.DoesNotExist:
             requester = None
 
