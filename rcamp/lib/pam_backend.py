@@ -9,9 +9,8 @@ import pam
 
 class PamBackend():
     def authenticate(self, username=None, password=None):
-        try:
-            rc_user = RcLdapUser.objects.get(username=username)
-        except RcLdapUser.DoesNotExist:
+        rc_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
+        if not rc_user:
             return None
 
         p = pam.pam()
@@ -25,7 +24,7 @@ class PamBackend():
                 'is_staff': False,
             }
             user, created = User.objects.update_or_create(
-                username=rc_user.username,
+                username=username,
                 defaults=user_dict
             )
             return user
@@ -35,5 +34,5 @@ class PamBackend():
     def get_user(self, user_id):
         try:
             return User.objects.get(pk=user_id)
-    except PrtoalUser.DoesNotExist:
+        except User.DoesNotExist:
             return None

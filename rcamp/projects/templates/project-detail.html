@@ -30,7 +30,7 @@
   {% endif %}
 
   <legend>Project: {{ object.project_id }}
-    {% if ldap_user.dn in object.managers %}<a href="{% url 'projects:project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
+    {% if user in object.managers.all %}<a href="{% url 'projects:project-edit' object.pk %}" class="project-edit-link">(edit project)</a>{% endif %}
   </legend>
   <div class="mailto-help">
       <small>
@@ -66,14 +66,14 @@
       </tr>
       <tr id="table-manager_list-row">
         <td><strong>Project Managers</strong></td>
-        <td>{% for manager in object.manager_list %}
-          {{ manager }}{% if not forloop.last %},&nbsp;{% endif %}
+        <td>{% for manager in object.managers.all %}
+          {{ manager.first_name }} {{ manager.last_name }} ({{ manager.username }}){% if not forloop.last %},&nbsp;{% endif %}
         {% endfor %}</td>
       </tr>
       <tr id="table-collaborator_list-row">
         <td><strong>Project Collaborators</strong></td>
-        <td>{% for collaborator in object.collaborator_list %}
-          {{ collaborator }}{% if not forloop.last %},&nbsp;{% endif %}
+        <td>{% for collaborator in object.collaborators.all %}
+          {{ collaborator.first_name }} {{ collaborator.last_name }} ({{ collaborator.username }}){% if not forloop.last %},&nbsp;{% endif %}
         {% endfor %}</td>
       </tr>
       <tr id="table-created_on-row">
@@ -83,7 +83,7 @@
     </table>
   </div>
 
-  {% if ldap_user.dn in object.managers %}
+  {% if user in object.managers.all %}
   <legend>References and publications for {{ object.project_id }}</legend>
   <ul class="list-group">
     {% for reference in references %}
@@ -103,7 +103,7 @@
   </ul>
   {% endif %}
 
-  {% if ldap_user.dn in object.managers %}
+  {% if user in object.managers.all %}
   <legend>Allocations and Requests for {{ object.project_id }}</legend>
   <ul class="list-group">
     {% for allocation_request in allocation_requests %}

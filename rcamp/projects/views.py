@@ -13,7 +13,10 @@ from django.shortcuts import redirect
 from mailer.signals import project_created_by_user
 from mailer.signals import allocation_request_created_by_user
 
-from accounts.models import RcLdapUser
+from accounts.models import (
+    User,
+    RcLdapUser
+)
 
 from projects.models import Project
 from projects.models import Reference
@@ -47,31 +50,29 @@ class ProjectAccessMixin(object):
             return user
         return redirect(redirect_view, pk=project.pk)
 
-class ProjectListView(ListView,ProjectAccessMixin):
+class ProjectListView(ListView):
     model = Project
     template_name = 'project-list.html'
 
     def get_queryset(self):
-        username = self.request.user.username
-        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
-        return Project.objects.filter(
-            Q(collaborators__contains=ldap_user.dn) | Q(managers__contains=ldap_user.dn)
-        )
+        user = self.request.user
+        manager_on = user.manager_on.all()
+        collaborator_on = user.collaborator_on.all()
+        projects = (manager_on | collaborator_on).distinct()
+        return projects
 
     def get_context_data(self, **kwargs):
         context = super(ProjectListView,self).get_context_data(**kwargs)
 
-        username = self.request.user.username
-        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
-        context['ldap_user'] = ldap_user
-        general_account = '{}-general'.format(ldap_user.organization)
+        user = self.request.user
+        general_account = '{}-general'.format(user.organization)
         context['general_account'] = general_account
-        context['general_request_subject'] = GENERAL_ACCOUNT_REQUEST_SUBJECT.format(username=username, general_account=general_account)
-        context['general_request_body'] = GENERAL_ACCOUNT_REQUEST_BODY.format(username=username, general_account=general_account)
+        context['general_request_subject'] = GENERAL_ACCOUNT_REQUEST_SUBJECT.format(username=user.username, general_account=general_account)
+        context['general_request_body'] = GENERAL_ACCOUNT_REQUEST_BODY.format(username=user.username, general_account=general_account)
 
         return context
 
-class ProjectDetailView(DetailView,ProjectAccessMixin):
+class ProjectDetailView(DetailView):
     model = Project
     template_name = 'project-detail.html'
 
@@ -80,7 +81,6 @@ class ProjectDetailView(DetailView,ProjectAccessMixin):
         references = Reference.objects.filter(project=self.object)
         allocations = Allocation.objects.filter(project=self.object)
         allocation_requests = AllocationRequest.objects.filter(project=self.object)
-        context['ldap_user'] = self.get_manager_from_request_user(self.request.user)
         context['references'] = references
         context['allocations'] = allocations
         context['allocation_requests'] = allocation_requests
@@ -92,9 +92,9 @@ class ProjectCreateView(FormView):
     form_class = ProjectForm
 
     def form_valid(self, form):
-        creator = RcLdapUser.objects.get_user_from_suffixed_username(self.request.user.username)
-        if creator and creator.dn not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(creator.dn)
+        creator = self.request.user
+        if creator.username not in form.cleaned_data['managers']:
+            form.cleaned_data['managers'].append(creator.username)
         project = Project.objects.create(**form.cleaned_data)
         project_created_by_user.send(sender=project.__class__, project=project)
         self.success_url = reverse_lazy(
