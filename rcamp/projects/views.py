@@ -1,7 +1,19 @@
+import copy
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect
+)
+from django.template import loader
 from django.shortcuts import render
-from django.views.generic import ListView
-from django.views.generic import DetailView
-from django.views.generic.edit import FormView
+from django.views.generic import (
+    View,
+    ListView,
+    DetailView
+)
+from django.views.generic.edit import (
+    FormView,
+    UpdateView
+)
 from django.db.models import Q
 import django.utils.http
 from django.utils.decorators import method_decorator
@@ -18,14 +30,18 @@ from accounts.models import (
     RcLdapUser
 )
 
-from projects.models import Project
-from projects.models import Reference
-from projects.models import Allocation
-from projects.models import AllocationRequest
-from projects.forms import ProjectForm
-from projects.forms import ProjectEditForm
-from projects.forms import ReferenceForm
-from projects.forms import AllocationRequestForm
+from projects.models import (
+    Project,
+    Reference,
+    Allocation,
+    AllocationRequest
+)
+from projects.forms import (
+    ProjectForm,
+    ProjectEditForm,
+    ReferenceForm,
+    AllocationRequestForm
+)
 
 
 GENERAL_ACCOUNT_REQUEST_SUBJECT = "{general_account} account request: {username}"
@@ -87,20 +103,28 @@ class ProjectCreateView(FormView):
 
     def form_valid(self, form):
         creator = self.request.user
-        if creator.username not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(creator.username)
-        project = Project.objects.create(**form.cleaned_data)
+        project = form.save()
+        if not project.managers.filter(username=creator.username).exists():
+            project.managers.add(creator)
+        project.save()
         project_created_by_user.send(sender=project.__class__, project=project)
         self.success_url = reverse_lazy(
             'projects:project-detail',
             kwargs={'pk':project.pk},
         )
-        return super(ProjectCreateView, self).form_valid(form)
+        # Avoid calling save() multiple times, so return response directly instead
+        # of calling super() and letting the FormMixin class do so.
+        return HttpResponseRedirect(self.success_url)
 
 
-class ProjectEditView(FormView,ProjectAccessMixin):
+class ProjectEditView(UpdateView,ProjectAccessMixin):
     template_name = 'project-edit.html'
+    model = Project
     form_class = ProjectEditForm
+
+    @method_decorator(login_required)
+    def dispatch(self, *args, **kwargs):
+        return super(ProjectEditView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs.get('pk')
@@ -115,34 +139,22 @@ class ProjectEditView(FormView,ProjectAccessMixin):
         manager = self.get_manager_or_redirect(request.user,self.object)
         return super(ProjectEditView,self).post(request,*args,**kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super(ProjectEditView, self).get_context_data(**kwargs)
-        context['object'] = self.object
-        return context
-
     def get_initial(self):
         initial = super(ProjectEditView,self).get_initial()
-        initial['title'] = self.object.title
-        initial['description'] = self.object.description
         initial['pi_emails'] = ','.join(self.object.pi_emails)
-        initial['managers'] = self.object.managers
-        initial['collaborators'] = self.object.collaborators
         return initial
 
     def form_valid(self, form):
         editor = self.request.user
-        if editor not in form.cleaned_data['managers']:
-            form.cleaned_data['managers'].append(editor.username)
-        project = Project.objects.filter(
-                pk=self.object.pk
-            ).update(
-                **form.cleaned_data
-            )
+        project = form.save()
+        if not project.managers.filter(username=editor.username).exists():
+            project.managers.add(editor)
+        project.save()
         self.success_url = reverse_lazy(
             'projects:project-detail',
             kwargs={'pk':self.object.pk}
         )
-        return super(ProjectEditView,self).form_valid(form)
+        return HttpResponseRedirect(self.success_url)
 
 
 class ReferenceDetailView(DetailView):

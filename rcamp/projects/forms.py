@@ -40,29 +40,16 @@ class ProjectForm(forms.ModelForm):
         )
     )
 
-
-class ProjectEditForm(forms.Form):
-
-    title = forms.CharField(max_length=256,required=True)
-    description = forms.CharField(widget=forms.Textarea,required=True)
-    pi_emails = MultiEmailField(required=True)
-    managers = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        required=False,
-        widget=admin.widgets.FilteredSelectMultiple(
+class ProjectEditForm(ProjectForm):
+    class Meta:
+        model = Project
+        fields = [
+            'title',
+            'description',
+            'pi_emails',
             'managers',
-            False,
-        )
-    )
-    collaborators = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
-        required=False,
-        widget=admin.widgets.FilteredSelectMultiple(
             'collaborators',
-            False,
-        )
-    )
-
+        ]
 
 class ReferenceForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea,required=True)
