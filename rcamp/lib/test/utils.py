@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.conf import settings
-from django.contrib.auth.models import User
+from accounts.models import User
 import unittest
 
 from accounts.models import (
@@ -41,6 +41,17 @@ def _purge_ldap_objects():
     ldap_groups = RcLdapGroup.objects.all()
     for group in ldap_groups:
         group.delete()
+
+def get_auth_user_defaults():
+    """Return a dictionary of reasonable defaults for auth users."""
+    auth_user_defaults = dict(
+        username = 'testuser',
+        password = 'password',
+        first_name = 'Test',
+        last_name = 'User',
+        email = 'testuser@colorado.edu'
+    )
+    return auth_user_defaults
 
 @unittest.skipUnless(_assert_test_env_or_false(),"Tests are not being run against a safe test environment!")
 class SafeTestCase(TestCase):
