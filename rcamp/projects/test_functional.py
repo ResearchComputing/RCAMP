@@ -9,8 +9,6 @@ from projects.models import Project
 
 project_dict = dict(
     pi_emails = ['testpi@test.org'],
-    # managers = [ucb_user_dn],
-    # collaborators = [ucb_user_dn,csu_user_dn],
     organization = 'ucb',
     project_id = 'ucb1',
     title = 'Test project',
