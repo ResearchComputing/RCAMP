@@ -28,11 +28,6 @@ urlpatterns = [
         SponsoredAccountRequestCreateView.as_view(),
         name='sponsored-account-request-create'
     ),
-    # url(
-    #     r'^account-request/create/project$',
-    #     ProjectAccountRequestCreateView.as_view(),
-    #     name='project-account-request-create'
-    # ),
     url(
         r'^account-request/review/(?P<request_id>\d+)',
         AccountRequestReviewView.as_view(),

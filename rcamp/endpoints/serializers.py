@@ -21,7 +21,6 @@ class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
             'organization',
             'course_number',
             'sponsor_email',
-            # 'projects',
             'resources_requested',
             'status',
             'approved_on',

@@ -10,8 +10,6 @@ import logging
 import datetime
 import pam
 
-# from projects.models import Project
-
 from mailer.signals import account_created_from_request
 
 logger = logging.getLogger(__name__)
@@ -70,7 +68,6 @@ class AccountRequest(models.Model):
 
     sponsor_email = models.EmailField(null=True,blank=True)
     course_number = models.CharField(max_length=128,null=True,blank=True)
-    # projects = models.ManyToManyField(Project,blank=True)
 
     login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)

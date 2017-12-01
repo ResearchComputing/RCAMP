@@ -10,7 +10,6 @@ from accounts.models import (
     AccountRequest,
     ORGANIZATIONS
 )
-# from projects.models import Project
 
 
 @admin.register(User)
@@ -19,21 +18,11 @@ class UserAdmin(admin.ModelAdmin):
     search_fields = ['username','first_name','last_name','email']
 
 class AccountRequestAdminForm(forms.ModelForm):
-    # projects = forms.ModelMultipleChoiceField(
-    #     queryset=Project.objects.all(),
-    #     required=False,
-    #     widget=admin.widgets.FilteredSelectMultiple(
-    #         'projects',
-    #         False,
-    #     )
-    # )
-
     class Meta:
         model = AccountRequest
         exclude = ()
 
     def clean(self):
-        # import pdb;pdb.set_trace()
         super(AccountRequestAdminForm,self).clean()
         conditions = [
             self.instance,
@@ -137,8 +126,6 @@ class RcLdapUserAdmin(admin.ModelAdmin):
         'last_name',
         'full_name',
         'username',
-        # 'role',
-        # 'affiliation',
     ]
     ordering = ('last_name',)
     form = RcLdapUserForm
