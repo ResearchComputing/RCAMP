@@ -21,7 +21,6 @@ class PamBackend():
                 'first_name': rc_user.first_name,
                 'last_name': rc_user.last_name,
                 'email': rc_user.email,
-                'is_staff': False,
             }
             user, created = User.objects.update_or_create(
                 username=username,

@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.auth.models import User
 import mock
 import pam
 from lib.pam_backend import PamBackend
@@ -7,7 +6,10 @@ from lib.test.ldap import (
     LdapTestCase,
     get_ldap_user_defaults
 )
-from accounts.models import RcLdapUser
+from accounts.models import (
+    RcLdapUser,
+    User
+)
 
 
 # This test case covers functionality in the custom PAM Auth Backend
@@ -32,6 +34,7 @@ class PamBackendTestCase(LdapTestCase):
 
         reauthed_user = self.pb.authenticate(username='testuser',password='passwd')
         self.assertEqual(reauthed_user,user)
+        self.assertFalse(reauthed_user.is_staff)
 
     @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=False))
     def test_authenticate_failed(self):
@@ -59,6 +62,7 @@ class PamBackendTestCase(LdapTestCase):
 
         user = self.pb.authenticate(username='testuser',password='passwd')
         self.assertEqual(user.first_name,'pamtested')
+        self.assertFalse(user.is_staff)
 
     @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=True))
     def test_get_user(self):
