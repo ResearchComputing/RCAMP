@@ -29,6 +29,9 @@ class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
         )
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    managers = serializers.StringRelatedField(many=True)
+    collaborators = serializers.StringRelatedField(many=True)
+
     class Meta:
         lookup_field = 'project_id'
         model = Project

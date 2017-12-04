@@ -4,18 +4,37 @@ import pytz
 import json
 import datetime
 
-from accounts.models import AccountRequest
+from lib.test.utils import (
+    get_auth_user_defaults,
+    SafeTestCase
+)
+
+from accounts.models import (
+    AccountRequest,
+    User
+)
 from projects.models import Project
 from projects.models import Allocation
 
 
+ucb_auth_user_dict = get_auth_user_defaults()
+csu_auth_user_dict = get_auth_user_defaults()
+csu_auth_user_dict['username'] = 'testuser@colostate.edu'
 
 # This test case covers the AccountRequest API endpoint
-class AccountRequestEndpointTestCase(TestCase):
-    fixtures = ['test_users.json']
-
+class AccountRequestEndpointTestCase(SafeTestCase):
     def setUp(self):
         super(AccountRequestEndpointTestCase,self).setUp()
+        self.ucb_auth_user = User.objects.create_user(
+            ucb_auth_user_dict['username'],
+            ucb_auth_user_dict['email'],
+            ucb_auth_user_dict['password']
+        )
+        self.csu_auth_user = User.objects.create_user(
+            csu_auth_user_dict['username'],
+            csu_auth_user_dict['email'],
+            csu_auth_user_dict['password']
+        )
 
         ar_dict = dict(
             username='testuser1',
@@ -50,7 +69,7 @@ class AccountRequestEndpointTestCase(TestCase):
         ))
         self.ar3 = AccountRequest.objects.create(**ar_dict)
 
-        self.client.login(username="test_user", password="password")
+        self.client.login(username=self.ucb_auth_user.username, password="password")
 
     def test_ar_list(self):
         res = self.client.get('/api/accountrequests/')
@@ -166,13 +185,22 @@ class AccountRequestEndpointTestCase(TestCase):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
 # The test case covers the projects API endpoint
-class ProjectEndpointTestCase(TestCase):
+class ProjectEndpointTestCase(SafeTestCase):
     def setUp(self):
         super(ProjectEndpointTestCase,self).setUp()
+        self.ucb_auth_user = User.objects.create_user(
+            ucb_auth_user_dict['username'],
+            ucb_auth_user_dict['email'],
+            ucb_auth_user_dict['password']
+        )
+        self.csu_auth_user = User.objects.create_user(
+            csu_auth_user_dict['username'],
+            csu_auth_user_dict['email'],
+            csu_auth_user_dict['password']
+        )
+
         proj_dict = dict(
             pi_emails=['pi@pi.org'],
-            managers=['pi@pi.prg','opi@pi.org'],
-            collaborators=['tu@tu.org'],
             organization='ucb',
             title='Test Project',
             description='A description.',
@@ -180,6 +208,8 @@ class ProjectEndpointTestCase(TestCase):
             qos_addenda='+=viz'
         )
         self.proj1 = Project.objects.create(**proj_dict)
+        self.proj1.managers.add(self.ucb_auth_user)
+        self.proj1.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
         proj_dict.update(dict(
             pi_emails=['pi2@pi.org'],
@@ -190,6 +220,8 @@ class ProjectEndpointTestCase(TestCase):
         self.proj2 = Project.objects.create(**proj_dict)
         self.proj2.created_on = datetime.datetime(2016,04,01)
         self.proj2.save()
+        self.proj2.managers.add(self.ucb_auth_user)
+        self.proj2.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
         proj_dict.update(dict(
             pi_emails=['pi3@pi.org'],
@@ -197,14 +229,16 @@ class ProjectEndpointTestCase(TestCase):
             notes='These are notes.'
         ))
         self.proj3 = Project.objects.create(**proj_dict)
+        self.proj3.managers.add(self.ucb_auth_user)
+        self.proj3.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
     def test_proj_list(self):
         res = self.client.get('/api/projects/')
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': u"[u'tu@tu.org']",
-                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                u'managers': [u'testuser'],
                 u'description': u'A description.',
                 u'title': u'Test Project',
                 u'deactivated': False,
@@ -214,8 +248,8 @@ class ProjectEndpointTestCase(TestCase):
                 u'project_id': u'ucb1'
             },
             {
-                u'collaborators': u"[u'tu@tu.org']",
-                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                u'managers': [u'testuser'],
                 u'description': u'A description.',
                 u'title': u'Test Project',
                 u'deactivated': False,
@@ -226,8 +260,8 @@ class ProjectEndpointTestCase(TestCase):
                 u'parent_account': u'ucball',
             },
             {
-                u'collaborators': u"[u'tu@tu.org']",
-                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                u'managers': [u'testuser'],
                 u'description': u'A description.',
                 u'title': u'Test Project',
                 u'deactivated': False,
@@ -250,8 +284,8 @@ class ProjectEndpointTestCase(TestCase):
         self.assertEquals(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'collaborators': u"[u'tu@tu.org']",
-            u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+            u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+            u'managers': [u'testuser'],
             u'description': u'A description.',
             u'title': u'Test Project',
             u'deactivated': False,
@@ -272,8 +306,8 @@ class ProjectEndpointTestCase(TestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': u"[u'tu@tu.org']",
-                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                u'managers': [u'testuser'],
                 u'description': u'A description.',
                 u'title': u'Test Project',
                 u'deactivated': False,
@@ -296,8 +330,8 @@ class ProjectEndpointTestCase(TestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': u"[u'tu@tu.org']",
-                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                u'managers': [u'testuser'],
                 u'description': u'A description.',
                 u'title': u'Test Project',
                 u'deactivated': False,
@@ -312,13 +346,22 @@ class ProjectEndpointTestCase(TestCase):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
 # The test case covers the allocations API endpoint
-class AllocationEndpointTestCase(TestCase):
+class AllocationEndpointTestCase(SafeTestCase):
     def setUp(self):
         super(AllocationEndpointTestCase,self).setUp()
+        self.ucb_auth_user = User.objects.create_user(
+            ucb_auth_user_dict['username'],
+            ucb_auth_user_dict['email'],
+            ucb_auth_user_dict['password']
+        )
+        self.csu_auth_user = User.objects.create_user(
+            csu_auth_user_dict['username'],
+            csu_auth_user_dict['email'],
+            csu_auth_user_dict['password']
+        )
+
         proj_dict = dict(
             pi_emails=['pi@pi.org'],
-            managers=['pi@pi.prg','opi@pi.org'],
-            collaborators=['tu@tu.org'],
             organization='ucb',
             title='Test Project',
             description='A description.',
@@ -329,11 +372,15 @@ class AllocationEndpointTestCase(TestCase):
         self.proj1 = Project.objects.create(**proj_dict)
         self.proj1.created_on = datetime.datetime(2016,06,01)
         self.proj1.save()
+        self.proj1.managers.add(self.ucb_auth_user)
+        self.proj1.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
         del proj_dict['parent_account']
         proj_dict['project_id'] = 'ucb2'
         self.proj2 = Project.objects.create(**proj_dict)
         self.proj2.created_on = datetime.datetime(2016,06,01)
         self.proj2.save()
+        self.proj2.managers.add(self.ucb_auth_user)
+        self.proj2.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
         sdate = datetime.datetime(2016,02,02)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
@@ -368,8 +415,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'allocation_id': u'ucb1_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
-                    u'collaborators': u"[u'tu@tu.org']",
-                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                    u'managers': [u'testuser'],
                     u'description': u'A description.',
                     u'title': u'Test Project',
                     u'deactivated': False,
@@ -389,8 +436,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'allocation_id': u'ucb1_summit2',
                 u'created_on': u'2016-04-01',
                 u'project': {
-                    u'collaborators': u"[u'tu@tu.org']",
-                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                    u'managers': [u'testuser'],
                     u'description': u'A description.',
                     u'title': u'Test Project',
                     u'deactivated': False,
@@ -410,8 +457,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
-                    u'collaborators': u"[u'tu@tu.org']",
-                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                    u'managers': [u'testuser'],
                     u'description': u'A description.',
                     u'title': u'Test Project',
                     u'deactivated': False,
@@ -444,8 +491,8 @@ class AllocationEndpointTestCase(TestCase):
             u'allocation_id': u'ucb1_summit1',
             u'created_on': u'2016-06-01',
             u'project': {
-                u'collaborators': u"[u'tu@tu.org']",
-                u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                u'managers': [u'testuser'],
                 u'description': u'A description.',
                 u'title': u'Test Project',
                 u'deactivated': False,
@@ -476,8 +523,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'allocation_id': u'ucb1_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
-                    u'collaborators': u"[u'tu@tu.org']",
-                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                    u'managers': [u'testuser'],
                     u'description': u'A description.',
                     u'title': u'Test Project',
                     u'deactivated': False,
@@ -497,8 +544,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
-                    u'collaborators': u"[u'tu@tu.org']",
-                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                    u'managers': [u'testuser'],
                     u'description': u'A description.',
                     u'title': u'Test Project',
                     u'deactivated': False,
@@ -531,8 +578,8 @@ class AllocationEndpointTestCase(TestCase):
                 u'allocation_id': u'ucb2_summit1',
                 u'created_on': u'2016-06-01',
                 u'project': {
-                    u'collaborators': u"[u'tu@tu.org']",
-                    u'managers': u"[u'pi@pi.prg', u'opi@pi.org']",
+                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
+                    u'managers': [u'testuser'],
                     u'description': u'A description.',
                     u'title': u'Test Project',
                     u'deactivated': False,
