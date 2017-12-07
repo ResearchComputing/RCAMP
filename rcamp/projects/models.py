@@ -5,6 +5,7 @@ from django.db.models.functions import Substr, Lower
 from django.utils import timezone
 from lib import fields
 
+from accounts.models import User
 from mailer.signals import allocation_created_from_request
 
 class Cast(Func):
@@ -19,40 +20,19 @@ class Project(models.Model):
     )
 
     pi_emails = fields.ListField()
-    managers = fields.ListField(delimiter='|')
-    collaborators = fields.ListField(delimiter='|')
+    managers = models.ManyToManyField(User,related_name='manager_on')
+    collaborators = models.ManyToManyField(User,related_name='collaborator_on')
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS)
     title = models.CharField(max_length=256)
     description = models.TextField()
 
     project_id = models.CharField(max_length=24,unique=True,blank=True,null=True)
-    # is_startup = models.BooleanField(default=False)
     created_on = models.DateField(auto_now_add=True)
     notes = models.TextField(blank=True,null=True)
 
     parent_account = models.CharField(max_length=24,null=True,blank=True)
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     deactivated = models.BooleanField(default=False)
-
-    @property
-    def manager_list(self):
-        return self._get_display_users('managers')
-
-    @property
-    def collaborator_list(self):
-        return self._get_display_users('collaborators')
-
-    def _get_display_users(self,field_name):
-        model_field = getattr(self,field_name)
-        display_list = []
-        for dn in model_field:
-            username, org, __ = dn.split(',',2)
-            __, username = username.split('=')
-            __, org = org.split('=')
-            if org.lower() == 'csu':
-                username += '@colostate.edu'
-            display_list.append(username)
-        return display_list
 
     def __unicode__(self):
         return self.project_id
@@ -78,14 +58,6 @@ class Project(models.Model):
                 next_id = '{}{}'.format(org.lower(),str(next_id))
             self.project_id = next_id
         super(Project,self).save(*args,**kwargs)
-
-    # @property
-    # def current_limit(self):
-    #     allocs = self.allocations.all()
-    #     limit = 0.0
-    #     for a in allocs:
-    #         limit += a.cpu_mins_awarded
-    #     return limit
 
 class Reference(models.Model):
     project = models.ForeignKey(Project)
@@ -189,7 +161,7 @@ class AllocationRequest(models.Model):
     disk_space = models.IntegerField(default=0,null=True,blank=True)
     software_request = models.TextField(null=True,blank=True)
 
-    requester = models.CharField(max_length=12,null=True,blank=True)
+    requester = models.ForeignKey(User,null=True,blank=True)
     request_date = models.DateTimeField(auto_now_add=True)
 
     status = models.CharField(max_length=16,choices=STATUSES,default='w')

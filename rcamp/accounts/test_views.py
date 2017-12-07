@@ -16,15 +16,13 @@ from accounts.views import (
     AccountRequestReviewView,
     AccountRequestCreateView,
     SponsoredAccountRequestCreateView,
-    ClassAccountRequestCreateView,
-    ProjectAccountRequestCreateView
+    ClassAccountRequestCreateView
 )
 from accounts.models import (
     AccountRequest,
     IdTracker,
     CuLdapUser
 )
-from projects.models import Project
 
 
 
@@ -235,51 +233,4 @@ class ClassAccountRequestTestCase(CbvCase):
         self.assertEquals(ar.role, 'student')
         self.assertEquals(ar.course_number, 'CSCI4000')
         self.assertEquals(ar.login_shell,'/bin/bash')
-        self.assertEquals(ar.organization,'ucb')
-
-#This test case covers the project account request page.
-class ProjectAccountRequestTestCase(CbvCase):
-    def setUp(self):
-        proj_dict = {
-            'pi_emails': ['testpiuser@test.org'],
-            'managers': ['testpiuser'],
-            'collaborators': ['testpiuser'],
-            'organization': 'ucb',
-            'project_id': 'ucb1',
-            'title': 'Test project',
-            'description': 'Test project.',
-        }
-        Project.objects.create(**proj_dict)
-        proj_dict.update({
-            'project_id': 'ucb2',
-            'title': 'Test project 2',
-            'description': 'Test project 2.',
-        })
-        Project.objects.create(**proj_dict)
-        super(ProjectAccountRequestTestCase,self).setUp()
-
-    def test_request_create(self):
-        mock_cu_user_defaults = get_org_user_defaults()
-        mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
-        account_request_defaults = get_account_request_defaults()
-        account_request_defaults['role'] = 'student'
-        projects_selected = [proj.pk for proj in Project.objects.all()]
-        account_request_defaults['projects'] = projects_selected
-        request = RequestFactory().post(
-                '/accounts/account-request/create/project',
-                data=account_request_defaults
-            )
-
-        with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
-            with mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True):
-                view = ProjectAccountRequestCreateView.as_view()
-                response = view(request)
-
-        self.assertTrue(response.url.startswith('/accounts/account-request/review/'))
-
-        ar = AccountRequest.objects.get(username='testuser')
-        ar_list = [p.pk for p in ar.projects.all()]
-        expected_list = [p.pk for p in Project.objects.all()]
-        self.assertEquals(ar_list,expected_list)
-        self.assertEquals(ar.role, 'student')
         self.assertEquals(ar.organization,'ucb')

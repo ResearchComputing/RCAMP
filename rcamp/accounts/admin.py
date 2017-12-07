@@ -1,32 +1,28 @@
 from django.contrib import admin
 from django import forms
 from lib.fields import LdapCsvField
-from accounts.models import RcLdapUser
-from accounts.models import CuLdapUser
-from accounts.models import RcLdapGroup
-from accounts.models import IdTracker
-from accounts.models import AccountRequest
-from accounts.models import ORGANIZATIONS
-from projects.models import Project
+from accounts.models import (
+    User,
+    RcLdapUser,
+    CuLdapUser,
+    RcLdapGroup,
+    IdTracker,
+    AccountRequest,
+    ORGANIZATIONS
+)
 
 
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = ['username','organization','first_name','last_name','email']
+    search_fields = ['username','first_name','last_name','email']
 
 class AccountRequestAdminForm(forms.ModelForm):
-    projects = forms.ModelMultipleChoiceField(
-        queryset=Project.objects.all(),
-        required=False,
-        widget=admin.widgets.FilteredSelectMultiple(
-            'projects',
-            False,
-        )
-    )
-
     class Meta:
         model = AccountRequest
         exclude = ()
 
     def clean(self):
-        # import pdb;pdb.set_trace()
         super(AccountRequestAdminForm,self).clean()
         conditions = [
             self.instance,
@@ -130,8 +126,6 @@ class RcLdapUserAdmin(admin.ModelAdmin):
         'last_name',
         'full_name',
         'username',
-        # 'role',
-        # 'affiliation',
     ]
     ordering = ('last_name',)
     form = RcLdapUserForm

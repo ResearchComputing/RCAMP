@@ -1,16 +1,12 @@
 from django import forms
-from django.contrib.admin import widgets
+from django.contrib import admin
 
 from lib.fields import MultiEmailField
-from accounts.models import RcLdapUser
+from accounts.models import (
+    RcLdapUser,
+    User
+)
 from projects.models import Project
-
-
-def get_user_choices():
-    for user in RcLdapUser.objects.all().order_by('username'):
-        user_display = '{0} ({1} {2})'.format(
-            user.effective_uid, user.first_name, user.last_name)
-        yield (user.dn, user_display)
 
 
 class ProjectForm(forms.ModelForm):
@@ -26,36 +22,34 @@ class ProjectForm(forms.ModelForm):
             'organization',
         ]
 
-        widgets = {
-            'managers': widgets.FilteredSelectMultiple(
-                verbose_name='Managers', is_stacked=False),
-            'collaborators': widgets.FilteredSelectMultiple(
-                verbose_name='Collaborators', is_stacked=False),
-        }
-
     pi_emails = MultiEmailField(required=True)
-    managers = forms.MultipleChoiceField(choices=get_user_choices, required=False)
-    collaborators = forms.MultipleChoiceField(choices=get_user_choices, required=False)
-
-
-class ProjectEditForm(forms.Form):
-
-    title = forms.CharField(max_length=256,required=True)
-    description = forms.CharField(widget=forms.Textarea,required=True)
-    pi_emails = MultiEmailField(required=True)
-    managers = forms.MultipleChoiceField(
-        choices=get_user_choices,
-        widget=widgets.FilteredSelectMultiple(
-                verbose_name='Managers', is_stacked=False),
+    managers = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
         required=False,
+        widget=admin.widgets.FilteredSelectMultiple(
+            'managers',
+            False,
+        )
     )
-    collaborators = forms.MultipleChoiceField(
-        choices=get_user_choices,
-        widget=widgets.FilteredSelectMultiple(
-            verbose_name='Collaborators', is_stacked=False),
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
         required=False,
+        widget=admin.widgets.FilteredSelectMultiple(
+            'collaborators',
+            False,
+        )
     )
 
+class ProjectEditForm(ProjectForm):
+    class Meta:
+        model = Project
+        fields = [
+            'title',
+            'description',
+            'pi_emails',
+            'managers',
+            'collaborators',
+        ]
 
 class ReferenceForm(forms.Form):
     description = forms.CharField(widget=forms.Textarea,required=True)

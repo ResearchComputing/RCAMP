@@ -1,7 +1,6 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.conf import settings
 from selenium import webdriver
-from django.contrib.auth.models import User
 import datetime
 import unittest
 import copy
@@ -13,6 +12,7 @@ from lib.test.utils import (
 )
 
 from accounts.models import (
+    User,
     RcLdapUser,
     RcLdapGroup
 )

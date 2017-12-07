@@ -34,7 +34,7 @@ class ProjectList(viewsets.ReadOnlyModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
     filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
-    search_fields = ('project_id','pi_emails','managers','collaborators',)
+    search_fields = ('project_id','pi_emails')
     filter_class = ProjectFilter
     lookup_field = 'project_id'
 

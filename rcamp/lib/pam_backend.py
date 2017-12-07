@@ -1,15 +1,16 @@
 from django.conf import settings
-from django.contrib.auth.models import User
-from accounts.models import RcLdapUser
+from accounts.models import (
+    RcLdapUser,
+    User
+)
 import pam
 
 
 
 class PamBackend():
     def authenticate(self, username=None, password=None):
-        try:
-            rc_user = RcLdapUser.objects.get(username=username)
-        except RcLdapUser.DoesNotExist:
+        rc_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
+        if not rc_user:
             return None
 
         p = pam.pam()
@@ -20,10 +21,9 @@ class PamBackend():
                 'first_name': rc_user.first_name,
                 'last_name': rc_user.last_name,
                 'email': rc_user.email,
-                'is_staff': False,
             }
             user, created = User.objects.update_or_create(
-                username=rc_user.username,
+                username=username,
                 defaults=user_dict
             )
             return user

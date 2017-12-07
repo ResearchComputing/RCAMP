@@ -5,8 +5,12 @@ import datetime
 import pytz
 
 from django.conf import settings
-from lib.test.utils import SafeTestCase
+from lib.test.utils import (
+    SafeTestCase,
+    get_auth_user_defaults
+)
 
+from accounts.models import User
 from projects.models import (
     Project,
     Allocation,
@@ -21,8 +25,6 @@ class ProjectTestCase(SafeTestCase):
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         }
         self.proj1 = Project.objects.create(**self.proj_dict)
@@ -53,8 +55,6 @@ class AllocationTestCase(SafeTestCase):
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         }
         self.proj = Project.objects.create(**self.proj_dict)
@@ -88,8 +88,6 @@ class AllocationCreateTestCase(SafeTestCase):
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         })
         self.ar_dict = {
@@ -132,13 +130,17 @@ class AllocationCreateTestCase(SafeTestCase):
 class AllocationRequestTestCase(SafeTestCase):
     def setUp(self):
         super(AllocationRequestTestCase,self).setUp()
+        ucb_auth_user_defaults = get_auth_user_defaults()
+        self.ucb_auth_user = User.objects.create_user(
+            ucb_auth_user_defaults['username'],
+            ucb_auth_user_defaults['email'],
+            ucb_auth_user_defaults['password']
+        )
         self.proj = Project.objects.create(**{
             'project_id': 'ucb1',
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         })
         self.ar_dict = {
@@ -149,7 +151,7 @@ class AllocationRequestTestCase(SafeTestCase):
             'amount_awarded': 0,
             'disk_space': 1234,
             'software_request': 'none',
-            'requester': 'testuser',
+            'requester': self.ucb_auth_user
         }
         ar = AllocationRequest.objects.create(**self.ar_dict)
 
@@ -157,6 +159,7 @@ class AllocationRequestTestCase(SafeTestCase):
         ar = AllocationRequest.objects.get(project=self.proj)
         test_dict = copy.deepcopy(self.ar_dict)
         del test_dict['project']
+        del test_dict['requester']
         self.assertDictContainsSubset(test_dict,ar._loaded_values)
 
     def test_update_allocation_request(self):

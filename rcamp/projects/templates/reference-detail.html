@@ -21,7 +21,7 @@
   </ol>
 
   <legend>Reference
-    {% if user.username in project.managers %}<a href="{% url 'projects:reference-edit' project_pk=project.pk pk=object.pk %}" class="project-edit-link">(edit reference)</a>{% endif %}
+    {% if user in project.managers.all %}<a href="{% url 'projects:reference-edit' project_pk=project.pk pk=object.pk %}" class="project-edit-link">(edit reference)</a>{% endif %}
   </legend>
   <div class="mailto-help">
     <small>

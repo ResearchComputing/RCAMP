@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=128)),
-                ('event', models.CharField(max_length=128, choices=[(b'account_created_from_request', b'account_created_from_request'), (b'account_request_received', b'account_request_received')])),
+                ('event', models.CharField(max_length=128, choices=[(b'account_created_from_request', b'account_created_from_request'), (b'account_request_received', b'account_request_received'), (b'allocation_created_from_request', b'allocation_created_from_request'), (b'allocation_request_created_by_user', b'allocation_request_created_by_user'), (b'project_created_by_user', b'project_created_by_user')])),
                 ('mailto', models.TextField(null=True, blank=True)),
                 ('cc', models.TextField(null=True, blank=True)),
                 ('bcc', models.TextField(null=True, blank=True)),

@@ -7,7 +7,6 @@ from accounts.models import RcLdapUser
 from accounts.models import AccountRequest
 from accounts.models import SHELL_CHOICES
 from accounts.models import REQUEST_ROLES
-from projects.models import Project
 
 
 
@@ -99,20 +98,3 @@ class ClassAccountRequestForm(AccountRequestForm):
             data['organization'] = 'ucb'
             data['role'] = 'student'
         super(ClassAccountRequestForm, self).__init__(data=data, **kwargs)
-
-class ProjectAccountRequestForm(AccountRequestForm):
-    projects = forms.ModelMultipleChoiceField(
-        queryset=Project.objects.all(),
-        required=True,
-        widget=FilteredSelectMultiple(
-            'Projects',
-            False,
-        ))
-
-    class Meta:
-        exclude = (
-            'blanca',
-            'summit',
-            'petalibrary_active',
-            'petalibrary_archive',
-        )

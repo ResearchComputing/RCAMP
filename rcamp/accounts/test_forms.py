@@ -12,8 +12,7 @@ from lib.test.ldap import LdapTestCase
 from accounts.forms import (
     AccountRequestForm,
     SponsoredAccountRequestForm,
-    ClassAccountRequestForm,
-    ProjectAccountRequestForm
+    ClassAccountRequestForm
 )
 from accounts.admin import AccountRequestAdminForm
 from accounts.models import (
@@ -21,7 +20,6 @@ from accounts.models import (
     CsuLdapUser,
     AccountRequest
 )
-from projects.models import Project
 
 
 mock_cu_user_defaults = dict(
@@ -261,53 +259,4 @@ class ClassAccountRequestFormTestCase(LdapTestCase):
             'password': 'testpass',
         }
         form = ClassAccountRequestForm(data=form_data)
-        self.assertFalse(form.is_valid())
-
-# This test case covers the functionality of the project account request form
-# delivered to the user during account request.
-class ProjectAccountRequestFormTestCase(LdapTestCase):
-    def setUp(self):
-        proj_dict = {
-            'pi_emails': ['testpiuser@test.org'],
-            'managers': ['testpiuser'],
-            'collaborators': ['testpiuser'],
-            'organization': 'ucb',
-            'project_id': 'ucb1',
-            'title': 'Test project',
-            'description': 'Test project.',
-        }
-        Project.objects.create(**proj_dict)
-        proj_dict.update({
-            'project_id': 'ucb2',
-            'title': 'Test project 2',
-            'description': 'Test project 2.',
-        })
-        Project.objects.create(**proj_dict)
-        super(ProjectAccountRequestFormTestCase,self).setUp()
-
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_valid(self,mock_get,mock_auth):
-        form_data = {
-            'projects': [proj.pk for proj in Project.objects.all()],
-            'organization': 'ucb',
-            'username': 'testuser',
-            'password': 'testpass',
-            'role': 'student',
-            'login_shell': '/bin/bash',
-        }
-        form = ProjectAccountRequestForm(data=form_data)
-        self.assertTrue(form.is_valid())
-
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_valid_missing_fields(self,mock_get,mock_auth):
-        form_data = {
-            'organization': 'ucb',
-            'username': 'testuser',
-            'password': 'testpass',
-            'role': 'student',
-            'login_shell': '/bin/bash',
-        }
-        form = ProjectAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())
