@@ -54,23 +54,7 @@ class AccountRequestCreateView(FormView):
             'resources_requested': ','.join(res_list),
         })
 
-        # Check for m2m fields
-        m2m_dict = {}
-        for k in self.ar_dict.keys():
-            if k.startswith('m2m_'):
-                new_key = k.replace('m2m_','')
-                val = self.ar_dict.pop(k)
-                m2m_dict[new_key] = val
-
         ar, created = AccountRequest.objects.get_or_create(**self.ar_dict)
-
-        # Add m2m values
-        for key, val in m2m_dict.iteritems():
-            for v in val:
-                m2m_field = getattr(ar,key)
-                m2m_field.add(v)
-            ar.save()
-
         account_request_received.send(sender=ar.__class__,account_request=ar)
 
         # Auto-approve CSU requests
