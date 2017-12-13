@@ -193,7 +193,51 @@ class LdapGroupAdminTestCase(UserAuthenticatedLiveServerTestCase):
 
         ldap_group = RcLdapGroup.objects.get(name='testcsugrp')
         group_list_url = '/admin/accounts/rcldapgroup/'
-
         self.assertIn(group_list_url,self.browser.current_url)
+
         self.assertEquals(ldap_group.org,'csu')
         self.assertEquals(ldap_group.members,['testuser1'])
+
+class LdapUserAdminTestCase(UserAuthenticatedLiveServerTestCase):
+    def setUp(self):
+        super(LdapUserAdminTestCase,self).setUp()
+        # Log in as UCB user
+        username = self.ucb_auth_user.username
+        password = self.ucb_auth_user_dict['password']
+        self.login(username,password)
+
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1001
+        )
+
+    def test_create_ldap_user(self):
+        self.browser.get(self.live_server_url+'/admin/accounts/rcldapuser/add/')
+
+        organization_option_ucb = self.browser.find_element_by_css_selector('#id_organization > option[value="ucb"]')
+        username_input = self.browser.find_element_by_css_selector('#id_username')
+        full_name_input = self.browser.find_element_by_css_selector('#id_full_name')
+        first_name_input = self.browser.find_element_by_css_selector('#id_first_name')
+        last_name_input = self.browser.find_element_by_css_selector('#id_last_name')
+        email_input = self.browser.find_element_by_css_selector('#id_email')
+        home_directory_input = self.browser.find_element_by_css_selector('#id_home_directory')
+        save_button = self.browser.find_element_by_css_selector('input[value="Save"]')
+
+        organization_option_ucb.click()
+        username_input.send_keys('testuser1')
+        full_name_input.send_keys('User, Test')
+        first_name_input.send_keys('Test')
+        last_name_input.send_keys('User')
+        email_input.send_keys('testuser@colorado.edu')
+        home_directory_input.send_keys('/home/testuser1/')
+        save_button.click()
+
+        ldap_user = RcLdapUser.objects.get(username='testuser1')
+        user_list_url = '/admin/accounts/rcldapuser/'
+        self.assertIn(user_list_url,self.browser.current_url)
+
+        self.assertEquals(ldap_user.organization,'ucb')
+        self.assertEquals(ldap_user.username,'testuser1')
+        self.assertEquals(ldap_user.gid,1001)
