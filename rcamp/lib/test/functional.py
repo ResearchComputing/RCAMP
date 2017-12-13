@@ -119,12 +119,12 @@ class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
         self.ucb_ldap_user = RcLdapUser.objects.create(organization='ucb',**self.ucb_ldap_user_dict)
         self.csu_ldap_user = RcLdapUser.objects.create(organization='csu',**self.csu_ldap_user_dict)
         # Create auth users
-        self.ucb_auth_user = User.objects.create_user(
+        self.ucb_auth_user = User.objects.create_superuser(
             self.ucb_auth_user_dict['username'],
             self.ucb_auth_user_dict['email'],
             self.ucb_auth_user_dict['password']
         )
-        self.csu_auth_user = User.objects.create_user(
+        self.csu_auth_user = User.objects.create_superuser(
             self.csu_auth_user_dict['username'],
             self.csu_auth_user_dict['email'],
             self.csu_auth_user_dict['password']

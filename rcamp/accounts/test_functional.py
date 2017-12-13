@@ -1,7 +1,19 @@
 import mock
-from lib.test.functional import SafeStaticLiveServerTestCase
+from lib.test.ldap import (
+    get_ldap_user_defaults,
+    get_ldap_group_defaults
+)
+from lib.test.functional import (
+    SafeStaticLiveServerTestCase,
+    UserAuthenticatedLiveServerTestCase
+)
 
-from accounts.models import AccountRequest
+from accounts.models import (
+    IdTracker,
+    AccountRequest,
+    RcLdapUser,
+    RcLdapGroup
+)
 
 
 def get_request_form_defaults():
@@ -83,3 +95,57 @@ class AccountRequestGeneralTestCase(SafeStaticLiveServerTestCase):
         self.assertEquals(account_request.login_shell,'/bin/bash')
         self.assertEquals(account_request.resources_requested,'blanca,summit')
         self.assertEquals(account_request.organization,'ucb')
+
+class LdapGroupAdminTestCase(UserAuthenticatedLiveServerTestCase):
+    def setUp(self):
+        super(LdapGroupAdminTestCase,self).setUp()
+        # Log in as UCB user
+        username = self.ucb_auth_user.username
+        password = self.ucb_auth_user_dict['password']
+        self.login(username,password)
+
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1001
+        )
+
+        # Create LDAP users to populate member select
+        ldap_user_defaults = get_ldap_user_defaults()
+        ldap_user_defaults['username'] = 'testuser1'
+        ldap_user_defaults['organization'] = 'ucb'
+        ldap_user_defaults['uid'] = 1000
+        ldap_user_defaults['gid'] = 1000
+        RcLdapUser.objects.create(**ldap_user_defaults)
+        ldap_user_defaults['username'] = 'testuser2'
+        ldap_user_defaults['organization'] = 'ucb'
+        ldap_user_defaults['uid'] = 1002
+        ldap_user_defaults['gid'] = 1002
+        RcLdapUser.objects.create(**ldap_user_defaults)
+        ldap_user_defaults['username'] = 'testuser1'
+        ldap_user_defaults['organization'] = 'csu'
+        ldap_user_defaults['uid'] = 1001
+        ldap_user_defaults['gid'] = 1001
+        RcLdapUser.objects.create(**ldap_user_defaults)
+
+    def test_create_ldap_group(self):
+        ldap_group_defaults = get_ldap_group_defaults()
+
+        self.browser.get(self.live_server_url+'/admin/accounts/rcldapgroup/add/')
+
+        organization_option_ucb = self.browser.find_element_by_css_selector('#id_organization > option[value="ucb"]')
+        name_input = self.browser.find_element_by_css_selector('#id_name')
+        member_option_testuser1_ucb = self.browser.find_element_by_css_selector('#id_members_from > option[value="testuser1"]')
+        members_add_link = self.browser.find_element_by_css_selector('#id_members_add_link')
+        save_button = self.browser.find_element_by_css_selector('input[value="Save"]')
+
+        organization_option_ucb.click()
+        name_input.send_keys('testgrp')
+        member_option_testuser1_ucb.click()
+        members_add_link.click()
+        save_button.click()
+
+        ldap_group = RcLdapGroup.objects.get(name='testgrp')
+        group_list_url = '/admin/accounts/rcldapgroup/'
+        self.assertIn(group_list_url,self.browser.current_url)
