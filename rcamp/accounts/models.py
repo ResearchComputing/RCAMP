@@ -221,7 +221,7 @@ class RcLdapUserManager(models.Manager):
             if role == 'faculty':
                 user_fields['role'] = ['pi',role]
             else:
-                user_fields['role'] = [].append(role)
+                user_fields['role'] = [role]
 
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
@@ -244,7 +244,8 @@ class RcLdapUserManager(models.Manager):
             ucb_grps = RcLdapGroup.objects.filter(name=license_grp)
             if ucb_grps.count() > 0:
                 ucb_grp = ucb_grps[0]
-                ucb_grp.members.append(username)
+                # TODO: Extend ldapdb ListField to include an append method.
+                ucb_grp.members = ucb_grp.members + [username]
                 ucb_grp.save(organization='ucb')
 
         return user
