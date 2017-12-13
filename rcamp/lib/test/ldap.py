@@ -28,7 +28,7 @@ def get_ldap_group_defaults():
     ldap_group_defaults = dict(
         name = 'testusergrp',
         gid = 1010,
-        members = ['uid=testusergrp,ou=UCB,ou=People,dc=rc,dc=int,dc=colorado,dc=edu']
+        members = ['testuser']
     )
     return ldap_group_defaults
 

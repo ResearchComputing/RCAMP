@@ -130,22 +130,70 @@ class LdapGroupAdminTestCase(UserAuthenticatedLiveServerTestCase):
         RcLdapUser.objects.create(**ldap_user_defaults)
 
     def test_create_ldap_group(self):
-        ldap_group_defaults = get_ldap_group_defaults()
-
         self.browser.get(self.live_server_url+'/admin/accounts/rcldapgroup/add/')
 
         organization_option_ucb = self.browser.find_element_by_css_selector('#id_organization > option[value="ucb"]')
         name_input = self.browser.find_element_by_css_selector('#id_name')
         member_option_testuser1_ucb = self.browser.find_element_by_css_selector('#id_members_from > option[value="testuser1"]')
+        member_option_testuser2_ucb = self.browser.find_element_by_css_selector('#id_members_from > option[value="testuser2"]')
         members_add_link = self.browser.find_element_by_css_selector('#id_members_add_link')
         save_button = self.browser.find_element_by_css_selector('input[value="Save"]')
 
         organization_option_ucb.click()
         name_input.send_keys('testgrp')
         member_option_testuser1_ucb.click()
+        member_option_testuser2_ucb.click()
         members_add_link.click()
         save_button.click()
 
         ldap_group = RcLdapGroup.objects.get(name='testgrp')
         group_list_url = '/admin/accounts/rcldapgroup/'
         self.assertIn(group_list_url,self.browser.current_url)
+
+        self.assertEquals(ldap_group.dn.lower(),'cn=testgrp,ou=ucb,ou=groups,dc=rc,dc=int,dc=colorado,dc=edu')
+        self.assertEquals(ldap_group.name,'testgrp')
+        self.assertEquals(ldap_group.organization,'ucb')
+        self.assertEquals(ldap_group.gid,1003)
+        self.assertEquals(set(ldap_group.members),set(['testuser1','testuser2']))
+
+    def test_edit_ldap_group(self):
+        ldap_group_defaults = dict(
+            name='testcsugrp',
+            organization='csu',
+            gid=1010,
+            members=[]
+        )
+        ldap_group = RcLdapGroup.objects.create(**ldap_group_defaults)
+
+        edit_url = '/admin/accounts/rcldapgroup/cn_3D{group_name}_2Cou_3Dcsu_2Cou_3Dgroups_2Cdc_3Drc_2Cdc_3Dint_2Cdc_3Dcolorado_2Cdc_3Dedu/'.format(group_name=ldap_group.name)
+        self.browser.get(self.live_server_url + edit_url)
+
+        # Verify that dn and organization are readonly or disabled
+        dn_input = self.browser.find_element_by_css_selector('#id_dn')
+        org_select = self.browser.find_element_by_css_selector('#id_organization')
+        org_select_option_csu = self.browser.find_element_by_css_selector('#id_organization > option[value="csu"]')
+
+        self.assertEquals(dn_input.get_attribute('readonly'),'true')
+        self.assertEquals(dn_input.get_attribute('value').lower(),ldap_group.dn.lower())
+        self.assertEquals(org_select.get_attribute('disabled'),'true')
+        self.assertEquals(org_select_option_csu.get_attribute('selected'),'true')
+
+        # Verify member select org filter works
+        available_members = self.browser.find_elements_by_css_selector('#id_members_from > option')
+        for member in available_members:
+            self.assertIn('@colostate.edu',member.get_attribute('title'))
+
+        # Add member and save
+        member_option_testuser1 = self.browser.find_element_by_css_selector('#id_members_from > option[value="testuser1"]')
+        member_add_link = self.browser.find_element_by_css_selector('#id_members_add_link')
+        save_button = self.browser.find_element_by_css_selector('input[value="Save"]')
+        member_option_testuser1.click()
+        member_add_link.click()
+        save_button.click()
+
+        ldap_group = RcLdapGroup.objects.get(name='testcsugrp')
+        group_list_url = '/admin/accounts/rcldapgroup/'
+
+        self.assertIn(group_list_url,self.browser.current_url)
+        self.assertEquals(ldap_group.org,'csu')
+        self.assertEquals(ldap_group.members,['testuser1'])
