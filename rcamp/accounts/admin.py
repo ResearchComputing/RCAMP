@@ -63,13 +63,27 @@ class AccountRequestAdmin(admin.ModelAdmin):
     ]
     form = AccountRequestAdminForm
 
-class RcLdapUserForm(forms.ModelForm):
+class RcLdapModelForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
-        instance = kwargs.get('instance')
-        if instance:
-            self.base_fields['organization'].initial = instance.org.split('=')[-1].lower()
-            self.base_fields['dn'].widget.attrs['readonly'] = True
-            self.base_fields['organization'].widget.attrs['disabled'] = True
+        super(RcLdapModelForm,self).__init__(*args,**kwargs)
+        instance = getattr(self,'instance',None)
+        if instance and instance.pk:
+            self.fields['organization'].initial = instance.organization.lower()
+            self.fields['organization'].widget.attrs['disabled'] = True
+            self.fields['dn'].widget.attrs['readonly'] = True
+        self.fields['dn'].required = False
+
+    organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
+
+    def clean_organization(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.organization
+        else:
+            return self.cleaned_data['organization']
+
+class RcLdapUserForm(RcLdapModelForm):
+    def __init__(self,*args,**kwargs):
         super(RcLdapUserForm,self).__init__(*args,**kwargs)
         try:
             self.initial['role'] = ','.join(self.instance.role)
@@ -79,10 +93,8 @@ class RcLdapUserForm(forms.ModelForm):
             self.initial['affiliation'] = ','.join(self.instance.affiliation)
         except TypeError:
             pass
-        self.fields['dn'].required = False
         self.fields['gecos'].required = False
 
-    organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
     role = LdapCsvField(required=False)
     affiliation = LdapCsvField(required=False)
 
@@ -137,21 +149,27 @@ class RcLdapUserAdmin(admin.ModelAdmin):
         return actions
 
     def save_model(self, request, obj, form, change):
-        org = form.cleaned_data['organization'] or None
-        obj.save(organization=org)
+        if obj.pk:
+            organization = obj.organization
+        else:
+            organization = form.cleaned_data['organization']
+        obj.save(organization=organization)
 
 # Overrides default admin form for RcLdapGroups to allow
 # for filtered multiselect widget.
 class RcLdapGroupForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
-        instance = kwargs.get('instance')
-        if instance:
-            self.base_fields['organization'].initial = instance.org.split('=')[-1].lower()
-            self.base_fields['dn'].widget.attrs['readonly'] = True
-            self.base_fields['organization'].widget.attrs['disabled'] = True
         super(RcLdapGroupForm,self).__init__(*args,**kwargs)
-        user_tuple = ((u.username,'%s (%s %s)'%(u.username,u.first_name,u.last_name))
-            for u in RcLdapUser.objects.all().order_by('username'))
+        instance = getattr(self,'instance',None)
+        if instance and instance.pk:
+            self.fields['organization'].initial = instance.organization.lower()
+            self.fields['organization'].widget.attrs['disabled'] = True
+            self.fields['dn'].widget.attrs['readonly'] = True
+            user_tuple = ((u.username,'%s (%s %s)'%(u.effective_uid,u.first_name,u.last_name))
+                for u in RcLdapUser.objects.all().order_by('username') if u.organization == instance.org)
+        else:
+            user_tuple = ((u.username,'%s (%s %s)'%(u.effective_uid,u.first_name,u.last_name))
+                for u in RcLdapUser.objects.all().order_by('username'))
 
         self.fields['gid'].required = False
         self.fields['members'].required = False
@@ -162,6 +180,13 @@ class RcLdapGroupForm(forms.ModelForm):
         self.fields['dn'].required = False
 
     organization = forms.ChoiceField(required=False,choices=ORGANIZATIONS)
+
+    def clean_organization(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.organization
+        else:
+            return self.cleaned_data['organization']
 
     class Meta:
         model = RcLdapGroup
@@ -186,7 +211,10 @@ class RcLdapGroupAdmin(admin.ModelAdmin):
         return actions
 
     def save_model(self, request, obj, form, change):
-        org = form.cleaned_data['organization'] or None
-        obj.save(organization=org)
+        if obj.pk:
+            organization = obj.organization
+        else:
+            organization = form.cleaned_data['organization']
+        obj.save(organization=organization)
 
 admin.site.register(IdTracker)
