@@ -7,7 +7,10 @@ import pam
 import copy
 
 from django.conf import settings
-from lib.test.ldap import LdapTestCase
+from lib.test.ldap import (
+    LdapTestCase,
+    build_mock_rcldap_user
+)
 
 from accounts.forms import (
     AccountRequestForm,
@@ -164,10 +167,11 @@ class AccountRequestAdminFormTestCase(LdapTestCase):
         form = AccountRequestAdminForm(data=form_data,instance=ar)
         self.assertTrue(form.is_valid())
 
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
+    @mock.patch('accounts.models.RcLdapUser.objects.filter',return_value=[build_mock_rcldap_user(organization='ucb')])
     def test_form_invalid_approval_account_exists(self,mock_get):
         ar = AccountRequest.objects.create(**self.ar_dict)
         form_data = copy.deepcopy(self.ar_dict)
+        form_data['username'] = 'testuser'
         form_data['status'] = 'a'
 
         form = AccountRequestAdminForm(data=form_data,instance=ar)

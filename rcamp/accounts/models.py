@@ -54,6 +54,9 @@ class User(AbstractUser):
 
 
 class AccountRequest(models.Model):
+    class Meta:
+        unique_together = (('username','organization'),)
+
     STATUSES = (
         ('p','Pending'),
         ('a','Approved'),
@@ -61,7 +64,7 @@ class AccountRequest(models.Model):
         ('i','Incomplete'),
     )
 
-    username = models.CharField(max_length=48, unique=True)
+    username = models.CharField(max_length=48)
     first_name = models.CharField(max_length=128,blank=False,null=False)
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
