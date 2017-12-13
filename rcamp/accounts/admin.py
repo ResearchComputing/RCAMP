@@ -34,9 +34,7 @@ class AccountRequestAdminForm(forms.ModelForm):
             org = self.cleaned_data['organization']
             rc_users = RcLdapUser.objects.filter(username=un)
             for user in rc_users:
-                # org formatted as ou=ucb, so it must be parsed
-                user_org = user.org.split('=')[-1]
-                if user_org == org:
+                if user.organization == org:
                     raise forms.ValidationError('RC Account already exists: {}'.format(un))
 
 @admin.register(AccountRequest)

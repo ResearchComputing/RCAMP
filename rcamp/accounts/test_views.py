@@ -159,6 +159,7 @@ class AccountRequestTestCase(CbvCase):
     def test_request_create_invalid_creds(self):
         mock_cu_user_defaults = get_org_user_defaults()
         mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
+        mock_cu_user.authenticate.return_value = False
         account_request_defaults = get_account_request_defaults()
         request = RequestFactory().post(
                 '/accounts/account-request/create/ucb',
@@ -166,9 +167,8 @@ class AccountRequestTestCase(CbvCase):
             )
 
         with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
-            with mock.patch('accounts.models.CuLdapUser.authenticate',return_value=False):
-                view = AccountRequestCreateView.as_view()
-                response = view(request)
+            view = AccountRequestCreateView.as_view()
+            response = view(request)
 
         self.assertEquals(
                 response.context_data['form'].errors['__all__'],
