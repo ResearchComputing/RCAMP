@@ -6,11 +6,9 @@ from django.http import Http404
 from accounts.models import AccountRequest
 from accounts.models import CuLdapUser
 from accounts.models import CsuLdapUser
-from projects.models import Project
 from accounts.forms import AccountRequestForm
 from accounts.forms import SponsoredAccountRequestForm
 from accounts.forms import ClassAccountRequestForm
-from accounts.forms import ProjectAccountRequestForm
 from mailer.signals import account_request_received
 
 
@@ -56,23 +54,7 @@ class AccountRequestCreateView(FormView):
             'resources_requested': ','.join(res_list),
         })
 
-        # Check for m2m fields
-        m2m_dict = {}
-        for k in self.ar_dict.keys():
-            if k.startswith('m2m_'):
-                new_key = k.replace('m2m_','')
-                val = self.ar_dict.pop(k)
-                m2m_dict[new_key] = val
-
         ar, created = AccountRequest.objects.get_or_create(**self.ar_dict)
-
-        # Add m2m values
-        for key, val in m2m_dict.iteritems():
-            for v in val:
-                m2m_field = getattr(ar,key)
-                m2m_field.add(v)
-            ar.save()
-
         account_request_received.send(sender=ar.__class__,account_request=ar)
 
         # Auto-approve CSU requests
@@ -107,17 +89,6 @@ class ClassAccountRequestCreateView(AccountRequestCreateView):
             self.ar_dict = {}
         self.ar_dict['course_number'] = course_number
         return super(ClassAccountRequestCreateView,self).form_valid(form)
-
-class ProjectAccountRequestCreateView(AccountRequestCreateView):
-    template_name = 'project-account-request-create.html'
-    form_class = ProjectAccountRequestForm
-
-    def form_valid(self, form):
-        projs = form.cleaned_data.get('projects')
-        if not hasattr(self, 'ar_dict'):
-            self.ar_dict = {}
-        self.ar_dict['m2m_projects'] = projs
-        return super(ProjectAccountRequestCreateView,self).form_valid(form)
 
 class AccountRequestReviewView(TemplateView):
     template_name = 'account-request-review.html'

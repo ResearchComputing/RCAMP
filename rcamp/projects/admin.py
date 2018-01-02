@@ -3,32 +3,40 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from lib.fields import CsvField
-from accounts.models import RcLdapUser
-from projects.models import Project
-from projects.models import Allocation
-from projects.models import AllocationRequest
-from projects.forms import get_user_choices
+from accounts.models import (
+    RcLdapUser,
+    User
+)
+from projects.models import (
+    Project,
+    Allocation,
+    AllocationRequest
+)
 
 
 
 # Overrides default admin form for Projects to allow
 # for filtered multiselect widget.
 class ProjectAdminForm(forms.ModelForm):
+    managers = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        widget=admin.widgets.FilteredSelectMultiple(
+            'managers',
+            False,
+        )
+    )
+    collaborators = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False,
+        widget=admin.widgets.FilteredSelectMultiple(
+            'collaborators',
+            False,
+        )
+    )
+
     def __init__(self,*args,**kwargs):
         super(ProjectAdminForm,self).__init__(*args,**kwargs)
-        user_tuple = get_user_choices()
-        self.fields['managers'].required = False
-        self.fields['managers'].widget = admin.widgets.FilteredSelectMultiple(
-                                        choices=user_tuple,
-                                        verbose_name='Managers',
-                                        is_stacked=False)
-
-        user_tuple = get_user_choices()
-        self.fields['collaborators'].required = False
-        self.fields['collaborators'].widget = admin.widgets.FilteredSelectMultiple(
-                                        choices=user_tuple,
-                                        verbose_name='Collaborators',
-                                        is_stacked=False)
         try:
             self.initial['pi_emails'] = ','.join(self.instance.pi_emails)
         except TypeError:
@@ -46,7 +54,6 @@ class ProjectAdminForm(forms.ModelForm):
             'managers',
             'collaborators',
             'organization',
-            # 'created_on',
             'notes',
             'parent_account',
             'qos_addenda',
@@ -86,8 +93,6 @@ class ProjectAdmin(admin.ModelAdmin):
         'created_on',
         'qos_addenda',
         'deactivated',
-        'collaborators',
-        # 'current_limit',
     ]
     search_fields = [
         'project_id',

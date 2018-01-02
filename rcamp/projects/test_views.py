@@ -1,4 +1,3 @@
-from django.test import TestCase
 from django.test import RequestFactory
 from django.test import override_settings
 
@@ -7,24 +6,44 @@ from django.http.response import HttpResponseRedirect
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
-from accounts.test_models import BaseCase
-from accounts.test_views import CbvCase
-from projects.models import Project
-from projects.models import Reference
-from projects.models import AllocationRequest
+from lib.test.ldap import (
+    LdapTestCase,
+    get_ldap_user_defaults
+)
+from projects.models import (
+    Project,
+    Reference,
+    AllocationRequest
+)
 from projects.forms import RcLdapUser
-from projects.views import ProjectListView
-from projects.views import ProjectCreateView
-from projects.views import ProjectEditView
-from projects.views import ReferenceCreateView
-from projects.views import ReferenceEditView
-from projects.views import AllocationRequestCreateView
+from projects.views import (
+    ProjectListView,
+    ProjectCreateView,
+    ProjectEditView,
+    ReferenceCreateView,
+    ReferenceEditView,
+    AllocationRequestCreateView
+)
 
 import mock
+from unittest import skip
 
+
+# Adds method for returning Class-Based View instance, so that
+# methods can be individually tested.
+class CbvCase(LdapTestCase):
+    @staticmethod
+    def setup_view(view,request,*args,**kwargs):
+        # Mimic as_view() returned callable, but returns view instance.
+        # args and kwargs are the same you would pass to ``reverse()``
+        view.request = request
+        view.args = args
+        view.kwargs = kwargs
+        return view
 
 class RcLdapUserMock (object):
-    def __init__ (self, username, first_name, last_name, organization):
+    def __init__ (self, dn, username, first_name, last_name, organization):
+        self.dn = dn
         self.username = username
         self.first_name = first_name
         self.last_name = last_name
@@ -33,57 +52,20 @@ class RcLdapUserMock (object):
 
 class RcLdapUserQuerySet (object):
     order_by = mock.MagicMock(return_value=[
-        RcLdapUserMock('testuser', 'Test', 'User','ou=ucb'),
-        RcLdapUserMock('testcuuser', 'Test', 'CUUser','ou=ucb'),
-        RcLdapUserMock('testrequester', 'Test', 'Requester','ou=ucb'),
-        RcLdapUserMock('testcsurequester', 'Test', 'Requester','ou=csu'),
+        RcLdapUserMock('uid=testuser,ou=ucb,dc=admin,dc=org', 'testuser', 'Test', 'User','ou=ucb'),
+        RcLdapUserMock('uid=testcuuser,ou=ucb,dc=admin,dc=org', 'testcuuser', 'Test', 'CUUser','ou=ucb'),
+        RcLdapUserMock('uid=testrequester,ou=ucb,dc=admin,dc=org', 'testrequester', 'Test', 'Requester','ou=ucb'),
+        RcLdapUserMock('uid=testcsurequester,ou=csu,dc=admin,dc=org', 'testcsurequester', 'Test', 'Requester','ou=csu'),
     ])
 
 
 class RcLdapUserObjectManager (object):
     all = mock.MagicMock(return_value=RcLdapUserQuerySet())
 
-
-# This test case covers the project list view.
-class ProjectListTestCase(CbvCase):
-    def setUp(self):
-        user_dict = {
-            'username': 'testuser',
-            'first_name': 'Test',
-            'last_name': 'User',
-            'email': 'testuser@test.org',
-        }
-        User.objects.create(**user_dict)
-        proj_dict = {
-            'pi_emails': ['testuser@test.org'],
-            'managers': ['testuser'],
-            'collaborators': ['testuser'],
-            'organization': 'ucb',
-            'project_id': 'ucb1',
-            'title': 'Test project',
-            'description': 'Test project.',
-        }
-        Project.objects.create(**proj_dict)
-        super(ProjectListTestCase,self).setUp()
-
-    def test_get(self):
-        request = RequestFactory().get('/projects/list')
-        request.user = User.objects.get()
-        view = ProjectListView()
-        view = ProjectListTestCase.setup_view(view,request)
-        queryset = view.get_queryset()
-
-        test_queryset = Project.objects.filter(project_id='ucb1')
-        self.assertEqual(queryset.count(), test_queryset.count())
-
-    def test_get_unauthed(self):
-        response = self.client.get('/projects/list')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.endswith('/login?next=/projects/list'))
-
+@skip("Functional tests will deprecate.")
 # This test case covers the project creation page.
 @mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
-class ProjectCreateTestCase(BaseCase,CbvCase):
+class ProjectCreateTestCase(CbvCase):
     def setUp(self):
         super(ProjectCreateTestCase,self).setUp()
         self.user = User.objects.create(**{
@@ -92,102 +74,6 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
             'first_name': 'Test',
             'last_name': 'Requester',
         })
-
-    def test_get_unauthed(self):
-        response = self.client.get('/projects/create')
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(response.url.endswith('/login?next=/projects/create'))
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_create(self):
-        request = RequestFactory().post(
-                '/projects/create',
-                data={
-                    'project_id': 'ucb1',
-                    'title': 'Test Project',
-                    'description': 'A test project',
-                    'pi_emails': 'testuser@test.org, cuuser@cu.edu',
-                    'managers': ['testuser','testcuuser'],
-                    'collaborators': ['testuser','testcuuser'],
-                    'organization':'ucb',
-                }
-            )
-        request.user = self.user
-        view = ProjectCreateView.as_view()
-        response = view(request)
-
-        self.assertTrue(response.url.startswith('/projects/list/'))
-
-        proj = Project.objects.get(project_id='ucb1')
-        self.assertEquals(proj.title,'Test Project')
-        self.assertEquals(proj.description,'A test project')
-        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu'])
-        self.assertEquals(proj.managers,['testuser','testcuuser','testrequester'])
-        self.assertEquals(proj.collaborators,['testuser','testcuuser'])
-        self.assertEquals(proj.organization,'ucb')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_create_missing_coll_man(self):
-        request = RequestFactory().post(
-                '/projects/create',
-                data={
-                    'project_id': 'ucb1',
-                    'title': 'Test Project',
-                    'description': 'A test project',
-                    'pi_emails': 'testuser@test.org,cuuser@cu.edu',
-                    'organization':'ucb',
-                }
-            )
-        request.user = self.user
-        view = ProjectCreateView.as_view()
-        response = view(request)
-
-        self.assertIs(response.__class__, HttpResponseRedirect)
-        self.assertTrue(response.url.startswith('/projects/list/'))
-
-        proj = Project.objects.get(project_id='ucb1')
-        self.assertEquals(proj.title,'Test Project')
-        self.assertEquals(proj.description,'A test project')
-        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu'])
-        self.assertEquals(proj.managers,[u'testrequester'])
-        self.assertEquals(proj.collaborators,[])
-        self.assertEquals(proj.organization,'ucb')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_create_no_project_id(self):
-        data = {
-            'title': 'Test Project',
-            'description': 'A test project',
-            'pi_emails': 'testuser@test.org,cuuser@cu.edu',
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
-            'organization':'ucb',
-        }
-
-        request = RequestFactory().post('/projects/create',data)
-        request.user = self.user
-        view = ProjectCreateView.as_view()
-        response = view(request)
-        self.assertTrue(response.url.startswith('/projects/list/'))
-        proj = Project.objects.filter(project_id='ucb1')
-        self.assertEqual(proj.count(),1)
-
-        request = RequestFactory().post('/projects/create',data)
-        request.user = self.user
-        view = ProjectCreateView.as_view()
-        response = view(request)
-        self.assertTrue(response.url.startswith('/projects/list/'))
-        proj = Project.objects.filter(project_id='ucb2')
-        self.assertEqual(proj.count(),1)
-
-        data.update({'organization':'csu'})
-        request = RequestFactory().post('/projects/create',data)
-        request.user = self.user
-        view = ProjectCreateView.as_view()
-        response = view(request)
-        self.assertTrue(response.url.startswith('/projects/list/'))
-        proj = Project.objects.filter(project_id='ucb1')
-        self.assertEqual(proj.count(),1)
 
     @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
     def test_project_create_missing_pi_emails(self):
@@ -248,138 +134,7 @@ class ProjectCreateTestCase(BaseCase,CbvCase):
                 **{}
             )
 
-
-# This test case covers the project edit page.
-@mock.patch.object(RcLdapUser, 'objects', RcLdapUserObjectManager)
-class ProjectEditTestCase(BaseCase,CbvCase):
-    def setUp(self):
-        super(ProjectEditTestCase,self).setUp()
-        self.user = User.objects.create(**{
-            'username': 'testuser',
-            'email': 'testr@test.org',
-            'first_name': 'Test',
-            'last_name': 'Requester',
-        })
-        self.proj = Project.objects.create(**{
-            'project_id': 'ucb1',
-            'title': 'Test Project',
-            'description': 'A test project',
-            'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
-            'organization':'ucb',
-        })
-
-    def test_get_unauthed(self):
-        response = self.client.get('/projects/list/{}/edit'.format(self.proj.pk))
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue('/login?next=/projects/' in response.url)
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_update(self):
-        request = RequestFactory().post(
-                '/projects/list/{}/edit'.format(self.proj.pk),
-                data={
-                    'title': 'Test Project Updated',
-                    'description': 'A test project',
-                    'pi_emails': 'testuser@test.org,cuuser@cu.edu,test@test.org',
-                    'managers': ['testuser','testcuuser','testrequester'],
-                    'collaborators': ['testuser','testcuuser'],
-                }
-            )
-        request.user = self.user
-        view = ProjectEditView.as_view()
-        response = view(request)
-
-        self.assertIs(response.__class__, HttpResponseRedirect)
-        self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
-
-        proj = Project.objects.get(project_id='ucb1')
-        self.assertEquals(proj.title,'Test Project Updated')
-        self.assertEquals(proj.description,'A test project')
-        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
-        self.assertEquals(proj.managers,['testuser','testcuuser','testrequester'])
-        self.assertEquals(proj.collaborators,['testuser','testcuuser'])
-        self.assertEquals(proj.organization,'ucb')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_update_removed_self(self):
-        request = RequestFactory().post(
-                '/projects/list/{}/edit'.format(self.proj.pk),
-                data={
-                    'title': 'Test Project Updated',
-                    'description': 'A test project',
-                    'pi_emails': 'testuser@test.org,cuuser@cu.edu,test@test.org',
-                    'managers': ['testcuuser','testrequester'],
-                    'collaborators': ['testuser','testcuuser'],
-                }
-            )
-        request.user = self.user
-        view = ProjectEditView.as_view()
-        response = view(request)
-
-        self.assertIs(response.__class__, HttpResponseRedirect)
-        self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
-
-        proj = Project.objects.get(project_id='ucb1')
-        self.assertEquals(proj.title,'Test Project Updated')
-        self.assertEquals(proj.description,'A test project')
-        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
-        self.assertEquals(proj.managers,['testcuuser','testrequester','testuser'])
-        self.assertEquals(proj.collaborators,['testuser','testcuuser'])
-        self.assertEquals(proj.organization,'ucb')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_update_no_coll_man(self):
-        request = RequestFactory().post(
-                '/projects/list/{}/edit'.format(self.proj.pk),
-                data={
-                    'title': 'Test Project Updated',
-                    'description': 'A test project',
-                    'pi_emails': 'testuser@test.org,cuuser@cu.edu,test@test.org',
-                }
-            )
-        request.user = self.user
-        view = ProjectEditView.as_view()
-        response = view(request)
-
-        self.assertIs(response.__class__, HttpResponseRedirect)
-        self.assertTrue(response.url.startswith('/projects/list/{}/'.format(self.proj.pk)))
-
-        proj = Project.objects.get(project_id='ucb1')
-        self.assertEquals(proj.title,'Test Project Updated')
-        self.assertEquals(proj.description,'A test project')
-        self.assertEquals(proj.pi_emails,['testuser@test.org','cuuser@cu.edu','test@test.org'])
-        self.assertEquals(proj.managers,[u'testuser'])
-        self.assertEquals(proj.collaborators,[])
-        self.assertEquals(proj.organization,'ucb')
-
-    @override_settings(DATABASE_ROUTERS=['lib.router.TestLdapRouter',])
-    def test_project_update_missing_fields(self):
-        request = RequestFactory().post(
-                '/projects/list/{}/edit'.format(self.proj.pk),
-                data={
-                    'managers': ['testcuuser','testrequester'],
-                    'collaborators': ['testuser','testcuuser'],
-                }
-            )
-        request.user = self.user
-        view = ProjectEditView.as_view()
-        response = view(request)
-
-        self.assertEquals(
-                response.context_data['form'].errors['title'],
-                [u'This field is required.']
-            )
-        self.assertEquals(
-                response.context_data['form'].errors['description'],
-                [u'This field is required.']
-            )
-        self.assertEquals(
-                response.context_data['form'].errors['pi_emails'],
-                [u'This field is required.']
-            )
-
+@skip("Functional tests will deprecate.")
 # This test case covers the reference creation page.
 class ReferenceCreateTestCase(CbvCase):
     def setUp(self):
@@ -438,6 +193,7 @@ class ReferenceCreateTestCase(CbvCase):
                 [u'This field is required.']
             )
 
+@skip("Functional tests will deprecate.")
 # This test case covers the reference edit page.
 class ReferenceEditTestCase(CbvCase):
     def setUp(self):
@@ -500,6 +256,7 @@ class ReferenceEditTestCase(CbvCase):
                 [u'This field is required.']
             )
 
+@skip("Functional tests will deprecate.")
 # This test case covers the Allocation Request create page
 class AllocationRequestCreateTestCase(CbvCase):
     def setUp(self):

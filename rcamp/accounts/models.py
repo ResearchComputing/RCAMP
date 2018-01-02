@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
+from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
@@ -9,20 +10,14 @@ import logging
 import datetime
 import pam
 
-from projects.models import Project
-
 from mailer.signals import account_created_from_request
 
 logger = logging.getLogger(__name__)
 
 
 # Create your models here.
-ORGANIZATIONS = (
-    ('ucb','University of Colorado Boulder'),
-    ('csu','Colorado State University'),
-    ('xsede','XSEDE'),
-    ('internal','Internal'),
-)
+ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in settings.ORGANIZATION_INFO.iteritems()])
+
 REQUEST_ROLES = (
     ('student','Student',),
     ('postdoc','Post Doc',),
@@ -41,7 +36,27 @@ SHELL_CHOICES = (
     ('/bin/tcsh','tcsh'),
 )
 
+class User(AbstractUser):
+    @property
+    def organization(self):
+        _, organization = ldap_utils.get_ldap_username_and_org(self.username)
+        return organization
+
+    @property
+    def ldap_username(self):
+        ldap_username, _ = ldap_utils.get_ldap_username_and_org(self.username)
+        return ldap_username
+
+    def get_ldap_user(self):
+        """Return the RcLdapUser associated with this account."""
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username(self.username)
+        return ldap_user
+
+
 class AccountRequest(models.Model):
+    class Meta:
+        unique_together = (('username','organization'),)
+
     STATUSES = (
         ('p','Pending'),
         ('a','Approved'),
@@ -49,14 +64,13 @@ class AccountRequest(models.Model):
         ('i','Incomplete'),
     )
 
-    username = models.CharField(max_length=48, unique=True)
+    username = models.CharField(max_length=48)
     first_name = models.CharField(max_length=128,blank=False,null=False)
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
 
     sponsor_email = models.EmailField(null=True,blank=True)
     course_number = models.CharField(max_length=128,null=True,blank=True)
-    projects = models.ManyToManyField(Project,blank=True)
 
     login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
     resources_requested = models.CharField(max_length=256,blank=True,null=True)
@@ -121,6 +135,9 @@ class IdTracker(models.Model):
                 uid += 1
 
 class LdapUser(ldapdb.models.Model):
+    class Meta:
+        managed = False
+
     rdn_key = 'username'
 
     # inetOrgPerson
@@ -147,6 +164,14 @@ class LdapUser(ldapdb.models.Model):
         abstract=True
 
 class RcLdapUserManager(models.Manager):
+    def get_user_from_suffixed_username(self,suffixed_username):
+        username, organization = ldap_utils.get_ldap_username_and_org(suffixed_username)
+        users = [u for u in self.get_queryset().filter(username=username) if u.organization == organization]
+        user = None
+        if len(users) > 0:
+            user = users[0]
+        return user
+
     def create(self,*args,**kwargs):
         org = kwargs.pop('organization', None)
         obj = self.model(**kwargs)
@@ -184,10 +209,8 @@ class RcLdapUserManager(models.Manager):
         user_fields['uid'] = uid
         user_fields['gid'] = uid
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
-        org_un = user_fields['username']
-        if organization == 'csu':
-            org_un += '@colostate.edu'
-        user_fields['home_directory'] = '/home/%s' % org_un
+        suffixed_username = ldap_utils.get_suffixed_username(user_fields['username'],organization)
+        user_fields['home_directory'] = '/home/%s' % suffixed_username
         user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
 
@@ -201,7 +224,7 @@ class RcLdapUserManager(models.Manager):
             if role == 'faculty':
                 user_fields['role'] = ['pi',role]
             else:
-                user_fields['role'] = [].append(role)
+                user_fields['role'] = [role]
 
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
@@ -224,7 +247,8 @@ class RcLdapUserManager(models.Manager):
             ucb_grps = RcLdapGroup.objects.filter(name=license_grp)
             if ucb_grps.count() > 0:
                 ucb_grp = ucb_grps[0]
-                ucb_grp.members.append(username)
+                # TODO: Extend ldapdb ListField to include an append method.
+                ucb_grp.members = ucb_grp.members + [username]
                 ucb_grp.save(organization='ucb')
 
         return user
@@ -233,6 +257,7 @@ class RcLdapUser(LdapUser):
     class Meta:
         verbose_name = 'LDAP user'
         verbose_name_plural = 'LDAP users'
+        managed = False
 
     def __init__(self,*args,**kwargs):
         super(RcLdapUser,self).__init__(*args,**kwargs)
@@ -240,8 +265,10 @@ class RcLdapUser(LdapUser):
         rdn_list = rdn.split(',')
         self.org = ''
         if len(rdn_list) > 2:
-            self.org = rdn_list[-2]
-            self.base_dn = ','.join([self.org,self.base_dn])
+            ou = rdn_list[-2]
+            __, org = ou.split('=')
+            self.org = org
+            self.base_dn = ','.join([ou,self.base_dn])
 
     objects = RcLdapUserManager()
 
@@ -261,19 +288,25 @@ class RcLdapUser(LdapUser):
     def organization(self):
         return self.org
 
+    @property
+    def effective_uid(self):
+        suffixed_username = ldap_utils.get_suffixed_username(self.username,self.organization)
+        return suffixed_username
+
     def _set_base_dn(self,org):
-        if org in [o[0] for o in ORGANIZATIONS]:
+        if org in settings.ORGANIZATION_INFO.keys():
             ou = 'ou={}'.format(org)
-            self.org = ou
-            if ou not in self.base_dn:
+            self.org = org
+            if ou not in self.base_dn.lower():
                 self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
 
     def save(self,*args,**kwargs):
         org = kwargs.pop('organization', None)
-        if org:
-            self._set_base_dn(org)
+        if not org:
+            raise ValueError('No organization specified.')
+        self._set_base_dn(org)
 
         # If no UID/GID specified, auto-assign
         if (self.uid == None) and (self.gid == None):
@@ -289,6 +322,9 @@ class RcLdapUser(LdapUser):
         super(RcLdapUser,self).save(*args,**kwargs)
 
 class CuLdapUser(LdapUser):
+    class Meta:
+        managed = False
+
     base_dn = settings.LDAPCONFS['culdap']['people_dn']
     object_classes = []
     uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
@@ -304,6 +340,9 @@ class CuLdapUser(LdapUser):
         return authed
 
 class CsuLdapUser(LdapUser):
+    class Meta:
+        managed = False
+
     base_dn = settings.LDAPCONFS['csuldap']['people_dn']
     object_classes = []
 
@@ -328,6 +367,7 @@ class RcLdapGroup(ldapdb.models.Model):
     class Meta:
         verbose_name = 'LDAP group'
         verbose_name_plural = 'LDAP groups'
+        managed = False
 
     def __init__(self,*args,**kwargs):
         super(RcLdapGroup,self).__init__(*args,**kwargs)
@@ -335,8 +375,10 @@ class RcLdapGroup(ldapdb.models.Model):
         rdn_list = rdn.split(',')
         self.org = ''
         if len(rdn_list) > 2:
-            self.org = rdn_list[-2]
-            self.base_dn = ','.join([self.org,self.base_dn])
+            ou = rdn_list[-2]
+            __, org = ou.split('=')
+            self.org = org
+            self.base_dn = ','.join([ou,self.base_dn])
 
     objects = RcLdapGroupManager()
 
@@ -359,18 +401,25 @@ class RcLdapGroup(ldapdb.models.Model):
     def organization(self):
         return self.org
 
+    @property
+    def effective_cn(self):
+        suffixed_name = ldap_utils.get_suffixed_username(self.name,self.organization)
+        return suffixed_name
+
     def _set_base_dn(self,org):
-        if org in [o[0] for o in ORGANIZATIONS]:
+        if org in settings.ORGANIZATION_INFO.keys():
             ou = 'ou={}'.format(org)
-            self.org = ou
-            self.base_dn = ','.join([ou,self.base_dn])
+            self.org = org
+            if ou not in self.base_dn.lower():
+                self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
 
     def save(self,*args,**kwargs):
         org = kwargs.pop('organization', None)
-        if org:
-            self._set_base_dn(org)
+        if not org:
+            raise ValueError('No organization specified.')
+        self._set_base_dn(org)
         force_insert = kwargs.pop('force_insert',None)
 
         # If no GID specified, auto-assign

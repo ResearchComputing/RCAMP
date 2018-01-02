@@ -1,5 +1,3 @@
-from django.test import TestCase
-from django.test import override_settings
 from mock import MagicMock
 import mock
 import copy
@@ -7,22 +5,26 @@ import datetime
 import pytz
 
 from django.conf import settings
+from lib.test.utils import (
+    SafeTestCase,
+    get_auth_user_defaults
+)
 
-from projects.models import Project
-from projects.models import Allocation
-from projects.models import AllocationRequest
+from accounts.models import User
+from projects.models import (
+    Project,
+    Allocation,
+    AllocationRequest
+)
 
 
-
-class ProjectTestCase(TestCase):
+class ProjectTestCase(SafeTestCase):
     def setUp(self):
         self.proj_dict = {
             'project_id': 'ucb1',
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         }
         self.proj1 = Project.objects.create(**self.proj_dict)
@@ -46,15 +48,13 @@ class ProjectTestCase(TestCase):
 
         self.assertEqual(proj.project_id,'ucb11')
 
-class AllocationTestCase(TestCase):
+class AllocationTestCase(SafeTestCase):
     def setUp(self):
         self.proj_dict = {
             'project_id': 'ucb1',
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         }
         self.proj = Project.objects.create(**self.proj_dict)
@@ -80,7 +80,7 @@ class AllocationTestCase(TestCase):
 
         self.assertEqual(alloc.allocation_id,'ucb1_summit3')
 
-class AllocationCreateTestCase(TestCase):
+class AllocationCreateTestCase(SafeTestCase):
     def setUp(self):
         super(AllocationCreateTestCase,self).setUp()
         self.proj = Project.objects.create(**{
@@ -88,8 +88,6 @@ class AllocationCreateTestCase(TestCase):
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         })
         self.ar_dict = {
@@ -129,16 +127,20 @@ class AllocationCreateTestCase(TestCase):
             )
 
 # This test case covers AllocationRequest model functionality.
-class AllocationRequestTestCase(TestCase):
+class AllocationRequestTestCase(SafeTestCase):
     def setUp(self):
         super(AllocationRequestTestCase,self).setUp()
+        ucb_auth_user_defaults = get_auth_user_defaults()
+        self.ucb_auth_user = User.objects.create_user(
+            ucb_auth_user_defaults['username'],
+            ucb_auth_user_defaults['email'],
+            ucb_auth_user_defaults['password']
+        )
         self.proj = Project.objects.create(**{
             'project_id': 'ucb1',
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
-            'managers': ['testuser','testcuuser'],
-            'collaborators': ['testuser','testcuuser'],
             'organization':'ucb',
         })
         self.ar_dict = {
@@ -149,7 +151,7 @@ class AllocationRequestTestCase(TestCase):
             'amount_awarded': 0,
             'disk_space': 1234,
             'software_request': 'none',
-            'requester': 'testuser',
+            'requester': self.ucb_auth_user
         }
         ar = AllocationRequest.objects.create(**self.ar_dict)
 
@@ -157,6 +159,7 @@ class AllocationRequestTestCase(TestCase):
         ar = AllocationRequest.objects.get(project=self.proj)
         test_dict = copy.deepcopy(self.ar_dict)
         del test_dict['project']
+        del test_dict['requester']
         self.assertDictContainsSubset(test_dict,ar._loaded_values)
 
     def test_update_allocation_request(self):

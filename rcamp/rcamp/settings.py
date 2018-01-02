@@ -88,50 +88,6 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     },
-    # Test LDAP configuration
-    'rcldap_test': {
-        'ENGINE': 'ldapdb.backends.ldap',
-        'NAME': 'ldap://localhost',
-        'USER': 'cn=admin,dc=nodomain',
-        'PASSWORD': 'test',
-    },
-    'culdap_test': {
-        'ENGINE': 'ldapdb.backends.ldap',
-        'NAME': 'ldap://localhost',
-        'USER': 'cn=admin,dc=nodomain',
-        'PASSWORD': 'test',
-    },
-}
-
-LDAPCONFS = {
-    'rcldap': {
-        'server': DATABASES['rcldap_test']['NAME'],
-        'bind_dn': DATABASES['rcldap_test']['USER'],
-        'bind_pw': DATABASES['rcldap_test']['PASSWORD'],
-        'base_dn': '',
-        'people_dn': '',
-        'ucb_dn': '',
-        'csu_dn': '',
-        'xsede_dn': '',
-        'internal_dn': '',
-        'group_dn': '',
-    },
-    'culdap': {
-        'server': DATABASES['culdap_test']['NAME'],
-        'bind_dn': DATABASES['culdap_test']['USER'],
-        'bind_pw': DATABASES['culdap_test']['PASSWORD'],
-        'base_dn': '',
-        'group_dn': '',
-        'people_dn': '',
-    },
-    'csuldap': {
-        'server': DATABASES['culdap_test']['NAME'],
-        'bind_dn': DATABASES['culdap_test']['USER'],
-        'bind_pw': DATABASES['culdap_test']['PASSWORD'],
-        'base_dn': '',
-        'group_dn': '',
-        'people_dn': '',
-    },
 }
 
 DATABASE_ROUTERS = ['lib.router.LdapRouter',]
@@ -142,6 +98,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'lib.pam_backend.PamBackend',
 )
+
+AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_URL = '/login'
 
@@ -189,6 +147,25 @@ PAM_SERVICES = {
 
 LICENSE_GROUPS = {
     'ucb': 'ucb'
+}
+
+ORGANIZATION_INFO = {
+    'ucb': {
+        'long_name': 'University of Colorado Boulder',
+        'suffix': None
+    },
+    'csu': {
+        'long_name': 'Colorado State University',
+        'suffix': 'colostate.edu'
+    },
+    'xsede': {
+        'long_name': 'XSEDE',
+        'suffix': 'xsede.org'
+    },
+    'internal': {
+        'long_name': 'Research Computing - Administrative',
+        'suffix': None
+    }
 }
 
 try:
