@@ -232,6 +232,8 @@ class ProjectEndpointTestCase(SafeTestCase):
         self.proj3.managers.add(self.ucb_auth_user)
         self.proj3.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
+        self.client.login(username=self.ucb_auth_user.username, password="password")
+
     def test_proj_list(self):
         res = self.client.get('/api/projects/')
         self.assertEquals(res.status_code, 200)
@@ -276,8 +278,16 @@ class ProjectEndpointTestCase(SafeTestCase):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_proj_post(self):
-        res = self.client.post('/api/projects/')
-        self.assertEquals(res.status_code, 405)
+        proj_dict = dict(
+            pi_emails='["pi@pi.org"]',
+            organization='ucb',
+            title='Test Project',
+            description='A description.',
+            project_id='ucb14',
+            qos_addenda='+=viz'
+        )
+        res = self.client.post('/api/projects/', data=proj_dict)
+        self.assertEquals(res.status_code, 201)
 
     def test_proj_detail(self):
         res = self.client.get('/api/projects/ucb1/')
@@ -405,6 +415,8 @@ class AllocationEndpointTestCase(SafeTestCase):
         self.alloc3 = Allocation.objects.create(**alloc_dict)
         self.alloc3.created_on = datetime.datetime(2016,06,01)
         self.alloc3.save()
+
+        self.client.login(username=self.ucb_auth_user.username, password="password")
 
     def test_alloc_list(self):
         res = self.client.get('/api/allocations/')
