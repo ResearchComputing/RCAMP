@@ -162,6 +162,10 @@ ORGANIZATION_INFO = {
         'long_name': 'XSEDE',
         'suffix': 'xsede.org'
     },
+    'ncar': {
+        'long_name': 'NCAR',
+        'suffix': 'ncar.ucar.edu'
+    },
     'internal': {
         'long_name': 'Research Computing - Administrative',
         'suffix': None
