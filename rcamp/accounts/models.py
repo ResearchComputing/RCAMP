@@ -190,8 +190,7 @@ class RcLdapUserManager(models.Manager):
         if email is not None:
             email = str(email).strip()
         organization = kwargs.get('organization')
-        login_shell = kwargs.get('login_shell')
-        if not all([username,first_name,last_name,email,organization,login_shell]):
+        if not all([username,first_name,last_name,email,organization]):
             raise TypeError('Missing required field.')
 
         id_tracker = IdTracker.objects.get(category='posix')
@@ -211,7 +210,6 @@ class RcLdapUserManager(models.Manager):
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         suffixed_username = ldap_utils.get_suffixed_username(user_fields['username'],organization)
         user_fields['home_directory'] = '/home/%s' % suffixed_username
-        user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
 
         role = kwargs.get('role')

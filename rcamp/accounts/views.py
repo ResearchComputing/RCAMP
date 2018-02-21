@@ -3,102 +3,58 @@ from django.views.generic.edit import FormView
 from django.views.generic.base import ContextMixin
 from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
-from accounts.models import AccountRequest
-from accounts.models import CuLdapUser
-from accounts.models import CsuLdapUser
-from accounts.forms import AccountRequestForm
-from accounts.forms import SponsoredAccountRequestForm
-from accounts.forms import ClassAccountRequestForm
+from accounts.models import (
+    AccountRequest,
+    CuLdapUser,
+    CsuLdapUser
+)
+from accounts.forms import (
+    AccountRequestUcbForm,
+    AccountRequestIntentForm
+)
 from mailer.signals import account_request_received
 
 
-# Create your views here.
-class ReasonView(TemplateView):
-    template_name = 'reason.html'
+
+class OrgSelectView(TemplateView):
+    template_name = 'org-select.html'
 
     def get_context_data(self, **kwargs):
-        context = super(ReasonView,self).get_context_data(**kwargs)
+        context = super(OrgSelectView,self).get_context_data(**kwargs)
         return context
 
-class AccountRequestCreateView(FormView):
-    template_name = 'account-request-create.html'
-    form_class = AccountRequestForm
+
+class AccountRequestCreateUcbView(FormView):
+    template_name = 'account-request-create-ucb.html'
+    form_class = AccountRequestUcbForm
 
     def form_valid(self, form):
-        org = form.cleaned_data.get('organization')
-        un = form.cleaned_data.get('username')
-        if org == 'ucb':
-            user = CuLdapUser.objects.get(username=un)
-        elif org == 'csu':
-            user = CsuLdapUser.objects.get(username=un)
-        elif org =='xsede':
-            pass
-        login_shell = form.cleaned_data.get('login_shell')
+        organization = 'ucb'
+        username = form.cleaned_data.get('username')
+        user = CuLdapUser.objects.get(username=username)
+        # TODO: Automatically discern role from LDAP record
         role = form.cleaned_data.get('role')
 
-        res_list = []
-        for k in ['blanca','summit','petalibrary_active','petalibrary_archive',]:
-            if form.cleaned_data.get(k):
-                res_list.append(k)
+        account_request_dict = dict(
+            username = user.username,
+            first_name = user.first_name,
+            last_name = user.last_name,
+            email = user.email,
+            role = role,
+            organization = organization,
+        )
 
-        if not hasattr(self, 'ar_dict'):
-            self.ar_dict = {}
-        self.ar_dict.update({
-            'username': user.username,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'role': role,
-            'organization': org,
-            'login_shell': login_shell,
-            'resources_requested': ','.join(res_list),
-        })
+        self.request.session['account_request_dict'] = account_request_dict
 
-        ar, created = AccountRequest.objects.get_or_create(**self.ar_dict)
-        account_request_received.send(sender=ar.__class__,account_request=ar)
+        # account_request = AccountRequest.objects.create(**self.account_request_dict)
+        # account_request_received.send(sender=account_request.__class__,account_request=account_request)
 
-        # Auto-approve CSU requests
-        if org == 'csu':
-            #Force AR to load from db
-            ar_loaded = AccountRequest.objects.get(username=user.username,organization=org)
+        self.success_url = reverse_lazy('accounts:account-request-intent')
+        return super(AccountRequestCreateUcbView,self).form_valid(form)
 
-            ar_loaded.status = 'a'
-            ar_loaded.save()
-
-        self.success_url = reverse_lazy('accounts:account-request-review', kwargs={'request_id':ar.id})
-        return super(AccountRequestCreateView,self).form_valid(form)
-
-class SponsoredAccountRequestCreateView(AccountRequestCreateView):
-    template_name = 'sponsored-account-request-create.html'
-    form_class = SponsoredAccountRequestForm
+class AccountRequestIntentView(FormView):
+    template_name = 'account-request-intent.html'
+    form_class = AccountRequestIntentForm
 
     def form_valid(self, form):
-        sponsor_email = form.cleaned_data.get('sponsor_email')
-        if not hasattr(self, 'ar_dict'):
-            self.ar_dict = {}
-        self.ar_dict['sponsor_email'] = sponsor_email
-        return super(SponsoredAccountRequestCreateView,self).form_valid(form)
-
-class ClassAccountRequestCreateView(AccountRequestCreateView):
-    template_name = 'class-account-request-create.html'
-    form_class = ClassAccountRequestForm
-
-    def form_valid(self, form):
-        course_number = form.cleaned_data.get('course_number')
-        if not hasattr(self, 'ar_dict'):
-            self.ar_dict = {}
-        self.ar_dict['course_number'] = course_number
-        return super(ClassAccountRequestCreateView,self).form_valid(form)
-
-class AccountRequestReviewView(TemplateView):
-    template_name = 'account-request-review.html'
-
-    def get_context_data(self, **kwargs):
-        request_id = kwargs.get('request_id')
-        try:
-            context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
-            ar = AccountRequest.objects.get(id=request_id)
-            context['account_request'] = ar
-            return context
-        except AccountRequest.DoesNotExist:
-            raise Http404('Account Request not found.')
+        pass

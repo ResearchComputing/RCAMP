@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Request Account{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/account-request.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Request a Research Computing account.</p>
+{% endblock %}
+
+{% block jumbotron_button %}
+<p><a data-toggle="modal" href="#helpmodal"
+      class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
+{% endblock %}
+
+{% block modal_title %}
+<h2 class="modal-title">Terms &amp; Conditions</h2>
+{% endblock %}
+
+{% block modal_body %}
+{% include "terms-and-conditions.html" %}
+{% endblock %}
+
+{% block container %}
+<div class="mailto-help">
+    Don't see your organization?
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request">
+        Contact us.
+    </a>
+</div>
+
+<legend>Please select your organization to begin.</legend>
+
+<div class="list-group">
+  <a href="{% url 'accounts:account-request-create-ucb' %}" class="list-group-item">
+    <h4 class="list-group-item-heading">University of Colorado Boulder</h4>
+    <p class="list-group-item-text">
+      You will be asked to verify your identity with your CU IdentiKey username and password.
+    </p>
+  </a>
+  <a href="{% url 'accounts:account-request-create-csu' %}" class="list-group-item">
+    <h4 class="list-group-item-heading">Colorado State University</h4>
+    <p class="list-group-item-text">
+      You will be asked to verify your identity with your CSU EID username and password.
+    </p>
+  </a>
+</div>
+{% endblock %}
