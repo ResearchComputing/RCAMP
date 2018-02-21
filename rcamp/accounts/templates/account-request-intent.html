@@ -61,78 +61,59 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     {% csrf_token %}
 
     <fieldset>
-        <legend>Verify with your organization credentials</legend>
-        {% if form.username.errors %}
-        <div class="form-group has-error has-feedback">
-        {% else %}
-        <div class="form-group">
-        {% endif %}
-            <div class="col-sm-12">
-              <p id="ucb-login-help"><i class="fa fa-info-circle" aria-hidden="true"></i> Verify your identity with your CU IdentiKey username and password.</p>
-            </div>
-            <label class="col-sm-2 control-label" for="id_username">IdentiKey Username</label>
-            <div class="col-sm-8">
-                <input id="id_username" type="text" name="username" class="form-control"
-                {% if form.username.value %}value="{{ form.username.value }}"{% endif %}
-                maxlength="256" />
-                {% if form.username.errors %}
-                <div class="alert alert-danger alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.username.errors }}</strong>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+      <legend>Why are you requesting a Research Computing account?</legend>
+      <p id="ucb-login-help">Select all that apply.</p>
 
-        {% if form.password.errors %}
-        <div class="form-group has-error has-feedback">
-        {% else %}
-        <div class="form-group">
-        {% endif %}
-            <label class="col-sm-2 control-label" for="id_password">IdentiKey Password</label>
-            <div class="col-sm-8">
-                <input id="id_password" type="password" name="password" class="form-control"
-                {% if form.password.value %}value="{{ form.password.value }}"{% endif %}
-                maxlength="256" />
-                {% if form.password.errors %}
-                <div class="alert alert-danger alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.password.errors }}</strong>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </fieldset>
-
-    <fieldset>
-        <legend>What is your role?</legend>
-        {% if form.role.errors %}
-        <div class="form-group has-error has-feedback">
-        {% else %}
-        <div class="form-group">
-          <div class="col-sm-12">
-            <p id="ucb-login-help">Select the role that best describes you.</p>
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_summit" type="checkbox">
+          I would like to run high-performance compute jobs on the <strong>Summit Supercomputer</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
+        </label>
+      </div>
+      <br />
+      {% if form.additional_summit_pi_email.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+          <label class="col-sm-2 control-label" for="id_additional_summit_pi_email">PI Email</label>
+          <div class="col-sm-8">
+              <input id="id_additional_summit_pi_email" type="text" name="additional_summit_pi_email" class="form-control"
+              {% if form.additional_summit_pi_email.value %}value="{{ form.additional_summit_pi_email.value }}"{% endif %}
+              maxlength="256" />
+              {% if form.additional_summit_pi_email.errors %}
+              <div class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>{{ form.additional_summit_pi_email.errors }}</strong>
+              </div>
+              {% endif %}
           </div>
-        {% endif %}
-            <label class="col-sm-2 control-label" for="id_role">Role</label>
-            <div class="col-sm-8">
-                <select name="role" id="id_role" class="form-control">
-                    {% for value, disp in form.role.field.choices %}
-                    <option value="{{ value }}">{{ disp }}</option>
-                    {% endfor %}
-                </select>
-                {% if form.role.errors %}
-                <div class="alert alert-danger alert-dismissable">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.role.errors }}</strong>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_course" type="checkbox">
+          I am enrolled in a course that requires access to Research Computing resources.
+        </label>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_petalibrary" type="checkbox">
+          My research group has purchased <strong>PetaLibrary</strong> space that I plan to use, or I plan to purchase Petalibrary space for my project. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a>
+        </label>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_blanca" type="checkbox">
+          My research group has purchased nodes in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a>
+        </label>
+      </div>
     </fieldset>
 
     <div class="col-sm-2 col-sm-offset-5 request-submit">
-        <button type="submit" class="btn btn-primary btn-lg">Continue &raquo;</button>
+      <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
     </div>
 </form>
 {% endblock %}
