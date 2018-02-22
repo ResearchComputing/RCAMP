@@ -66,7 +66,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_summit" type="checkbox">
+          <input id="id_reason_summit" class="reason-checkbox" type="checkbox">
           I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
         </label>
       </div>
@@ -141,7 +141,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_course" type="checkbox">
+          <input id="id_reason_course" class="reason-checkbox" type="checkbox">
           I am enrolled in a course that requires access to Research Computing resources.
         </label>
       </div>
@@ -196,14 +196,14 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_petalibrary" type="checkbox">
+          <input id="id_reason_petalibrary" class="reason-checkbox" type="checkbox">
           My research group has purchased <strong>PetaLibrary</strong> space that I plan to use, or I plan to purchase Petalibrary space for my project. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a>
         </label>
       </div>
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_blanca" type="checkbox">
+          <input id="id_reason_blanca" class="reason-checkbox" type="checkbox">
           My research group has purchased nodes in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a>
         </label>
       </div>
@@ -243,8 +243,14 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
           isFormValid = false;
         }
       });
+      var allUnchecked = true;
+      $('.reason-checkbox').each(function() {
+        if ($(this).is(':checked')) {
+          allUnchecked = false;
+        }
+      });
       var submitButton = $('#intent-form-submit');
-      if (!isFormValid) {
+      if (!isFormValid||allUnchecked) {
         submitButton.attr('disabled','disabled');
       } else {
         submitButton.removeAttr('disabled');
@@ -252,6 +258,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     };
 
     $('#intent-form').keyup(validateForm);
+    $('#id_reason_summit,#id_reason_course').change(validateForm);
 
   });
 </script>
