@@ -19,11 +19,14 @@ logger = logging.getLogger(__name__)
 ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in settings.ORGANIZATION_INFO.iteritems()])
 
 REQUEST_ROLES = (
-    ('student','Student',),
+    ('undergraduate','Undergraduate',),
+    ('graduate','Graduate',),
     ('postdoc','Post Doc',),
+    ('instructor','Instructor',),
     ('faculty','Faculty',),
+    ('affiliated_faculty','Affiliated Faculty',),
     ('staff','Staff',),
-    ('sponsored','Sponsored Affiliate',)
+    ('sponsored','Sponsored Affiliate',),
 )
 
 ROLES = REQUEST_ROLES + (
@@ -69,20 +72,24 @@ class AccountRequest(models.Model):
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
 
-    sponsor_email = models.EmailField(null=True,blank=True)
-    course_number = models.CharField(max_length=128,null=True,blank=True)
-
-    login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
-    resources_requested = models.CharField(max_length=256,blank=True,null=True)
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
-    role = models.CharField(max_length=24,choices=REQUEST_ROLES,default='student')
+    department = models.CharField(max_length=128,blank=True,null=True)
+    role = models.CharField(max_length=24,choices=REQUEST_ROLES,default='undergraduate')
 
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField(null=True,blank=True)
     id_verified_by = models.CharField(max_length=128,blank=True,null=True)
 
+    intent = models.ForeignKey('Intent',null=True)
+
     request_date = models.DateTimeField(auto_now_add=True)
+
+    # TODO: Deprecate these fields, as they are now represented in the Intent object
+    login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
+    resources_requested = models.CharField(max_length=256,blank=True,null=True)
+    sponsor_email = models.EmailField(blank=True,null=True)
+    course_number = models.CharField(max_length=128,blank=True,null=True)
 
     def __unicode__(self):
         return '%s_%s'%(self.username,self.request_date)
@@ -99,11 +106,19 @@ class AccountRequest(models.Model):
                 last_name=self.last_name,
                 email=self.email,
                 organization=self.organization,
-                login_shell=self.login_shell,
                 role=self.role
             )
             account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
+
+class Intent(models.Model):
+    resources_requested = models.TextField(blank=True,null=True)
+    sponsor_email = models.EmailField(blank=True,null=True)
+    course_instructor_email = models.EmailField(blank=True,null=True)
+    course_number = models.CharField(max_length=128,blank=True,null=True)
+    summit_description = models.TextField(null=True,blank=True)
+    summit_funding = models.TextField(null=True,blank=True)
+    summit_pi_email = models.EmailField(blank=True,null=True)
 
 class IdTracker(models.Model):
     class Meta:
@@ -219,7 +234,7 @@ class RcLdapUserManager(models.Manager):
                 today = datetime.date.today()
                 expiration_date = today.replace(year=today.year+1)
                 user_fields['expires'] = date_to_sp_expire(expiration_date)
-            if role == 'faculty':
+            if role in ['faculty','affiliated_faculty']:
                 user_fields['role'] = ['pi',role]
             else:
                 user_fields['role'] = [role]
@@ -275,7 +290,7 @@ class RcLdapUser(LdapUser):
     expires = ldap_fields.IntegerField(db_column='shadowExpire',blank=True,null=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber',null=True,blank=True)
     gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
-    gecos =  ldap_fields.CharField(db_column='gecos',default='')
+    gecos = ldap_fields.CharField(db_column='gecos',default='')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
     #curcPerson attributes

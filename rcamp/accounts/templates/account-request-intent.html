@@ -67,16 +67,41 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
       <div class="checkbox">
         <label>
           <input id="id_reason_summit" type="checkbox">
-          I would like to run high-performance compute jobs on the <strong>Summit Supercomputer</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
+          I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
         </label>
       </div>
+
       <br />
+
+      {% if form.additional_summit_description.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+          <label class="col-sm-2 control-label" for="id_additional_summit_description">
+            <dt>Description</dt>
+            <dd>(required)</dd>
+          </label>
+          <div class="col-sm-8">
+            <textarea id="id_additional_summit_description" name="additional_summit_description" class="form-control" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" />{% if form.additional_summit_description.value %}{{ form.additional_summit_description.value }}{% endif %}</textarea>
+            {% if form.additional_summit_description.errors %}
+            <div class="alert alert-danger alert-dismissable">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <strong>{{ form.additional_summit_description.errors }}</strong>
+            </div>
+            {% endif %}
+          </div>
+      </div>
+
       {% if form.additional_summit_pi_email.errors %}
       <div class="form-group has-error has-feedback">
       {% else %}
       <div class="form-group">
       {% endif %}
-          <label class="col-sm-2 control-label" for="id_additional_summit_pi_email">PI Email</label>
+          <label class="col-sm-2 control-label" for="id_additional_summit_pi_email">
+            <dt>PI Email</dt>
+            <dd>(optional)</dd>
+          </label>
           <div class="col-sm-8">
               <input id="id_additional_summit_pi_email" type="text" name="additional_summit_pi_email" class="form-control"
               {% if form.additional_summit_pi_email.value %}value="{{ form.additional_summit_pi_email.value }}"{% endif %}
@@ -90,11 +115,101 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
           </div>
       </div>
 
+      {% if form.additional_summit_funding.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+          <label class="col-sm-2 control-label" for="id_additional_summit_funding">
+            <dt>Funding</dt>
+            <dd>(optional)</dd>
+          </label>
+          <div class="col-sm-8">
+              <input id="id_additional_summit_funding" type="text" name="additional_summit_funding" class="form-control"
+              {% if form.additional_summit_funding.value %}value="{{ form.additional_summit_funding.value }}"{% endif %}
+              maxlength="1024" placeholder="Agency, Grant Number, etc."/>
+              {% if form.additional_summit_funding.errors %}
+              <div class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>{{ form.additional_summit_funding.errors }}</strong>
+              </div>
+              {% endif %}
+          </div>
+      </div>
+
+      {% if form.additional_summit_title.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+          <label class="col-sm-2 control-label" for="id_additional_summit_title">
+            <dt>Project Title</dt>
+            <dd>(optional)</dd>
+          </label>
+          <div class="col-sm-8">
+              <input id="id_additional_summit_title" type="text" name="additional_summit_title" class="form-control"
+              {% if form.additional_summit_title.value %}value="{{ form.additional_summit_title.value }}"{% endif %}
+              maxlength="1024" />
+              {% if form.additional_summit_title.errors %}
+              <div class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>{{ form.additional_summit_title.errors }}</strong>
+              </div>
+              {% endif %}
+          </div>
+      </div>
+
       <div class="checkbox">
         <label>
           <input id="id_reason_course" type="checkbox">
           I am enrolled in a course that requires access to Research Computing resources.
         </label>
+      </div>
+
+      <br />
+
+      {% if form.additional_summit_title.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+          <label class="col-sm-2 control-label" for="id_additional_summit_title">
+            <dt>Project Title</dt>
+            <dd>(optional)</dd>
+          </label>
+          <div class="col-sm-8">
+              <input id="id_additional_summit_title" type="text" name="additional_summit_title" class="form-control"
+              {% if form.additional_summit_title.value %}value="{{ form.additional_summit_title.value }}"{% endif %}
+              maxlength="1024" />
+              {% if form.additional_summit_title.errors %}
+              <div class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>{{ form.additional_summit_title.errors }}</strong>
+              </div>
+              {% endif %}
+          </div>
+      </div>
+
+      {% if form.additional_summit_title.errors %}
+      <div class="form-group has-error has-feedback">
+      {% else %}
+      <div class="form-group">
+      {% endif %}
+          <label class="col-sm-2 control-label" for="id_additional_summit_title">
+            <dt>Project Title</dt>
+            <dd>(optional)</dd>
+          </label>
+          <div class="col-sm-8">
+              <input id="id_additional_summit_title" type="text" name="additional_summit_title" class="form-control"
+              {% if form.additional_summit_title.value %}value="{{ form.additional_summit_title.value }}"{% endif %}
+              maxlength="1024" />
+              {% if form.additional_summit_title.errors %}
+              <div class="alert alert-danger alert-dismissable">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                  <strong>{{ form.additional_summit_title.errors }}</strong>
+              </div>
+              {% endif %}
+          </div>
       </div>
 
       <div class="checkbox">

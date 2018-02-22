@@ -13,33 +13,32 @@ from accounts.models import (
 
 class AccountRequestUcbForm(forms.Form):
     username = forms.CharField(max_length=48,required=True)
-    password = forms.CharField(max_length=255,widget=forms.PasswordInput)
-
-    role = forms.ChoiceField(choices=REQUEST_ROLES)
+    password = forms.CharField(max_length=255,widget=forms.PasswordInput,required=True)
+    department = forms.CharField(max_length=128,required=True)
+    role = forms.ChoiceField(choices=REQUEST_ROLES,required=True)
 
     @sensitive_variables('pw')
     def clean(self):
         cleaned_data = super(AccountRequestUcbForm,self).clean()
-        un = cleaned_data.get('username')
-        pw = cleaned_data.get('password')
-        org = 'ucb'
-        ars = AccountRequest.objects.filter(username=un)
-        for ar in ars:
-            if org == ar.organization:
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+        organization = 'ucb'
+        account_requests = AccountRequest.objects.filter(username=username)
+        for aaccount_request in account_requests:
+            if org == aaccount_request.organization:
                 raise forms.ValidationError(
-                    'An account request has already been submitted for {}'.format(un)
+                    'An account request has already been submitted for {}'.format(username)
                 )
         try:
-            # rcu = RcLdapUser.objects.filter(username=un)
-            # for u in rcu:
-            #     user_org = u.org.split('=')[-1]
-            #     if org == user_org.lower():
+            # rc_users = RcLdapUser.objects.filter(username=username)
+            # for user in rc_users:
+            #     if org == user.organization.lower():
             #         raise forms.ValidationError(
-            #             'An account already exists with username {}'.format(un)
+            #             'An account already exists with username {}'.format(username)
             #         )
             # authed = False
             authed = True
-            user = CuLdapUser.objects.get(username=un)
+            cu_user = CuLdapUser.objects.get(username=username)
             # authed = user.authenticate(pw)
             if not authed:
                 raise forms.ValidationError('Invalid password')

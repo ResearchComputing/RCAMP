@@ -31,24 +31,25 @@ class AccountRequestCreateUcbView(FormView):
     def form_valid(self, form):
         organization = 'ucb'
         username = form.cleaned_data.get('username')
-        user = CuLdapUser.objects.get(username=username)
-        # TODO: Automatically discern role from LDAP record
+        cu_user = CuLdapUser.objects.get(username=username)
+        department = form.cleaned_data.get('department')
         role = form.cleaned_data.get('role')
 
         account_request_dict = dict(
-            username = user.username,
-            first_name = user.first_name,
-            last_name = user.last_name,
-            email = user.email,
+            username = cu_user.username,
+            first_name = cu_user.first_name,
+            last_name = cu_user.last_name,
+            email = cu_user.email,
+            department = department,
             role = role,
             organization = organization,
         )
 
+        # Auto-approve eligible users
+        if cu_user.edu_affiliation.lower() in ['student','staff','faculty']:
+            account_request_dict['status'] = 'a'
+
         self.request.session['account_request_dict'] = account_request_dict
-
-        # account_request = AccountRequest.objects.create(**self.account_request_dict)
-        # account_request_received.send(sender=account_request.__class__,account_request=account_request)
-
         self.success_url = reverse_lazy('accounts:account-request-intent')
         return super(AccountRequestCreateUcbView,self).form_valid(form)
 
