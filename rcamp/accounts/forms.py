@@ -59,7 +59,6 @@ class AccountRequestIntentForm(forms.Form):
 
     # Summit additional info
     additional_summit_pi_email = forms.EmailField(required=False)
-    additional_summit_title = forms.CharField(max_length=128,required=False)
     additional_summit_funding = forms.CharField(widget=forms.Textarea,required=False)
     additional_summit_description = forms.CharField(widget=forms.Textarea,required=False)
 

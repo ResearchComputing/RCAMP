@@ -5,3 +5,8 @@
 div.request-submit {
   margin-top: 20px;
 }
+
+.additional-info-form {
+  display: none;
+  margin-top: 20px;
+}
