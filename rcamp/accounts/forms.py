@@ -11,7 +11,7 @@ from accounts.models import (
 
 
 
-class AccountRequestUcbForm(forms.Form):
+class AccountRequestVerifyUcbForm(forms.Form):
     username = forms.CharField(max_length=48,required=True)
     password = forms.CharField(max_length=255,widget=forms.PasswordInput,required=True)
     department = forms.CharField(max_length=128,required=True)
@@ -24,8 +24,8 @@ class AccountRequestUcbForm(forms.Form):
         password = cleaned_data.get('password')
         organization = 'ucb'
         account_requests = AccountRequest.objects.filter(username=username)
-        for aaccount_request in account_requests:
-            if org == aaccount_request.organization:
+        for account_request in account_requests:
+            if org == account_request.organization:
                 raise forms.ValidationError(
                     'An account request has already been submitted for {}'.format(username)
                 )
@@ -52,10 +52,10 @@ class AccountRequestUcbForm(forms.Form):
 
 
 class AccountRequestIntentForm(forms.Form):
-    reason_summit = forms.BooleanField()
-    reason_course = forms.BooleanField()
-    reason_petalibrary = forms.BooleanField()
-    reason_blanca = forms.BooleanField()
+    reason_summit = forms.BooleanField(required=False)
+    reason_course = forms.BooleanField(required=False)
+    reason_petalibrary = forms.BooleanField(required=False)
+    reason_blanca = forms.BooleanField(required=False)
 
     # Summit additional info
     additional_summit_pi_email = forms.EmailField(required=False)
@@ -65,18 +65,3 @@ class AccountRequestIntentForm(forms.Form):
     # Course follow-up
     additional_course_instructor_email = forms.EmailField(required=False)
     additional_course_number = forms.CharField(max_length=48,required=False)
-
-    def clean(self):
-        super(AccountRequestIntentForm,self).clean()
-        # import pdb;pdb.set_trace()
-        reason_summit = self.cleaned_data.get('reason_summit')
-        reason_course = self.cleaned_data.get('reason_course')
-        # Remove potentially incomplete fields
-        if not reason_summit:
-            self.cleaned_data.pop('additional_summit_pi_email',None)
-            self.cleaned_data.pop('additional_summit_funding',None)
-            self.cleaned_data.pop('additional_summit_description',None)
-        if not reason_course:
-            self.cleaned_data.pop('additional_course_instructor_email',None)
-            self.cleaned_data.pop('additional_course_course_number',None)
-        return self.cleaned_data

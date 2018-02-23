@@ -218,6 +218,15 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block extra_js %}
 <script>
   $(document).ready(function() {
+
+    var hideAdditionalForm = function(formElement) {
+      formElement.find('input,textarea').each(function() {
+        // Remove potentially incomplete inputs that would otherwise prevent validation.
+        this.value = '';
+      });
+      formElement.hide();
+    };
+
     var updateFormDisplay = function() {
       var resources = ['summit','course'];
       $.each(resources,function(index,resourceName) {
@@ -226,10 +235,10 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
         if (resourceCheckbox.is(':checked')) {
           additionalForm.show();
         } else {
-          additionalForm.hide();
+          hideAdditionalForm(additionalForm);
         }
       });
-    }
+    };
 
     var validateForm = function () {
       var isFormValid = true;
@@ -254,7 +263,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
     $('#id_reason_summit,#id_reason_course').change(updateFormDisplay);
     $('#intent-form').keyup(validateForm);
-    $('#id_reason_summit,#id_reason_course').change(validateForm);
+    $('.reason-checkbox').change(validateForm);
     updateFormDisplay();
     validateForm();
 

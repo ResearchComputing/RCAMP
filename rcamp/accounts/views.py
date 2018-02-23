@@ -10,24 +10,24 @@ from accounts.models import (
     CsuLdapUser
 )
 from accounts.forms import (
-    AccountRequestUcbForm,
+    AccountRequestVerifyUcbForm,
     AccountRequestIntentForm
 )
 from mailer.signals import account_request_received
 
 
 
-class OrgSelectView(TemplateView):
-    template_name = 'org-select.html'
+class AccountRequestOrgSelectView(TemplateView):
+    template_name = 'account-request-org-select.html'
 
     def get_context_data(self, **kwargs):
-        context = super(OrgSelectView,self).get_context_data(**kwargs)
+        context = super(AccountRequestOrgSelectView,self).get_context_data(**kwargs)
         return context
 
 
-class AccountRequestCreateUcbView(FormView):
-    template_name = 'account-request-create-ucb.html'
-    form_class = AccountRequestUcbForm
+class AccountRequestVerifyUcbView(FormView):
+    template_name = 'account-request-verify-ucb.html'
+    form_class = AccountRequestVerifyUcbForm
 
     def _check_autoapprove_eligibility(self, user_affiliation):
         """
@@ -64,7 +64,8 @@ class AccountRequestCreateUcbView(FormView):
 
         self.request.session['account_request_dict'] = account_request_dict
         self.success_url = reverse_lazy('accounts:account-request-intent')
-        return super(AccountRequestCreateUcbView,self).form_valid(form)
+        return super(AccountRequestVerifyUcbView,self).form_valid(form)
+
 
 class AccountRequestIntentView(FormView):
     template_name = 'account-request-intent.html'
@@ -104,3 +105,17 @@ class AccountRequestIntentView(FormView):
 
         self.success_url = reverse_lazy('accounts:account-request-review',kwargs={'request_id':account_request.id})
         return super(AccountRequestIntentView,self).form_valid(form)
+
+
+class AccountRequestReviewView(TemplateView):
+    template_name = 'account-request-review.html'
+
+    def get_context_data(self, **kwargs):
+        request_id = kwargs.get('request_id')
+        try:
+            context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
+            ar = AccountRequest.objects.get(id=request_id)
+            context['account_request'] = ar
+            return context
+        except AccountRequest.DoesNotExist:
+            raise Http404('Account Request not found.')
