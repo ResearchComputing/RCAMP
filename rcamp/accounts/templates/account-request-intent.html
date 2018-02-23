@@ -21,12 +21,20 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block modal_body %}
 <ul class="list-group">
     <li class="list-group-item">
-        <strong>Organization Credentials</strong>
-        <p>The request form requires that you successfully authenticate against
-          the organization with which you are affiliated to verify your identity.
-          The organization credentials should be the username/password pair you
-          to access your organization's resources.
-        </p>
+      <strong>Summit supercomputing cluster (2016)</strong>
+      <p>Summit is a heterogeneous supercomputing cluster based primarily on the Intel Xeon "Haswell" CPU, with secondary NVidia Tesla K80 and high-memory resources and, in the future, an Intel Xeon Phi "knights landing" MIC resource. It replaces Janus as Research Computing's flagship computational resource. All nodes sit on a first-generation Intel Omni-Path Architecture interconnect which also provides access to an IBM GPFS Parallel scratch file system. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a></p>
+    </li>
+    <li class="list-group-item">
+      <strong>Blanca "condo" compute cluster</strong>
+      <p>The Research Computing Condo Computing service offers researchers the opportunity to purchase and own compute nodes that will be operated as part of the Blanca compute cluster. The aggregate cluster is made available to all condo partners while maintaining priority for the owner of each node. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a></p>
+    </li>
+    <li class="list-group-item">
+      <strong>PetaLibrary/active disk storage</strong>
+      <p>The PetaLibrary/active storage service is mounted at <code>/work/</code> on all Research Computing computational systems. This storage may be used by compute workloads, but it is not designed to be performant under I/O-intensive applications or parallel writes. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a></p>
+    </li>
+    <li class="list-group-item">
+      <strong>PetaLibrary/archive long-term disk+tape storage</strong>
+      <p>PetaLibrary/archive is a hierarchical storage system that dynamically and simultaneously manages data on both disk and tape storage systems while presenting all data as part of a single, unified filesystem namespace. This provides good performance when accessing frequently-used data while remaining cost-effective for storing large quantities of archive data. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a></p>
     </li>
 </ul>
 {% endblock %}
