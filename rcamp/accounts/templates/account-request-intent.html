@@ -66,7 +66,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_summit" class="reason-checkbox" type="checkbox">
+          <input id="id_reason_summit" class="reason-checkbox" type="checkbox" name="reason_summit" {% if form.reason_summit.value %}checked{% endif %}>
           I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
         </label>
       </div>
@@ -83,7 +83,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-              <textarea id="id_additional_summit_description" name="additional_summit_description" class="form-control" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" required/>{% if form.additional_summit_description.value %}{{ form.additional_summit_description.value }}{% endif %}</textarea>
+              <textarea id="id_additional_summit_description" name="additional_summit_description" class="form-control required" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" />{% if form.additional_summit_description.value %}{{ form.additional_summit_description.value }}{% endif %}</textarea>
               {% if form.additional_summit_description.errors %}
               <div class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -141,7 +141,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_course" class="reason-checkbox" type="checkbox">
+          <input id="id_reason_course" class="reason-checkbox" type="checkbox" name="reason_course" {% if form.reason_course.value %}checked{% endif %}>
           I am enrolled in a course that requires access to Research Computing resources.
         </label>
       </div>
@@ -158,9 +158,9 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-                <input id="id_additional_course_instructor_email" type="text" name="additional_course_instructor_email" class="form-control"
+                <input id="id_additional_course_instructor_email" type="text" name="additional_course_instructor_email" class="form-control required"
                 {% if form.additional_course_instructor_email.value %}value="{{ form.additional_course_instructor_email.value }}"{% endif %}
-                maxlength="128" required />
+                maxlength="128" />
                 {% if form.additional_course_instructor_email.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -180,9 +180,9 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-                <input id="id_additional_course_number" type="text" name="additional_course_number" class="form-control"
+                <input id="id_additional_course_number" type="text" name="additional_course_number" class="form-control required"
                 {% if form.additional_course_number.value %}value="{{ form.additional_course_number.value }}"{% endif %}
-                maxlength="128" placeholder="i.e., CSCI1100" required />
+                maxlength="128" placeholder="i.e., CSCI1100" />
                 {% if form.additional_course_number.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -196,21 +196,21 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_petalibrary" class="reason-checkbox" type="checkbox">
+          <input id="id_reason_petalibrary" class="reason-checkbox" type="checkbox" name="reason_petalibrary" {% if form.reason_petalibrary.value %}checked{% endif %}>
           My research group has purchased <strong>PetaLibrary</strong> space that I plan to use, or I plan to purchase Petalibrary space for my project. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a>
         </label>
       </div>
 
       <div class="checkbox">
         <label>
-          <input id="id_reason_blanca" class="reason-checkbox" type="checkbox">
+          <input id="id_reason_blanca" class="reason-checkbox" type="checkbox" name="reason_blanca" {% if form.reason_blanca.value %}checked{% endif %}>
           My research group has purchased nodes in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a>
         </label>
       </div>
     </fieldset>
 
     <div class="col-sm-2 col-sm-offset-5 request-submit">
-      <button id="intent-form-submit" type="submit" class="btn btn-primary btn-lg" disabled>Submit Request</button>
+      <button id="intent-form-submit" type="submit" class="btn btn-primary btn-lg">Submit Request</button>
     </div>
 </form>
 {% endblock %}
@@ -218,27 +218,22 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block extra_js %}
 <script>
   $(document).ready(function() {
-    $('#id_reason_summit').change(function() {
-      var summitAdditional = $('#summit-additional');
-      if ($(this).is(':checked')) {
-        summitAdditional.show();
-      } else {
-        summitAdditional.hide();
-      }
-    });
-
-    $('#id_reason_course').change(function() {
-      var courseAdditional = $('#course-additional');
-      if ($(this).is(':checked')) {
-        courseAdditional.show();
-      } else {
-        courseAdditional.hide();
-      }
-    });
+    var updateFormDisplay = function() {
+      var resources = ['summit','course'];
+      $.each(resources,function(index,resourceName) {
+        var additionalForm = $(`#${resourceName}-additional`);
+        var resourceCheckbox = $(`#id_reason_${resourceName}`);
+        if (resourceCheckbox.is(':checked')) {
+          additionalForm.show();
+        } else {
+          additionalForm.hide();
+        }
+      });
+    }
 
     var validateForm = function () {
       var isFormValid = true;
-      $('#intent-form').find('input[required]:visible,textarea[required]:visible').each(function() {
+      $('#intent-form').find('.required:visible').each(function() {
         if (!this.value.trim()) {
           isFormValid = false;
         }
@@ -257,8 +252,11 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
       }
     };
 
+    $('#id_reason_summit,#id_reason_course').change(updateFormDisplay);
     $('#intent-form').keyup(validateForm);
     $('#id_reason_summit,#id_reason_course').change(validateForm);
+    updateFormDisplay();
+    validateForm();
 
   });
 </script>

@@ -68,6 +68,7 @@ class AccountRequestIntentForm(forms.Form):
 
     def clean(self):
         super(AccountRequestIntentForm,self).clean()
+        # import pdb;pdb.set_trace()
         reason_summit = self.cleaned_data.get('reason_summit')
         reason_course = self.cleaned_data.get('reason_course')
         # Remove potentially incomplete fields

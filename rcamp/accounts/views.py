@@ -29,6 +29,18 @@ class AccountRequestCreateUcbView(FormView):
     template_name = 'account-request-create-ucb.html'
     form_class = AccountRequestUcbForm
 
+    def _check_autoapprove_eligibility(self, user_affiliation):
+        """
+        Takes an eduPersonAffiliation attribute and returns True if it contains values that are
+        eligible for auto-approval.
+        """
+        eligible_affiliations = ['student','staff','faculty']
+        eligible = False
+        for affiliation in user_affiliation:
+            if affiliation.lower() in eligible_affiliations:
+                eligible = True
+        return eligible
+
     def form_valid(self, form):
         organization = 'ucb'
         username = form.cleaned_data.get('username')
@@ -47,7 +59,7 @@ class AccountRequestCreateUcbView(FormView):
         )
 
         # Auto-approve eligible users
-        if cu_user.edu_affiliation.lower() in ['student','staff','faculty']:
+        if self._check_autoapprove_eligibility(cu_user.edu_affiliation):
             account_request_dict['status'] = 'a'
 
         self.request.session['account_request_dict'] = account_request_dict

@@ -62,6 +62,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
     <fieldset>
         <legend>Verify with your organization credentials</legend>
+
         {% if form.username.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
@@ -105,14 +106,31 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     </fieldset>
 
     <fieldset>
-        <legend>What is your role?</legend>
+        <legend>How are you affiliated with CU?</legend>
+
+        {% if form.department.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_department">Department</label>
+            <div class="col-sm-8">
+                <input id="id_department" type="text" name="department" class="form-control"
+                {% if form.department.value %}value="{{ form.department.value }}"{% endif %}
+                maxlength="256" placeholder="i.e., Physics" />
+                {% if form.department.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.department.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
         {% if form.role.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
-          <div class="col-sm-12">
-            <p id="ucb-login-help">Select the role that best describes you.</p>
-          </div>
         {% endif %}
             <label class="col-sm-2 control-label" for="id_role">Role</label>
             <div class="col-sm-8">
@@ -132,7 +150,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     </fieldset>
 
     <div class="col-sm-2 col-sm-offset-5 request-submit">
-        <button type="submit" class="btn btn-primary btn-lg">Continue &raquo;</button>
+        <button type="submit" class="btn btn-primary btn-lg">Verify & Continue &raquo;</button>
     </div>
 </form>
 {% endblock %}
