@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse_lazy
 from django.http import Http404
 from accounts.models import (
     AccountRequest,
+    Intent,
     CuLdapUser,
     CsuLdapUser
 )
@@ -58,4 +59,23 @@ class AccountRequestIntentView(FormView):
     form_class = AccountRequestIntentForm
 
     def form_valid(self, form):
-        pass
+        intent_dict = dict()
+        resources = ['summit','blanca','petalibrary']
+        resources_requested = []
+        for resource in resources:
+            if 'reason_{}'.format(resource) in form.cleaned_data:
+                resources_requested.append(resource)
+        intent_dict['resources_requested'] = resources_requested
+
+        additional_info_fields = [
+            'summit_pi_email',
+            'summit_description',
+            'summit_funding',
+            'course_number',
+            'course_instructor_email'
+        ]
+        for info_field in additional_info_fields:
+            if 'additional_{}'.format(info_field) in form.cleaned_data:
+                intent_dict[info_field] = form.cleaned_data.get(info_field)
+
+        intent = Intent.objects.create(**intent_dict)

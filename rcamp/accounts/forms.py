@@ -64,4 +64,18 @@ class AccountRequestIntentForm(forms.Form):
 
     # Course follow-up
     additional_course_instructor_email = forms.EmailField(required=False)
-    additional_course_course_number = forms.CharField(max_length=48,required=False)
+    additional_course_number = forms.CharField(max_length=48,required=False)
+
+    def clean(self):
+        super(AccountRequestIntentForm,self).clean()
+        reason_summit = self.cleaned_data.get('reason_summit')
+        reason_course = self.cleaned_data.get('reason_course')
+        # Remove potentially incomplete fields
+        if not reason_summit:
+            self.cleaned_data.pop('additional_summit_pi_email',None)
+            self.cleaned_data.pop('additional_summit_funding',None)
+            self.cleaned_data.pop('additional_summit_description',None)
+        if not reason_course:
+            self.cleaned_data.pop('additional_course_instructor_email',None)
+            self.cleaned_data.pop('additional_course_course_number',None)
+        return self.cleaned_data
