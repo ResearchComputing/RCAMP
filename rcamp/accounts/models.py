@@ -80,9 +80,6 @@ class AccountRequest(models.Model):
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField(null=True,blank=True)
     id_verified_by = models.CharField(max_length=128,blank=True,null=True)
-
-    intent = models.ForeignKey('Intent',blank=True,null=True)
-
     request_date = models.DateTimeField(auto_now_add=True)
 
     # TODO: Deprecate these fields, as they are now represented in the Intent object
@@ -112,6 +109,7 @@ class AccountRequest(models.Model):
         super(AccountRequest,self).save(*args,**kwargs)
 
 class Intent(models.Model):
+    account_request = models.OneToOneField(AccountRequest)
     resources_requested = models.TextField(blank=True,null=True)
     sponsor_email = models.EmailField(blank=True,null=True)
     course_instructor_email = models.EmailField(blank=True,null=True)

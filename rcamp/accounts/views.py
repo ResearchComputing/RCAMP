@@ -11,6 +11,7 @@ from accounts.models import (
 )
 from accounts.forms import (
     AccountRequestVerifyUcbForm,
+    AccountRequestVerifyCsuForm,
     AccountRequestIntentForm
 )
 from mailer.signals import account_request_received
@@ -65,6 +66,35 @@ class AccountRequestVerifyUcbView(FormView):
         self.request.session['account_request_dict'] = account_request_dict
         self.success_url = reverse_lazy('accounts:account-request-intent')
         return super(AccountRequestVerifyUcbView,self).form_valid(form)
+
+
+class AccountRequestVerifyCsuView(FormView):
+    template_name = 'account-request-verify-csu.html'
+    form_class = AccountRequestVerifyCsuForm
+
+    def form_valid(self, form):
+        organization = 'csu'
+        username = form.cleaned_data.get('username')
+        csu_user = CsuLdapUser.objects.get(username=username)
+        department = form.cleaned_data.get('department')
+        role = form.cleaned_data.get('role')
+
+        account_request_dict = dict(
+            username = csu_user.username,
+            first_name = csu_user.first_name,
+            last_name = csu_user.last_name,
+            email = csu_user.email,
+            department = department,
+            role = role,
+            organization = organization
+        )
+
+        # Auto-approve all CSU users
+        account_request_dict['status'] = 'a'
+
+        self.request.session['account_request_dict'] = account_request_dict
+        self.success_url = reverse_lazy('accounts:account-request-intent')
+        return super(AccountRequestVerifyCsuView,self).form_valid(form)
 
 
 class AccountRequestIntentView(FormView):
