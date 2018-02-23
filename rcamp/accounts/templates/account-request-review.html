@@ -8,53 +8,33 @@
 
 {% block jumbotron_heading %}<h1>Account Request Submitted</h1>{% endblock %}
 {% block jumbotron_subheading %}
-<p>We will review your request within 7 days.</p>
+  {% if account_request.status != 'a' %}
+  <p>We will review your request within 7 days.</p>
+  {% else %}
+  <p>Welcome to Research Computing!</p>
+  {% endif %}
 {% endblock %}
 {% block jumbotron_button %}
 {% endblock %}
 
-{% block modal %}
-<!-- Modal -->
-<div class="modal fade" id="helpmodal" tabindex="-1" role="dialog" aria-labelledby="helpmodallabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Acknowledge Contact Email</h4>
-            </div>
-            <div class="modal-body">
-                <form id="ack_form">
-                    <div class="checkbox">
-                        <label>
-                            <input id="email_ack" type="checkbox"> I acknowledge that confirmation of my account request
-                            will be sent to <strong>{{ account_request.email }}</strong>.
-                        </label>
-                    </div>
-                    <button id="submit_ack" type="submit" class="btn btn-primary" disabled>Complete Account Request</button>
-                </form>
-            </div>
-            <div class="modal-footer">
-                
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-{% endblock %}
-
 {% block container %}
 <div class="mailto-help">
-    Questions about your request? 
+    Questions about your request?
     <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Submitted%20Request%20(%23{{account_request.id}})">
         Contact us.
     </a>
 </div>
 
 <h2 class="sub-header">Request Details</h2>
+    <div class="alert alert-success" role="alert">
+      {% if account_request.status != 'a' %}
+      We will contact you at <strong>{{ account_request.email }}</strong> with updates regarding your account request.
+      {% else %}
+      We have sent a confirmation to <strong>{{ account_request.email }}</strong>.
+      {% endif %}
+    </div>
     <div class="table-responsive">
         <table id="allocation-request-table" class="table table-striped">
-            <tr>
-                <td><strong>Request id</strong></td>
-                <td>{{account_request.id}}</td>
-            </tr>
             <tr>
                 <td><strong>Request received on</strong></td>
                 <td>{{account_request.request_date}}</td>
@@ -76,31 +56,17 @@
                 <td>{{account_request.email}}</td>
             </tr>
             <tr>
+                <td><strong>Department</strong></td>
+                <td>{{account_request.department}}</td>
+            </tr>
+            <tr>
                 <td><strong>Role</strong></td>
-                <td>{{account_request.role}}</td>
+                <td>{{account_request.get_role_display}}</td>
             </tr>
             <tr>
                 <td><strong>Organization</strong></td>
-                <td>{{ account_request.organization|upper }}</td>
+                <td>{{ account_request.get_organization_display }}</td>
             </tr>
         </table>
     </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-$(document).ready(function() {
-    $('#helpmodal').modal({
-        keyboard: false,
-        backdrop: 'static'
-    });
-    $('#ack_form').submit(false);
-    $('#email_ack').click(function() {
-        $('#submit_ack').attr("disabled", !this.checked);
-    });
-    $('#submit_ack').click(function() {
-        $('#helpmodal').modal('hide');
-    });
-});
-</script>
 {% endblock %}

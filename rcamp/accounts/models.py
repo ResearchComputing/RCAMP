@@ -81,7 +81,7 @@ class AccountRequest(models.Model):
     notes = models.TextField(null=True,blank=True)
     id_verified_by = models.CharField(max_length=128,blank=True,null=True)
 
-    intent = models.ForeignKey('Intent',null=True)
+    intent = models.ForeignKey('Intent',blank=True,null=True)
 
     request_date = models.DateTimeField(auto_now_add=True)
 
