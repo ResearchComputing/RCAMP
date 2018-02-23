@@ -78,4 +78,17 @@ class AccountRequestIntentView(FormView):
             if 'additional_{}'.format(info_field) in form.cleaned_data:
                 intent_dict[info_field] = form.cleaned_data.get(info_field)
 
-        intent = Intent.objects.create(**intent_dict)
+        account_request_dict = self.request.session['account_request_dict']
+        account_request = AccountRequest.objects.create(**account_request_dict)
+
+        try:
+            intent = Intent.objects.create(**intent_dict)
+            account_request.intent = intent
+            account_request.save()
+        except:
+            # TODO: Add proper logging here, but don't make the request fail
+            # if creating the Intent object does.
+            pass
+
+        self.success_url = reverse_lazy('accounts:account-request-review',kwargs={'request_id':account_request.id})
+        return super(AccountRequestIntentView,self).form_valid(form)
