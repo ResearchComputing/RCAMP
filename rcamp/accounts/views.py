@@ -123,17 +123,17 @@ class AccountRequestIntentView(FormView):
 
         account_request_dict = self.request.session['account_request_dict']
         account_request = AccountRequest.objects.create(**account_request_dict)
+        self.request.session['account_request_dict']['id'] = account_request.id
 
         try:
+            intent_dict['account_request'] = account_request.id
             intent = Intent.objects.create(**intent_dict)
-            account_request.intent = intent
-            account_request.save()
         except:
             # TODO: Add proper logging here, but don't make the request fail
             # if creating the Intent object does.
             pass
 
-        self.success_url = reverse_lazy('accounts:account-request-review',kwargs={'request_id':account_request.id})
+        self.success_url = reverse_lazy('accounts:account-request-review')
         return super(AccountRequestIntentView,self).form_valid(form)
 
 
@@ -141,11 +141,11 @@ class AccountRequestReviewView(TemplateView):
     template_name = 'account-request-review.html'
 
     def get_context_data(self, **kwargs):
-        request_id = kwargs.get('request_id')
         try:
             context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
-            ar = AccountRequest.objects.get(id=request_id)
-            context['account_request'] = ar
+            request_id = self.request.session['account_request_dict']['id']
+            account_request = AccountRequest.objects.get(id=request_id)
+            context['account_request'] = account_request
             return context
         except AccountRequest.DoesNotExist:
             raise Http404('Account Request not found.')
