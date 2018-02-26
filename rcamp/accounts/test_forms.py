@@ -20,8 +20,7 @@ from accounts.admin import AccountRequestAdminForm
 from accounts.models import (
     CuLdapUser,
     CsuLdapUser,
-    AccountRequest,
-    Intent
+    AccountRequest
 )
 
 
@@ -38,9 +37,7 @@ mock_csu_user_defaults = dict(
     last_name = 'User',
     email = 'testuser@test.org',
 )
-# TODO: Remove these declarations after the remaining tests have been updated
-mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
-mock_csu_user = mock.MagicMock(**mock_cu_user_defaults)
+
 
 class AccountRequestVerifyUcbFormTestCase(LdapTestCase):
     def test_form_valid(self):
@@ -111,6 +108,42 @@ class AccountRequestVerifyUcbFormTestCase(LdapTestCase):
         with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
             self.assertFalse(form.is_valid())
 
+    def test_form_invalid_user_exists(self):
+        mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
+        mock_cu_user.authenticate.return_value = True
+        form_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'faculty',
+            'department': 'physics',
+        }
+        form = AccountRequestVerifyUcbForm(data=form_data)
+        with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user),mock.patch('accounts.models.RcLdapUser.objects.get_user_from_suffixed_username',return_value=mock_cu_user):
+            self.assertFalse(form.is_valid())
+
+    def test_form_invalid_accountrequest_exists(self):
+        mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
+        mock_cu_user.authenticate.return_value = True
+        ar_dict = {
+            'username': 'testuser',
+            'first_name': 'Test',
+            'last_name': 'User',
+            'email': 'tu@tu.org',
+            'organization': 'ucb',
+            'role': 'faculty',
+            'department': 'physics',
+        }
+        ar = AccountRequest.objects.create(**ar_dict)
+        form_data = {
+            'username': 'testuser',
+            'password': 'testpass',
+            'role': 'faculty',
+            'department': 'physics',
+        }
+        form = AccountRequestVerifyUcbForm(data=form_data)
+        with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
+            self.assertFalse(form.is_valid())
+
 
 class AccountRequestVerifyCsuFormTestCase(LdapTestCase):
     def test_csu_form_valid(self):
@@ -150,13 +183,12 @@ class AccountRequestAdminFormTestCase(LdapTestCase):
             'first_name': 'test',
             'last_name': 'user',
             'email': 'testuser@test.org',
-            'role': 'faculty',
             'login_shell': '/bin/bash',
             'status': 'p'
         }
 
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_valid_create_approve_request(self,mock_get):
+    def test_form_valid_create_approve_request(self):
+        mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
         form_data = {
             'organization': 'ucb',
             'username': 'newtestuser',
@@ -164,23 +196,24 @@ class AccountRequestAdminFormTestCase(LdapTestCase):
             'last_name': 'user',
             'email': 'newtestuser@test.org',
             'role': 'faculty',
+            'department': 'physics',
             'login_shell': '/bin/bash',
             'status': 'p'
         }
-        form = AccountRequestAdminForm(data=form_data)
-        self.assertTrue(form.is_valid())
+        with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
+            form = AccountRequestAdminForm(data=form_data)
+            self.assertTrue(form.is_valid())
 
-        ar = AccountRequest.objects.create(**form_data)
-        form_data['status'] = 'a'
+            ar = AccountRequest.objects.create(**form_data)
+            form_data['status'] = 'a'
 
-        form = AccountRequestAdminForm(data=form_data,instance=ar)
-        self.assertTrue(form.is_valid())
+            form = AccountRequestAdminForm(data=form_data,instance=ar)
+            self.assertTrue(form.is_valid())
 
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_valid_request_modified(self,mock_get):
+    def test_form_valid_request_modified(self):
         ar = AccountRequest.objects.create(**self.ar_dict)
         form_data = copy.deepcopy(self.ar_dict)
-        form_data['role'] = 'student'
+        form_data['role'] = 'faculty'
 
         form = AccountRequestAdminForm(data=form_data,instance=ar)
         self.assertTrue(form.is_valid())
@@ -193,92 +226,4 @@ class AccountRequestAdminFormTestCase(LdapTestCase):
         form_data['status'] = 'a'
 
         form = AccountRequestAdminForm(data=form_data,instance=ar)
-        self.assertFalse(form.is_valid())
-
-class AccountRequestFormRcLdapTestCase(LdapTestCase):
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_invalid_user_exists(self,mock_get,mock_auth):
-        form_data = {
-            'organization': 'ucb',
-            'username': 'testuser',
-            'password': 'testpass',
-        }
-        form = AccountRequestForm(data=form_data)
-        self.assertFalse(form.is_valid())
-
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_invalid_accountrequest_exists(self,mock_get,mock_auth):
-        ar_dict = {
-            'username': 'testuser',
-            'first_name': 'Test',
-            'last_name': 'User',
-            'email': 'tu@tu.org',
-            'organization': 'ucb',
-            'role': 'faculty',
-            'login_shell': '/bin/bash',
-        }
-        ar = AccountRequest.objects.create(**ar_dict)
-        form_data = {
-            'username': 'testuser',
-            'password': 'testpass',
-            'role': 'faculty',
-            'login_shell': '/bin/bash',
-        }
-        form = AccountRequestForm(data=form_data)
-        self.assertFalse(form.is_valid())
-
-# This test case covers the functionality of the sponsored account request form
-# delivered to the user during account request.
-class SponsoredAccountRequestFormTestCase(LdapTestCase):
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_valid(self,mock_get,mock_auth):
-        form_data = {
-            'username': 'testuser',
-            'password': 'testpass',
-            'sponsor_email': 'sponsor@colorado.edu',
-            'login_shell': '/bin/bash',
-        }
-        form = SponsoredAccountRequestForm(data=form_data)
-        self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['role'], 'sponsored')
-        self.assertEqual(form.cleaned_data['organization'], 'ucb')
-
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_invalid_missing_fields(self,mock_get,mock_auth):
-        form_data = {
-            'username': 'testuser',
-            'password': 'testpass',
-        }
-        form = SponsoredAccountRequestForm(data=form_data)
-        self.assertFalse(form.is_valid())
-
-# This test case covers the functionality of the class account request form
-# delivered to the user during account request.
-class ClassAccountRequestFormTestCase(LdapTestCase):
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_valid(self,mock_get,mock_auth):
-        form_data = {
-            'username': 'testuser',
-            'password': 'testpass',
-            'course_number': 'CSCI4000',
-            'login_shell': '/bin/bash',
-        }
-        form = ClassAccountRequestForm(data=form_data)
-        self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['role'], 'student')
-        self.assertEqual(form.cleaned_data['organization'], 'ucb')
-
-    @mock.patch('accounts.models.CuLdapUser.authenticate',return_value=True)
-    @mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user)
-    def test_form_invalid_missing_fields(self,mock_get,mock_auth):
-        form_data = {
-            'username': 'testuser',
-            'password': 'testpass',
-        }
-        form = ClassAccountRequestForm(data=form_data)
         self.assertFalse(form.is_valid())

@@ -39,7 +39,6 @@ class AccountRequestVerifyForm(forms.Form):
         try:
             suffixed_username = get_suffixed_username(username,self.organization)
             rc_user = RcLdapUser.objects.get_user_from_suffixed_username(suffixed_username)
-            rc_users = RcLdapUser.objects.filter(username=username)
             if rc_user:
                 raise forms.ValidationError(
                     'An account already exists with username {}'.format(username)
