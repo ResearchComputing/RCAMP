@@ -31,7 +31,7 @@ urlpatterns = [
         name='account-request-intent'
     ),
     url(
-        r'^account-request/review$)',
+        r'^account-request/review$',
         AccountRequestReviewView.as_view(),
         name='account-request-review'
     ),
