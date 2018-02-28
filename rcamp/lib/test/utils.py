@@ -2,6 +2,7 @@ from django.test import TestCase
 from django.conf import settings
 from accounts.models import User
 import unittest
+import importlib
 
 from accounts.models import (
     RcLdapUser,
@@ -81,3 +82,24 @@ class SafeTestCase(TestCase):
     def tearDown(self):
         assert_test_env()
         super(SafeTestCase,self).tearDown()
+
+class SessionEnabledTestMixin:
+    """
+    Mixin for Django test cases that use the TestClient that streamlines the process of setting and
+    modifying session variables. The get session method expects the TestClient as its only
+    argument. Usage:
+    >>> session = self.get_session(self.client)
+    >>> session['key'] = 'value'
+    >>> session.save()
+    """
+    def _configure_session(self, client):
+        engine = importlib.import_module(settings.SESSION_ENGINE)
+        store = engine.SessionStore()
+        store.save()
+        self._store = store
+        client.cookies[settings.SESSION_COOKIE_NAME] = store.session_key
+
+    def get_session(self, client):
+        if not hasattr(self,'_store'):
+            self._configure_session(client)
+        return self._store

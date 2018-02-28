@@ -49,7 +49,7 @@ class AccountRequestVerifyUcbView(FormView):
         department = form.cleaned_data.get('department')
         role = form.cleaned_data.get('role')
 
-        account_request_dict = dict(
+        account_request_data = dict(
             username = cu_user.username,
             first_name = cu_user.first_name,
             last_name = cu_user.last_name,
@@ -61,9 +61,9 @@ class AccountRequestVerifyUcbView(FormView):
 
         # Auto-approve eligible users
         if self._check_autoapprove_eligibility(cu_user.edu_affiliation):
-            account_request_dict['status'] = 'a'
+            account_request_data['status'] = 'a'
 
-        self.request.session['account_request_dict'] = account_request_dict
+        self.request.session['account_request_data'] = account_request_data
         self.success_url = reverse_lazy('accounts:account-request-intent')
         return super(AccountRequestVerifyUcbView,self).form_valid(form)
 
@@ -79,7 +79,7 @@ class AccountRequestVerifyCsuView(FormView):
         department = form.cleaned_data.get('department')
         role = form.cleaned_data.get('role')
 
-        account_request_dict = dict(
+        account_request_data = dict(
             username = csu_user.username,
             first_name = csu_user.first_name,
             last_name = csu_user.last_name,
@@ -90,9 +90,9 @@ class AccountRequestVerifyCsuView(FormView):
         )
 
         # Auto-approve all CSU users
-        account_request_dict['status'] = 'a'
+        account_request_data['status'] = 'a'
 
-        self.request.session['account_request_dict'] = account_request_dict
+        self.request.session['account_request_data'] = account_request_data
         self.success_url = reverse_lazy('accounts:account-request-intent')
         return super(AccountRequestVerifyCsuView,self).form_valid(form)
 
@@ -121,9 +121,10 @@ class AccountRequestIntentView(FormView):
             if 'additional_{}'.format(info_field) in form.cleaned_data:
                 intent_dict[info_field] = form.cleaned_data.get(info_field)
 
-        account_request_dict = self.request.session['account_request_dict']
-        account_request = AccountRequest.objects.create(**account_request_dict)
-        self.request.session['account_request_dict']['id'] = account_request.id
+        account_request_data = self.request.session['account_request_data']
+        account_request = AccountRequest.objects.create(**account_request_data)
+        self.request.session['account_request_data']['id'] = account_request.id
+        self.request.session.save()
 
         try:
             intent_dict['account_request'] = account_request.id
@@ -143,7 +144,7 @@ class AccountRequestReviewView(TemplateView):
     def get_context_data(self, **kwargs):
         try:
             context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
-            request_id = self.request.session['account_request_dict']['id']
+            request_id = self.request.session['account_request_data']['id']
             account_request = AccountRequest.objects.get(id=request_id)
             context['account_request'] = account_request
             return context

@@ -12,16 +12,11 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 
 from lib.test.ldap import LdapTestCase
+from lib.test.utils import SessionEnabledTestMixin
 
-from accounts.views import (
-    AccountRequestOrgSelectView,
-    AccountRequestReviewView,
-    AccountRequestVerifyUcbView,
-    AccountRequestVerifyCsuView,
-    AccountRequestIntentView,
-)
 from accounts.models import (
     AccountRequest,
+    Intent,
     IdTracker,
     CuLdapUser,
     CsuLdapUser
@@ -50,15 +45,7 @@ def get_org_user_defaults():
     return defaults
 
 
-class AccountRequestVerifyUcbTestCase(LdapTestCase):
-    def setUp(self):
-        idt = IdTracker.objects.create(
-            category='posix',
-            min_id=1000,
-            max_id=1500,
-            next_id=1001
-        )
-
+class AccountRequestVerifyUcbViewTestCase(LdapTestCase):
     def test_request_verify(self):
         mock_cu_user_defaults = get_org_user_defaults()
         mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
@@ -71,7 +58,7 @@ class AccountRequestVerifyUcbTestCase(LdapTestCase):
                     '/accounts/account-request/create/verify/ucb',
                     data=account_request_verify_defaults
                 )
-            session_ar_data = self.client.session['account_request_dict']
+            session_ar_data = self.client.session['account_request_data']
 
             self.assertEquals(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/create/intent'))
@@ -96,7 +83,7 @@ class AccountRequestVerifyUcbTestCase(LdapTestCase):
                     '/accounts/account-request/create/verify/ucb',
                     data=account_request_verify_defaults
                 )
-            session_ar_data = self.client.session['account_request_dict']
+            session_ar_data = self.client.session['account_request_data']
 
             self.assertEquals(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/create/intent'))
@@ -143,15 +130,7 @@ class AccountRequestVerifyUcbTestCase(LdapTestCase):
                 )
 
 
-class AccountRequestVerifyCsuTestCase(LdapTestCase):
-    def setUp(self):
-        idt = IdTracker.objects.create(
-            category='posix',
-            min_id=1000,
-            max_id=1500,
-            next_id=1001
-        )
-
+class AccountRequestVerifyCsuViewTestCase(LdapTestCase):
     def test_request_verify(self):
         mock_csu_user_defaults = get_org_user_defaults()
         mock_csu_user = mock.MagicMock(**mock_csu_user_defaults)
@@ -163,7 +142,7 @@ class AccountRequestVerifyCsuTestCase(LdapTestCase):
                     '/accounts/account-request/create/verify/csu',
                     data=account_request_verify_defaults
                 )
-            session_ar_data = self.client.session['account_request_dict']
+            session_ar_data = self.client.session['account_request_data']
 
             self.assertEquals(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/create/intent'))
@@ -208,3 +187,55 @@ class AccountRequestVerifyCsuTestCase(LdapTestCase):
                     AccountRequest.objects.get,
                     **{'username':account_request_verify_defaults['username']}
                 )
+
+
+def get_account_request_session_defaults():
+    """
+    Returns reasonable defaults for account request data stored in session between verification and
+    intent views.
+    """
+    session_request_defaults = dict(
+        organization = 'ucb',
+        username = 'testuser',
+        email = 'testuser@colorado.edu',
+        first_name = 'Test',
+        last_name = 'User',
+        role = 'faculty',
+        department = 'physics'
+    )
+    return session_request_defaults
+
+
+class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
+    def setUp(self):
+        idt = IdTracker.objects.create(
+            category='posix',
+            min_id=1000,
+            max_id=1500,
+            next_id=1001
+        )
+
+    def test_request_submit_intent_summit(self):
+        account_request_data = get_account_request_session_defaults()
+
+        session = self.get_session(self.client)
+        session['account_request_data'] = account_request_data
+        session.save()
+
+        intent_request_data = dict(
+            reason_summit = True,
+            additional_summit_description = 'Description of work.',
+            additional_summit_funding = 'NSF Grant 1234'
+        )
+        response = self.client.post(
+            '/accounts/account-request/create/intent',
+            data = intent_request_data
+        )
+        self.assertEquals(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/accounts/account-request/review'))
+
+        account_request = AccountRequest.objects.get(username='testuser')
+        self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
+
+        intent = Intent.objects.get(account_request=account_request)
+        self.assertEquals(intent.resources_requested,['summit'])
