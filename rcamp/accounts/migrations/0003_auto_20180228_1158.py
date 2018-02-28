@@ -15,7 +15,10 @@ class Migration(migrations.Migration):
             name='Intent',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('resources_requested', models.TextField(null=True, blank=True)),
+                ('reason_summit', models.BooleanField(default=False)),
+                ('reason_course', models.BooleanField(default=False)),
+                ('reason_petalibrary', models.BooleanField(default=False)),
+                ('reason_blanca', models.BooleanField(default=False)),
                 ('sponsor_email', models.EmailField(max_length=254, null=True, blank=True)),
                 ('course_instructor_email', models.EmailField(max_length=254, null=True, blank=True)),
                 ('course_number', models.CharField(max_length=128, null=True, blank=True)),
@@ -40,8 +43,8 @@ class Migration(migrations.Migration):
             field=models.CharField(default=b'undergraduate', max_length=24, choices=[(b'undergraduate', b'Undergraduate'), (b'graduate', b'Graduate'), (b'postdoc', b'Post Doc'), (b'instructor', b'Instructor'), (b'faculty', b'Faculty'), (b'affiliated_faculty', b'Affiliated Faculty'), (b'staff', b'Staff'), (b'sponsored', b'Sponsored Affiliate')]),
         ),
         migrations.AddField(
-            model_name='accountrequest',
-            name='intent',
-            field=models.ForeignKey(to='accounts.Intent', null=True),
+            model_name='intent',
+            name='account_request',
+            field=models.OneToOneField(null=True, blank=True, to='accounts.AccountRequest'),
         ),
     ]
