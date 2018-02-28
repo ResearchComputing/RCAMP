@@ -109,8 +109,11 @@ class AccountRequest(models.Model):
         super(AccountRequest,self).save(*args,**kwargs)
 
 class Intent(models.Model):
-    account_request = models.OneToOneField(AccountRequest)
-    resources_requested = models.TextField(blank=True,null=True)
+    account_request = models.OneToOneField(AccountRequest,blank=True,null=True)
+    reason_summit = models.BooleanField(default=False)
+    reason_course = models.BooleanField(default=False)
+    reason_petalibrary = models.BooleanField(default=False)
+    reason_blanca = models.BooleanField(default=False)
     sponsor_email = models.EmailField(blank=True,null=True)
     course_instructor_email = models.EmailField(blank=True,null=True)
     course_number = models.CharField(max_length=128,blank=True,null=True)

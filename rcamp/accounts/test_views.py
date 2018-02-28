@@ -12,7 +12,10 @@ from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 
 from lib.test.ldap import LdapTestCase
-from lib.test.utils import SessionEnabledTestMixin
+from lib.test.utils import (
+    SessionEnabledTestMixin,
+    SafeTestCase
+)
 
 from accounts.models import (
     AccountRequest,
@@ -215,7 +218,7 @@ class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
             next_id=1001
         )
 
-    def test_request_submit_intent_summit(self):
+    def test_request_submit_intent_single(self):
         account_request_data = get_account_request_session_defaults()
 
         session = self.get_session(self.client)
@@ -224,8 +227,51 @@ class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
 
         intent_request_data = dict(
             reason_summit = True,
-            additional_summit_description = 'Description of work.',
-            additional_summit_funding = 'NSF Grant 1234'
+            summit_description = 'Description of work.',
+            summit_funding = 'NSF Grant 1234'
+        )
+        response = self.client.post(
+            '/accounts/account-request/create/intent',
+            data = intent_request_data
+        )
+        self.assertEquals(response.status_code, 302)
+        self.assertTrue(response.url.endswith('/accounts/account-request/review'))
+
+        account_request = AccountRequest.objects.get(username='testuser')
+        self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
+        self.assertEquals(account_request.organization,'ucb')
+        self.assertEquals(account_request.username,'testuser')
+        self.assertEquals(account_request.email,'testuser@colorado.edu')
+        self.assertEquals(account_request.first_name,'Test')
+        self.assertEquals(account_request.last_name,'User')
+        self.assertEquals(account_request.role,'faculty')
+        self.assertEquals(account_request.department,'physics')
+        # This should be the case, as no override status was set on session
+        self.assertEquals(account_request.status,'p')
+
+        intent = Intent.objects.get(account_request=account_request)
+        self.assertTrue(intent.reason_summit)
+        self.assertFalse(intent.reason_course)
+        self.assertFalse(intent.reason_petalibrary)
+        self.assertFalse(intent.reason_blanca)
+        self.assertEquals(intent.summit_description,'Description of work.')
+        self.assertEquals(intent.summit_funding,'NSF Grant 1234')
+
+    def test_request_submit_intent_multi(self):
+        account_request_data = get_account_request_session_defaults()
+
+        session = self.get_session(self.client)
+        session['account_request_data'] = account_request_data
+        session.save()
+
+        intent_request_data = dict(
+            reason_summit = True,
+            reason_course = True,
+            reason_petalibrary = True,
+            summit_description = 'Description of work.',
+            summit_funding = 'NSF Grant 1234',
+            course_instructor_email = 'instructor@colorado.edu',
+            course_number = 'PHYS1000'
         )
         response = self.client.post(
             '/accounts/account-request/create/intent',
@@ -238,4 +284,31 @@ class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
         self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
 
         intent = Intent.objects.get(account_request=account_request)
-        self.assertEquals(intent.resources_requested,['summit'])
+        self.assertTrue(intent.reason_summit)
+        self.assertTrue(intent.reason_course)
+        self.assertTrue(intent.reason_petalibrary)
+        self.assertFalse(intent.reason_blanca)
+        self.assertEquals(intent.summit_description,'Description of work.')
+        self.assertEquals(intent.summit_funding,'NSF Grant 1234')
+        self.assertEquals(intent.course_instructor_email,'instructor@colorado.edu')
+        self.assertEquals(intent.course_number,'PHYS1000')
+
+
+class AccountRequestReviewViewTestCase(SafeTestCase,SessionEnabledTestMixin):
+    def test_request_review(self):
+        account_request_data = get_account_request_session_defaults()
+        account_request = AccountRequest.objects.create(**account_request_data)
+
+        session = self.get_session(self.client)
+        session['account_request_data'] = account_request_data
+        session['account_request_data']['id'] = account_request.id
+        session.save()
+
+        response = self.client.get('/accounts/account-request/review')
+        self.assertEquals(response.status_code,200)
+
+        self.assertEquals(response.context['account_request'],account_request)
+
+    def test_request_review_no_data(self):
+        response = self.client.get('/accounts/account-request/review')
+        self.assertEquals(response.status_code,404)

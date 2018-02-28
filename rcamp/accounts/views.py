@@ -102,32 +102,16 @@ class AccountRequestIntentView(FormView):
     form_class = AccountRequestIntentForm
 
     def form_valid(self, form):
-        intent_dict = dict()
-        resources = ['summit','blanca','petalibrary']
-        resources_requested = []
-        for resource in resources:
-            if 'reason_{}'.format(resource) in form.cleaned_data:
-                resources_requested.append(resource)
-        intent_dict['resources_requested'] = resources_requested
-
-        additional_info_fields = [
-            'summit_pi_email',
-            'summit_description',
-            'summit_funding',
-            'course_number',
-            'course_instructor_email'
-        ]
-        for info_field in additional_info_fields:
-            if 'additional_{}'.format(info_field) in form.cleaned_data:
-                intent_dict[info_field] = form.cleaned_data.get(info_field)
-
         account_request_data = self.request.session['account_request_data']
         account_request = AccountRequest.objects.create(**account_request_data)
         self.request.session['account_request_data']['id'] = account_request.id
         self.request.session.save()
 
         try:
-            intent_dict['account_request'] = account_request.id
+            intent_dict = dict(
+                account_request = account_request,
+                **form.cleaned_data
+            )
             intent = Intent.objects.create(**intent_dict)
         except:
             # TODO: Add proper logging here, but don't make the request fail
@@ -144,7 +128,10 @@ class AccountRequestReviewView(TemplateView):
     def get_context_data(self, **kwargs):
         try:
             context = super(AccountRequestReviewView,self).get_context_data(**kwargs)
-            request_id = self.request.session['account_request_data']['id']
+            account_request_data = self.request.session.get('account_request_data',None)
+            if not account_request_data:
+                raise Http404('No session data.')
+            request_id = account_request_data.get('id',None)
             account_request = AccountRequest.objects.get(id=request_id)
             context['account_request'] = account_request
             return context

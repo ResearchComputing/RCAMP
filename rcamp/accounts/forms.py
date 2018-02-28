@@ -76,10 +76,10 @@ class AccountRequestIntentForm(forms.Form):
     reason_blanca = forms.BooleanField(required=False)
 
     # Summit additional info
-    additional_summit_pi_email = forms.EmailField(required=False)
-    additional_summit_funding = forms.CharField(widget=forms.Textarea,required=False)
-    additional_summit_description = forms.CharField(widget=forms.Textarea,required=False)
+    summit_pi_email = forms.EmailField(required=False)
+    summit_funding = forms.CharField(widget=forms.Textarea,required=False)
+    summit_description = forms.CharField(widget=forms.Textarea,required=False)
 
     # Course follow-up
-    additional_course_instructor_email = forms.EmailField(required=False)
-    additional_course_number = forms.CharField(max_length=48,required=False)
+    course_instructor_email = forms.EmailField(required=False)
+    course_number = forms.CharField(max_length=48,required=False)

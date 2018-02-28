@@ -81,65 +81,65 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div id="summit-additional" class="additional-info-form">
 
-        {% if form.additional_summit_description.errors %}
+        {% if form.summit_description.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_additional_summit_description">
+            <label class="col-sm-2 control-label" for="id_summit_description">
               <dt>Description</dt>
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-              <textarea id="id_additional_summit_description" name="additional_summit_description" class="form-control required" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" />{% if form.additional_summit_description.value %}{{ form.additional_summit_description.value }}{% endif %}</textarea>
-              {% if form.additional_summit_description.errors %}
+              <textarea id="id_summit_description" name="summit_description" class="form-control required" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" />{% if form.summit_description.value %}{{ form.summit_description.value }}{% endif %}</textarea>
+              {% if form.summit_description.errors %}
               <div class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                <strong>{{ form.additional_summit_description.errors }}</strong>
+                <strong>{{ form.summit_description.errors }}</strong>
               </div>
               {% endif %}
             </div>
         </div>
 
-        {% if form.additional_summit_pi_email.errors %}
+        {% if form.summit_pi_email.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_additional_summit_pi_email">
+            <label class="col-sm-2 control-label" for="id_summit_pi_email">
               <dt>PI Email</dt>
               <dd>(optional)</dd>
             </label>
             <div class="col-sm-8">
-                <input id="id_additional_summit_pi_email" type="text" name="additional_summit_pi_email" class="form-control"
-                {% if form.additional_summit_pi_email.value %}value="{{ form.additional_summit_pi_email.value }}"{% endif %}
+                <input id="id_summit_pi_email" type="text" name="summit_pi_email" class="form-control"
+                {% if form.summit_pi_email.value %}value="{{ form.summit_pi_email.value }}"{% endif %}
                 maxlength="256" />
-                {% if form.additional_summit_pi_email.errors %}
+                {% if form.summit_pi_email.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.additional_summit_pi_email.errors }}</strong>
+                    <strong>{{ form.summit_pi_email.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
         </div>
 
-        {% if form.additional_summit_funding.errors %}
+        {% if form.summit_funding.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_additional_summit_funding">
+            <label class="col-sm-2 control-label" for="id_summit_funding">
               <dt>Funding</dt>
               <dd>(optional)</dd>
             </label>
             <div class="col-sm-8">
-                <input id="id_additional_summit_funding" type="text" name="additional_summit_funding" class="form-control"
-                {% if form.additional_summit_funding.value %}value="{{ form.additional_summit_funding.value }}"{% endif %}
+                <input id="id_summit_funding" type="text" name="summit_funding" class="form-control"
+                {% if form.summit_funding.value %}value="{{ form.summit_funding.value }}"{% endif %}
                 maxlength="1024" placeholder="Agency, Grant Number, etc."/>
-                {% if form.additional_summit_funding.errors %}
+                {% if form.summit_funding.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.additional_summit_funding.errors }}</strong>
+                    <strong>{{ form.summit_funding.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
@@ -156,45 +156,45 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 
       <div id="course-additional" class="additional-info-form">
 
-        {% if form.additional_course_instructor_email.errors %}
+        {% if form.course_instructor_email.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_additional_course_instructor_email">
+            <label class="col-sm-2 control-label" for="id_course_instructor_email">
               <dt>Instructor Email</dt>
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-                <input id="id_additional_course_instructor_email" type="text" name="additional_course_instructor_email" class="form-control required"
-                {% if form.additional_course_instructor_email.value %}value="{{ form.additional_course_instructor_email.value }}"{% endif %}
+                <input id="id_course_instructor_email" type="text" name="course_instructor_email" class="form-control required"
+                {% if form.course_instructor_email.value %}value="{{ form.course_instructor_email.value }}"{% endif %}
                 maxlength="128" />
-                {% if form.additional_course_instructor_email.errors %}
+                {% if form.course_instructor_email.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.additional_course_instructor_email.errors }}</strong>
+                    <strong>{{ form.course_instructor_email.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
         </div>
 
-        {% if form.additional_course_number.errors %}
+        {% if form.course_number.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_additional_course_number">
+            <label class="col-sm-2 control-label" for="id_course_number">
               <dt>Course Number</dt>
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-                <input id="id_additional_course_number" type="text" name="additional_course_number" class="form-control required"
-                {% if form.additional_course_number.value %}value="{{ form.additional_course_number.value }}"{% endif %}
+                <input id="id_course_number" type="text" name="course_number" class="form-control required"
+                {% if form.course_number.value %}value="{{ form.course_number.value }}"{% endif %}
                 maxlength="128" placeholder="i.e., CSCI1100" />
-                {% if form.additional_course_number.errors %}
+                {% if form.course_number.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.additional_course_number.errors }}</strong>
+                    <strong>{{ form.course_number.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
