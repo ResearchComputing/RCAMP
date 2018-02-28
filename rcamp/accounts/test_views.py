@@ -230,32 +230,36 @@ class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
             summit_description = 'Description of work.',
             summit_funding = 'NSF Grant 1234'
         )
-        response = self.client.post(
-            '/accounts/account-request/create/intent',
-            data = intent_request_data
-        )
-        self.assertEquals(response.status_code, 302)
-        self.assertTrue(response.url.endswith('/accounts/account-request/review'))
+        with mock.patch('django.dispatch.Signal.send') as account_request_received_mock:
+            response = self.client.post(
+                '/accounts/account-request/create/intent',
+                data = intent_request_data
+            )
 
-        account_request = AccountRequest.objects.get(username='testuser')
-        self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
-        self.assertEquals(account_request.organization,'ucb')
-        self.assertEquals(account_request.username,'testuser')
-        self.assertEquals(account_request.email,'testuser@colorado.edu')
-        self.assertEquals(account_request.first_name,'Test')
-        self.assertEquals(account_request.last_name,'User')
-        self.assertEquals(account_request.role,'faculty')
-        self.assertEquals(account_request.department,'physics')
-        # This should be the case, as no override status was set on session
-        self.assertEquals(account_request.status,'p')
+            self.assertEquals(response.status_code, 302)
+            self.assertTrue(response.url.endswith('/accounts/account-request/review'))
 
-        intent = Intent.objects.get(account_request=account_request)
-        self.assertTrue(intent.reason_summit)
-        self.assertFalse(intent.reason_course)
-        self.assertFalse(intent.reason_petalibrary)
-        self.assertFalse(intent.reason_blanca)
-        self.assertEquals(intent.summit_description,'Description of work.')
-        self.assertEquals(intent.summit_funding,'NSF Grant 1234')
+            account_request = AccountRequest.objects.get(username='testuser')
+            account_request_received_mock.assert_called_with(sender=account_request.__class__,instance=account_request)
+
+            self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
+            self.assertEquals(account_request.organization,'ucb')
+            self.assertEquals(account_request.username,'testuser')
+            self.assertEquals(account_request.email,'testuser@colorado.edu')
+            self.assertEquals(account_request.first_name,'Test')
+            self.assertEquals(account_request.last_name,'User')
+            self.assertEquals(account_request.role,'faculty')
+            self.assertEquals(account_request.department,'physics')
+            # This should be the case, as no override status was set on session
+            self.assertEquals(account_request.status,'p')
+
+            intent = Intent.objects.get(account_request=account_request)
+            self.assertTrue(intent.reason_summit)
+            self.assertFalse(intent.reason_course)
+            self.assertFalse(intent.reason_petalibrary)
+            self.assertFalse(intent.reason_blanca)
+            self.assertEquals(intent.summit_description,'Description of work.')
+            self.assertEquals(intent.summit_funding,'NSF Grant 1234')
 
     def test_request_submit_intent_multi(self):
         account_request_data = get_account_request_session_defaults()

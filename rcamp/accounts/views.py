@@ -104,6 +104,8 @@ class AccountRequestIntentView(FormView):
     def form_valid(self, form):
         account_request_data = self.request.session['account_request_data']
         account_request = AccountRequest.objects.create(**account_request_data)
+        if account_request.status != 'a':
+            account_request_received.send(sender=account_request.__class__,account_request=account_request)
         self.request.session['account_request_data']['id'] = account_request.id
         self.request.session.save()
 
