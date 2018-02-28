@@ -21,11 +21,12 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block modal_body %}
 <ul class="list-group">
     <li class="list-group-item">
-      <strong>UCB username/password</strong>
-      <p>The identikey username and password you use to access UCB resources,
-          such as Desire2Learn or myCUinfo. You can manage your CU Boulder Identity
-          through <a href="https://cuidm.colorado.edu/">CU Identity Management</a>.
-      </p>
+        <strong>Organization Credentials</strong>
+        <p>The request form requires that you successfully authenticate against
+          the organization with which you are affiliated to verify your identity.
+          The organization credentials should be the username/password pair you
+          to access your organization's resources.
+        </p>
     </li>
 </ul>
 {% endblock %}
@@ -33,7 +34,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 {% block container %}
 <div class="mailto-help">
     Questions about the account request process?
-    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Class%20Account%20Request%20Process">
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request%20Process">
         Contact us
     </a>
     or view our
@@ -60,13 +61,17 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     {% csrf_token %}
 
     <fieldset>
-        <legend>Login With CU Identikey</legend>
+        <legend>Verify with your organization credentials</legend>
+
         {% if form.username.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_username">Username</label>
+            <div class="col-sm-12">
+              <p id="ucb-login-help"><i class="fa fa-info-circle" aria-hidden="true"></i> Verify your identity with your CU IdentiKey username and password.</p>
+            </div>
+            <label class="col-sm-2 control-label" for="id_username">IdentiKey Username</label>
             <div class="col-sm-8">
                 <input id="id_username" type="text" name="username" class="form-control"
                 {% if form.username.value %}value="{{ form.username.value }}"{% endif %}
@@ -85,7 +90,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_password">Password</label>
+            <label class="col-sm-2 control-label" for="id_password">IdentiKey Password</label>
             <div class="col-sm-8">
                 <input id="id_password" type="password" name="password" class="form-control"
                 {% if form.password.value %}value="{{ form.password.value }}"{% endif %}
@@ -101,53 +106,51 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
     </fieldset>
 
     <fieldset>
-        <legend>Which course is this request for?</legend>
-        {% if form.course_number.errors %}
+        <legend>How are you affiliated with CU?</legend>
+
+        {% if form.department.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_course_number">Course Number</label>
+            <label class="col-sm-2 control-label" for="id_department">Department</label>
             <div class="col-sm-8">
-                <input id="id_course_number" type="text" name="course_number" class="form-control"
-                {% if form.course_number.value %}value="{{ form.course_number.value }}"{% endif %}
-                maxlength="256" />
-                {% if form.course_number.errors %}
+                <input id="id_department" type="text" name="department" class="form-control"
+                {% if form.department.value %}value="{{ form.department.value }}"{% endif %}
+                maxlength="256" placeholder="i.e., Physics" />
+                {% if form.department.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.course_number.errors }}</strong>
+                    <strong>{{ form.department.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
         </div>
-    </fieldset>
 
-    <fieldset>
-        <legend>What is your preferred login shell?</legend>
-        {% if form.login_shell.errors %}
+        {% if form.role.errors %}
         <div class="form-group has-error has-feedback">
         {% else %}
         <div class="form-group">
         {% endif %}
-            <label class="col-sm-2 control-label" for="id_login_shell">Preferred login shell</label>
+            <label class="col-sm-2 control-label" for="id_role">Role</label>
             <div class="col-sm-8">
-                <select name="login_shell" id="id_login_shell" class="form-control">
-                    {% for value, disp in form.login_shell.field.choices %}
+                <select name="role" id="id_role" class="form-control">
+                    {% for value, disp in form.role.field.choices %}
                     <option value="{{ value }}">{{ disp }}</option>
                     {% endfor %}
                 </select>
-                {% if form.login_shell.errors %}
+                {% if form.role.errors %}
                 <div class="alert alert-danger alert-dismissable">
                     <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-                    <strong>{{ form.login_shell.errors }}</strong>
+                    <strong>{{ form.role.errors }}</strong>
                 </div>
                 {% endif %}
             </div>
         </div>
     </fieldset>
 
-    <div class="col-sm-2 col-sm-offset-5 request-submit">
-        <button type="submit" class="btn btn-primary btn-lg">Submit Request</button>
+    <div class="request-submit text-center">
+        <button type="submit" class="btn btn-primary btn-lg">Verify & Continue &raquo;</button>
     </div>
 </form>
 {% endblock %}

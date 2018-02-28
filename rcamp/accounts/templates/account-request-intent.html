@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block title %}Research Computing - Request Account{% endblock %}
+
+{% block extra_style %}
+<link href="/static/css/account-request.css" rel="stylesheet"/>
+{% endblock %}
+
+{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
+{% block jumbotron_subheading %}
+<p>Request an account with University of Colorado Boulder Research Computing.</p>
+{% endblock %}
+{% block jumbotron_button %}
+<p><a data-toggle="modal" href="#helpmodal"
+class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;</a></p>
+{% endblock %}
+
+{% block modal_title %}
+<h4 class="modal-title">Definitions &amp; Form Help</h4>
+{% endblock %}
+{% block modal_body %}
+<ul class="list-group">
+    <li class="list-group-item">
+      <strong>Summit supercomputing cluster (2016)</strong>
+      <p>Summit is a heterogeneous supercomputing cluster based primarily on the Intel Xeon "Haswell" CPU, with secondary NVidia Tesla K80 and high-memory resources and, in the future, an Intel Xeon Phi "knights landing" MIC resource. It replaces Janus as Research Computing's flagship computational resource. All nodes sit on a first-generation Intel Omni-Path Architecture interconnect which also provides access to an IBM GPFS Parallel scratch file system. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a></p>
+    </li>
+    <li class="list-group-item">
+      <strong>Blanca "condo" compute cluster</strong>
+      <p>The Research Computing Condo Computing service offers researchers the opportunity to purchase and own compute nodes that will be operated as part of the Blanca compute cluster. The aggregate cluster is made available to all condo partners while maintaining priority for the owner of each node. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a></p>
+    </li>
+    <li class="list-group-item">
+      <strong>PetaLibrary/active disk storage</strong>
+      <p>The PetaLibrary/active storage service is mounted at <code>/work/</code> on all Research Computing computational systems. This storage may be used by compute workloads, but it is not designed to be performant under I/O-intensive applications or parallel writes. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a></p>
+    </li>
+    <li class="list-group-item">
+      <strong>PetaLibrary/archive long-term disk+tape storage</strong>
+      <p>PetaLibrary/archive is a hierarchical storage system that dynamically and simultaneously manages data on both disk and tape storage systems while presenting all data as part of a single, unified filesystem namespace. This provides good performance when accessing frequently-used data while remaining cost-effective for storing large quantities of archive data. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a></p>
+    </li>
+</ul>
+{% endblock %}
+
+{% block container %}
+<div class="mailto-help">
+    Questions about the account request process?
+    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request%20Process">
+        Contact us
+    </a>
+    or view our
+    <a href="https://www.rc.colorado.edu/support/getting-started.html">
+      Getting Started Guide.
+    </a>
+</div>
+
+{% if form.errors %}
+<div class="alert alert-danger alert-dismissable">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <p>
+      <strong>Could not submit request.</strong>
+      Please resolve the errors below, or
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request%20Process">
+          contact us.
+      </a>
+    </p>
+    {{ form.non_field_errors }}
+</div>
+{% endif %}
+
+<form id="intent-form" class="form-horizontal" method="POST" action="" role="form" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <fieldset>
+      <legend>Why are you requesting a Research Computing account?</legend>
+      <p id="ucb-login-help">Select all that apply.</p>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_summit" class="reason-checkbox" type="checkbox" name="reason_summit" {% if form.reason_summit.value %}checked{% endif %}>
+          I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
+        </label>
+      </div>
+
+      <div id="summit-additional" class="additional-info-form">
+
+        {% if form.summit_description.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_summit_description">
+              <dt>Description</dt>
+              <dd>(required)</dd>
+            </label>
+            <div class="col-sm-8">
+              <textarea id="id_summit_description" name="summit_description" class="form-control required" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" />{% if form.summit_description.value %}{{ form.summit_description.value }}{% endif %}</textarea>
+              {% if form.summit_description.errors %}
+              <div class="alert alert-danger alert-dismissable">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                <strong>{{ form.summit_description.errors }}</strong>
+              </div>
+              {% endif %}
+            </div>
+        </div>
+
+        {% if form.summit_pi_email.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_summit_pi_email">
+              <dt>PI Email</dt>
+              <dd>(optional)</dd>
+            </label>
+            <div class="col-sm-8">
+                <input id="id_summit_pi_email" type="text" name="summit_pi_email" class="form-control"
+                {% if form.summit_pi_email.value %}value="{{ form.summit_pi_email.value }}"{% endif %}
+                maxlength="256" />
+                {% if form.summit_pi_email.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.summit_pi_email.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if form.summit_funding.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_summit_funding">
+              <dt>Funding</dt>
+              <dd>(optional)</dd>
+            </label>
+            <div class="col-sm-8">
+                <input id="id_summit_funding" type="text" name="summit_funding" class="form-control"
+                {% if form.summit_funding.value %}value="{{ form.summit_funding.value }}"{% endif %}
+                maxlength="1024" placeholder="Agency, Grant Number, etc."/>
+                {% if form.summit_funding.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.summit_funding.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_course" class="reason-checkbox" type="checkbox" name="reason_course" {% if form.reason_course.value %}checked{% endif %}>
+          I am enrolled in a course that requires access to Research Computing resources.
+        </label>
+      </div>
+
+      <div id="course-additional" class="additional-info-form">
+
+        {% if form.course_instructor_email.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_course_instructor_email">
+              <dt>Instructor Email</dt>
+              <dd>(required)</dd>
+            </label>
+            <div class="col-sm-8">
+                <input id="id_course_instructor_email" type="text" name="course_instructor_email" class="form-control required"
+                {% if form.course_instructor_email.value %}value="{{ form.course_instructor_email.value }}"{% endif %}
+                maxlength="128" />
+                {% if form.course_instructor_email.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.course_instructor_email.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if form.course_number.errors %}
+        <div class="form-group has-error has-feedback">
+        {% else %}
+        <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_course_number">
+              <dt>Course Number</dt>
+              <dd>(required)</dd>
+            </label>
+            <div class="col-sm-8">
+                <input id="id_course_number" type="text" name="course_number" class="form-control required"
+                {% if form.course_number.value %}value="{{ form.course_number.value }}"{% endif %}
+                maxlength="128" placeholder="i.e., CSCI1100" />
+                {% if form.course_number.errors %}
+                <div class="alert alert-danger alert-dismissable">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                    <strong>{{ form.course_number.errors }}</strong>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_petalibrary" class="reason-checkbox" type="checkbox" name="reason_petalibrary" {% if form.reason_petalibrary.value %}checked{% endif %}>
+          My research group has purchased <strong>PetaLibrary</strong> space that I plan to use, or I plan to purchase Petalibrary space for my project. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a>
+        </label>
+      </div>
+
+      <div class="checkbox">
+        <label>
+          <input id="id_reason_blanca" class="reason-checkbox" type="checkbox" name="reason_blanca" {% if form.reason_blanca.value %}checked{% endif %}>
+          My research group has purchased nodes in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a>
+        </label>
+      </div>
+    </fieldset>
+
+    <fieldset class="acceptable-use-fieldset">
+      <legend>Agree to Acceptable Use Policy and Submit Request</legend>
+      <div class="alert alert-warning" role="alert">
+        <dt>OIT Acceptable Use Policy</dt>
+        <dd>By clicking "Agree & Submit Request" you indicate that you have read the <a href="https://www.colorado.edu/policies/acceptable-use-cu-boulders-it-resources">OIT Acceptable Use Policy</a> for University of Colorado Boulder's IT resources, and will follow all guidelines presented therein.</dd>
+      </div>
+
+      <div class="request-submit text-center">
+        <button id="intent-form-submit" type="submit" class="btn btn-primary btn-lg">Agree & Submit Request</button>
+      </div>
+    </fieldset>
+
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  $(document).ready(function() {
+
+    var hideAdditionalForm = function(formElement) {
+      formElement.find('input,textarea').each(function() {
+        // Remove potentially incomplete inputs that would otherwise prevent validation.
+        this.value = '';
+      });
+      formElement.hide();
+    };
+
+    var updateFormDisplay = function() {
+      var resources = ['summit','course'];
+      $.each(resources,function(index,resourceName) {
+        var additionalForm = $(`#${resourceName}-additional`);
+        var resourceCheckbox = $(`#id_reason_${resourceName}`);
+        if (resourceCheckbox.is(':checked')) {
+          additionalForm.show();
+        } else {
+          hideAdditionalForm(additionalForm);
+        }
+      });
+    };
+
+    var validateForm = function () {
+      var isFormValid = true;
+      $('#intent-form').find('.required:visible').each(function() {
+        if (!this.value.trim()) {
+          isFormValid = false;
+        }
+      });
+      var allUnchecked = true;
+      $('.reason-checkbox').each(function() {
+        if ($(this).is(':checked')) {
+          allUnchecked = false;
+        }
+      });
+      var submitButton = $('#intent-form-submit');
+      if (!isFormValid||allUnchecked) {
+        submitButton.attr('disabled','disabled');
+      } else {
+        submitButton.removeAttr('disabled');
+      }
+    };
+
+    $('#id_reason_summit,#id_reason_course').change(updateFormDisplay);
+    $('#intent-form').keyup(validateForm);
+    $('.reason-checkbox').change(validateForm);
+    updateFormDisplay();
+    validateForm();
+
+  });
+</script>
+{% endblock %}

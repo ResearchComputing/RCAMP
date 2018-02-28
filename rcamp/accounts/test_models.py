@@ -166,8 +166,8 @@ def get_account_request_defaults():
         last_name = 'User',
         email = 'testuser@colorado.edu',
         role = 'faculty',
-        organization = 'ucb',
-        login_shell = '/bin/bash'
+        department = 'physics',
+        organization = 'ucb'
     )
     return account_request_defaults
 
@@ -251,7 +251,6 @@ class AccountCreationTestCase(LdapTestCase):
             'last_name': 'User',
             'email': 'requser@requests.org',
             'organization': 'ucb',
-            'login_shell': '/bin/bash',
         }
 
         for k in user_dict.keys():
@@ -302,7 +301,9 @@ class AccountRequestTestCase(SafeTestCase):
             ar = AccountRequest.objects.get(username='testuser')
             ar.status = 'a'
             ar.save()
-        mock_ldap_manager.create_user_from_request.assert_called_once_with(**self.ar_dict)
+        expected_dict = copy.deepcopy(self.ar_dict)
+        del expected_dict['department']
+        mock_ldap_manager.create_user_from_request.assert_called_once_with(**expected_dict)
         self.assertIsNotNone(ar.approved_on)
         # Create new approved request
         new_req = get_account_request_defaults()
@@ -310,6 +311,8 @@ class AccountRequestTestCase(SafeTestCase):
         mock_ldap_manager.reset_mock()
         with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
             ar = AccountRequest.objects.create(status='a',**new_req)
-        mock_ldap_manager.create_user_from_request.assert_called_once_with(**new_req)
+        expected_dict = copy.deepcopy(new_req)
+        del expected_dict['department']
+        mock_ldap_manager.create_user_from_request.assert_called_once_with(**expected_dict)
         self.assertEquals(ar.status,'a')
         self.assertIsNotNone(ar.approved_on)

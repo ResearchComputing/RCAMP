@@ -1,35 +1,37 @@
 from django.conf.urls import include, url
-from accounts.views import ReasonView
-from accounts.views import AccountRequestCreateView
-from accounts.views import SponsoredAccountRequestCreateView
-from accounts.views import ClassAccountRequestCreateView
-# from accounts.views import ProjectAccountRequestCreateView
-from accounts.views import AccountRequestReviewView
+from accounts.views import (
+    AccountRequestOrgSelectView,
+    AccountRequestVerifyUcbView,
+    AccountRequestVerifyCsuView,
+    AccountRequestIntentView,
+    AccountRequestReviewView
+)
+
 
 
 urlpatterns = [
     url(
-        r'^account-request/create$',
-        ReasonView.as_view(),
-        name='account-request-reason'
+        r'^account-request/create/organization$',
+        AccountRequestOrgSelectView.as_view(),
+        name='account-request-org-select'
     ),
     url(
-        r'^account-request/create/general$',
-        AccountRequestCreateView.as_view(),
-        name='account-request-create'
+        r'^account-request/create/verify/ucb$',
+        AccountRequestVerifyUcbView.as_view(),
+        name='account-request-verify-ucb'
     ),
     url(
-        r'^account-request/create/class$',
-        ClassAccountRequestCreateView.as_view(),
-        name='class-account-request-create'
+        r'^account-request/create/verify/csu$',
+        AccountRequestVerifyCsuView.as_view(),
+        name='account-request-verify-csu'
     ),
     url(
-        r'^account-request/create/sponsored$',
-        SponsoredAccountRequestCreateView.as_view(),
-        name='sponsored-account-request-create'
+        r'^account-request/create/intent$',
+        AccountRequestIntentView.as_view(),
+        name='account-request-intent'
     ),
     url(
-        r'^account-request/review/(?P<request_id>\d+)',
+        r'^account-request/review$',
         AccountRequestReviewView.as_view(),
         name='account-request-review'
     ),
