@@ -58,12 +58,7 @@ class ReferenceForm(forms.Form):
 class AllocationRequestForm(forms.Form):
     VALID_DOC_TYPES = ['application/msword', 'application/pdf', 'text/plain','application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 
-    abstract = forms.CharField(widget=forms.Textarea,required=True)
-    funding = forms.CharField(widget=forms.Textarea,required=True)
     proposal = forms.FileField(required=True)
-    time_requested = forms.IntegerField(min_value=0,required=True)
-    disk_space = forms.IntegerField(min_value=0,required=False)
-    software_request = forms.CharField(widget=forms.Textarea,required=False)
 
     def clean(self):
         cleaned_data = super(AllocationRequestForm,self).clean()
