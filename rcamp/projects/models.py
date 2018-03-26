@@ -72,15 +72,12 @@ class AllocationManager(models.Manager):
     def create_allocation_from_request(self,**kwargs):
         project = kwargs.get('project')
         amount_awarded = kwargs.get('amount_awarded')
-        time_requested = kwargs.get('time_requested')
 
         if not project:
             raise TypeError('Missing required field: project')
 
-        if amount_awarded == None:
-            if not time_requested:
-                raise TypeError('Missing required field: amount_awarded or time_requested must be defined.')
-            amount_awarded = time_requested
+        if not amount_awarded:
+            raise TypeError('Missing required field: amount_awarded')
 
         now = timezone.now()
         next_year = now + relativedelta(years=1)
@@ -157,7 +154,7 @@ class AllocationRequest(models.Model):
     proposal = models.FileField(upload_to='proposals/%Y/%m/%d',null=True,blank=True)
     time_requested = models.BigIntegerField(null=True,blank=True)
 
-    amount_awarded = models.BigIntegerField(null=True,blank=True)
+    amount_awarded = models.BigIntegerField(default=0)
     disk_space = models.IntegerField(default=0,null=True,blank=True)
     software_request = models.TextField(null=True,blank=True)
 
@@ -171,22 +168,14 @@ class AllocationRequest(models.Model):
     def __unicode__(self):
         return '{}_{}'.format(self.project.project_id,self.request_date)
 
-    @classmethod
-    def from_db(cls,db,field_names,values):
-        instance = super(AllocationRequest,cls).from_db(db,field_names,values)
-        # Store original field values on the instance
-        instance._loaded_values = dict(zip(field_names,values))
-        return instance
-
     def save(self,*args,**kwargs):
         # Check for change in approval status
-        if (self.status in ['a','f','p']) and (self._loaded_values['status'] not in ['a','f','p']):
+        if (self.status in ['a','f','p']) and (not self.approved_on):
             # Approval process
             # logger.info('Approving project request: '+self.__unicode__())
             alloc = Allocation.objects.create_allocation_from_request(
                 project = self.project,
-                amount_awarded = self.amount_awarded,
-                time_requested = self.time_requested
+                amount_awarded = self.amount_awarded
             )
             self.amount_awarded = alloc.amount
             allocation_created_from_request.send(sender=alloc.__class__,allocation=alloc)
