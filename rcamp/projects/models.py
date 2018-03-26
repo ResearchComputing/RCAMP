@@ -152,10 +152,10 @@ class AllocationRequest(models.Model):
     project = models.ForeignKey(Project)
     allocation = models.ForeignKey(Allocation,null=True,blank=True)
 
-    abstract = models.TextField()
-    funding = models.TextField()
+    abstract = models.TextField(null=True,blank=True)
+    funding = models.TextField(null=True,blank=True)
     proposal = models.FileField(upload_to='proposals/%Y/%m/%d',null=True,blank=True)
-    time_requested = models.BigIntegerField()
+    time_requested = models.BigIntegerField(null=True,blank=True)
 
     amount_awarded = models.BigIntegerField(null=True,blank=True)
     disk_space = models.IntegerField(default=0,null=True,blank=True)
