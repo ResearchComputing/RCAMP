@@ -108,7 +108,7 @@
   <ul class="list-group">
     {% for allocation_request in allocation_requests %}
     <a href="{% url 'projects:allocation-request-detail' project_pk=object.pk pk=allocation_request.pk %}" class="list-group-item">
-      <h4 class="list-group-item-heading">{{ allocation_request.request_date }}, {{ allocation_request.time_requested }} SU</h4>
+      <h4 class="list-group-item-heading">{{ allocation_request.request_date }}</h4>
       <p class="list-group-item-text">
         {% for status in allocation_request.STATUSES %}
         {% if allocation_request.status == status.0 %}
