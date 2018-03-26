@@ -92,8 +92,7 @@ class AllocationCreateTestCase(SafeTestCase):
         })
         self.ar_dict = {
             'project': self.proj,
-            'amount_awarded': 1234,
-            'time_requested': 12345
+            'amount_awarded': 1234
         }
 
     def test_create_allocation_from_request(self):
@@ -103,11 +102,6 @@ class AllocationCreateTestCase(SafeTestCase):
         self.assertEquals(alloc.amount,self.ar_dict['amount_awarded'])
         self.assertIsNotNone(alloc.start_date)
         self.assertIsNotNone(alloc.end_date)
-
-        tmp_dict = copy.deepcopy(self.ar_dict)
-        del tmp_dict['amount_awarded']
-        alloc = Allocation.objects.create_allocation_from_request(**tmp_dict)
-        self.assertEquals(alloc.amount,self.ar_dict['time_requested'])
 
     def test_create_allocation_from_request_missing_fields(self):
         tmp_dict = copy.deepcopy(self.ar_dict)
@@ -119,7 +113,6 @@ class AllocationCreateTestCase(SafeTestCase):
             )
         tmp_dict = copy.deepcopy(self.ar_dict)
         del tmp_dict['amount_awarded']
-        del tmp_dict['time_requested']
         self.assertRaises(
                 TypeError,
                 Allocation.objects.create_allocation_from_request,
@@ -154,13 +147,6 @@ class AllocationRequestTestCase(SafeTestCase):
             'requester': self.ucb_auth_user
         }
         ar = AllocationRequest.objects.create(**self.ar_dict)
-
-    def test_loaded_values(self):
-        ar = AllocationRequest.objects.get(project=self.proj)
-        test_dict = copy.deepcopy(self.ar_dict)
-        del test_dict['project']
-        del test_dict['requester']
-        self.assertDictContainsSubset(test_dict,ar._loaded_values)
 
     def test_update_allocation_request(self):
         ar = AllocationRequest.objects.get(project=self.proj)

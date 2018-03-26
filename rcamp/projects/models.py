@@ -71,12 +71,12 @@ class Reference(models.Model):
 class AllocationManager(models.Manager):
     def create_allocation_from_request(self,**kwargs):
         project = kwargs.get('project')
-        amount_awarded = kwargs.get('amount_awarded')
+        amount_awarded = kwargs.get('amount_awarded', None)
 
         if not project:
             raise TypeError('Missing required field: project')
 
-        if not amount_awarded:
+        if amount_awarded == None:
             raise TypeError('Missing required field: amount_awarded')
 
         now = timezone.now()
