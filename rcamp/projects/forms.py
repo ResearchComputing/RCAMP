@@ -9,6 +9,10 @@ from accounts.models import (
 from projects.models import Project
 
 
+class ProjectMembersModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return '{} ({} {})'.format(obj.username,obj.first_name,obj.last_name)
+
 class ProjectForm(forms.ModelForm):
 
     class Meta:
@@ -23,7 +27,7 @@ class ProjectForm(forms.ModelForm):
         ]
 
     pi_emails = MultiEmailField(required=True)
-    managers = forms.ModelMultipleChoiceField(
+    managers = ProjectMembersModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
@@ -31,7 +35,7 @@ class ProjectForm(forms.ModelForm):
             False,
         )
     )
-    collaborators = forms.ModelMultipleChoiceField(
+    collaborators = ProjectMembersModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(

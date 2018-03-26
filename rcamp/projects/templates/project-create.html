@@ -75,17 +75,6 @@
 
   <fieldset>
     <legend>Describe your project</legend>
-    <div class="alert alert-info" role="alert">
-      The Project Description should include:
-      <ul>
-        <li>Concise description of the research project and its significance (3-5 sentences)</li>
-        <li>Estimated Project timeframe/duration (normally minimum 1 year, maximum 5 years)</li>
-        <li>Concise description of the related computational work (3-5 sentences)</li>
-        <li>Goals (typically degrees, publications, presentations, data products)</li>
-        <li>Grants that support this project, specifically grants that are directly related to work performed on RC resources. If possible, please include the name of the funding agency, the grant number, and its dollar value.</li>
-        <li>General description of the data storage, sharing and management for the project, and beyond if applicable (minimum 2-3 sentences).</li>
-      </ul>
-    </div>
     {% if form.title.errors %}
     <div class="form-group has-error has-feedback">
     {% else %}
@@ -112,7 +101,7 @@
     {% endif %}
         <label class="col-sm-2 control-label" for="id_description">Description</label>
         <div class="col-sm-8">
-          <textarea id="id_description" name="description" class="form-control" rows="10" cols="40"/>{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
+          <textarea id="id_description" name="description" class="form-control" rows="10" cols="40" placeholder="A concise description this project's purpose. 100 words or fewer." />{% if form.description.value %}{{ form.description.value }}{% endif %}</textarea>
           {% if form.description.errors %}
           <div class="alert alert-danger alert-dismissable">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
