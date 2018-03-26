@@ -11,6 +11,9 @@
 <p>Request a compute time allocation for {{ project.project_id }}</p>
 {% endblock %}
 
+{% block jumbotron_button %}
+{% endblock %}
+
 {% block container %}
 <div class="row">
   <ol class="breadcrumb">
@@ -41,7 +44,7 @@
       <legend>Submit Your Proposal</legend>
 
       <div class="alert alert-info" role="alert">
-        Allocation Template help text.
+        You should create your allocation request Proposal Document from the template and instructions provided in our <a href="#">Allocation Request Documentation</a>. Upload your completed proposal document below.
       </div>
 
       {% if form.proposal.errors %}
