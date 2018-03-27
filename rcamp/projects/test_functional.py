@@ -109,10 +109,10 @@ class ProjectCreateTestCase(UserAuthenticatedLiveServerTestCase):
         submit_button = self.browser.find_element_by_css_selector('button[type="submit"]')
         # Manager filter select elements
         managers_add_link = self.browser.find_element_by_css_selector('#id_managers_add_link')
-        manager_option_ucb_user = self.browser.find_element_by_css_selector('#id_managers_from > option[title="testuser"]')
+        manager_option_ucb_user = self.browser.find_element_by_css_selector('#id_managers_from > option[title="testuser (Test User)"]')
         # Collaborators filter select elements
         collaborators_add_link = self.browser.find_element_by_css_selector('#id_collaborators_add_link')
-        collaborator_option_csu_user = self.browser.find_element_by_css_selector('#id_collaborators_from > option[title="testuser@colostate.edu"]')
+        collaborator_option_csu_user = self.browser.find_element_by_css_selector('#id_collaborators_from > option[title="testuser@colostate.edu (Test User)"]')
 
         organization_option_ucb.click()
         title_input.send_keys(project_dict['title'])
@@ -162,11 +162,11 @@ class ProjectEditTestCase(UserAuthenticatedLiveServerTestCase):
         submit_button = self.browser.find_element_by_css_selector('button[type="submit"]')
         # Manager filter select elements
         managers_remove_link = self.browser.find_element_by_css_selector('#id_managers_remove_link')
-        manager_option_ucb_user = self.browser.find_element_by_css_selector('#id_managers_to > option[title="testuser"]')
+        manager_option_ucb_user = self.browser.find_element_by_css_selector('#id_managers_to > option[title="testuser (Test User)"]')
         # Collaborators filter select elements
         collaborators_remove_link = self.browser.find_element_by_css_selector('#id_collaborators_remove_link')
-        collaborator_option_ucb_user = self.browser.find_element_by_css_selector('#id_collaborators_to > option[title="testuser"]')
-        collaborator_option_csu_user = self.browser.find_element_by_css_selector('#id_collaborators_to > option[title="testuser@colostate.edu"]')
+        collaborator_option_ucb_user = self.browser.find_element_by_css_selector('#id_collaborators_to > option[title="testuser (Test User)"]')
+        collaborator_option_csu_user = self.browser.find_element_by_css_selector('#id_collaborators_to > option[title="testuser@colostate.edu (Test User)"]')
 
         # Verify form data
         form_title_value = title_input.get_attribute('value')

@@ -124,11 +124,18 @@ class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
             self.ucb_auth_user_dict['email'],
             self.ucb_auth_user_dict['password']
         )
+        self.ucb_auth_user.first_name = self.ucb_ldap_user_dict['first_name']
+        self.ucb_auth_user.last_name = self.ucb_ldap_user_dict['last_name']
+        self.ucb_auth_user.save()
+
         self.csu_auth_user = User.objects.create_superuser(
             self.csu_auth_user_dict['username'],
             self.csu_auth_user_dict['email'],
             self.csu_auth_user_dict['password']
         )
+        self.csu_auth_user.first_name = self.csu_ldap_user_dict['first_name']
+        self.csu_auth_user.last_name = self.csu_ldap_user_dict['last_name']
+        self.csu_auth_user.save()
 
     def login(self,username='testuser',password='password'):
         """Attempts to log a user in using the RCAMP login form, and the un/pw pair given."""
