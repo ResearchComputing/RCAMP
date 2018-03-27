@@ -18,9 +18,21 @@ class Command(BaseCommand):
             const=True,
             help="Delete auth users not found in LDAP."
         )
+        parser.add_argument('--quiet',
+            action='store_const',
+            const=True,
+            help="Suppress log messages."
+        )
+
+    def _log_message(self,message,quiet=False,message_type='stdout'):
+        if (not quiet) and (message_type == 'stdout'):
+            self.stdout.write(message)
+        if message_type == 'stderr':
+            self.stderr.write(message)
 
     def handle(self, *args, **options):
         delete = options.get('delete',False)
+        quiet = options.get('quiet',False)
         auth_users_remaining = [user.username for user in User.objects.all()]
         rc_ldap_users = RcLdapUser.objects.all()
 
@@ -36,14 +48,23 @@ class Command(BaseCommand):
             )
 
             if created:
-                self.stdout.write('Created user {username}'.format(username=auth_user.username))
+                self._log_message(
+                    'Created user {username}'.format(username=auth_user.username),
+                    quiet=quiet
+                )
             else:
                 auth_users_remaining.remove(auth_user.username)
 
         user_list = '\n'.join(auth_users_remaining)
         if delete:
             User.objects.filter(username__in=auth_users_remaining).delete()
-            self.stdout.write('The following users were deleted:\n{user_list}'.format(user_list=user_list))
+            self._log_message(
+                'The following users were deleted:\n{user_list}'.format(user_list=user_list),
+                quiet=quiet
+            )
         else:
             user_list = '\n'.join(auth_users_remaining)
-            self.stdout.write('The following users were not found in LDAP, but exist in RCAMP:\n{user_list}\nUse the --delete option to remove these users from RCAMP.'.format(user_list=user_list))
+            self._log_message(
+                'The following users were not found in LDAP, but exist in RCAMP:\n{user_list}\nUse the --delete option to remove these users from RCAMP.'.format(user_list=user_list),
+                quiet=quiet
+            )
