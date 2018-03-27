@@ -10,7 +10,7 @@ from projects.models import Project
 
 
 @receiver(account_created_from_request)
-def notify_account_created_from_request(sender, **kwargs):
+def update_general_account_membership(sender, **kwargs):
     rc_ldap_user = kwargs.get('account')
     organization = rc_ldap_user.organization
     username = rc_ldap_user.username
