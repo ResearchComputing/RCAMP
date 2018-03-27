@@ -105,7 +105,6 @@ class AccountRequest(models.Model):
                 organization=self.organization,
                 role=self.role
             )
-            account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
             # Create associated auth user
             auth_user_defaults = dict(
                 email=rc_user.email,
@@ -116,6 +115,7 @@ class AccountRequest(models.Model):
                 username=rc_user.effective_uid,
                 defaults=auth_user_defaults
             )
+            account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
 
 class Intent(models.Model):
