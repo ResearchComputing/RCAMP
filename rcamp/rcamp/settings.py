@@ -152,23 +152,28 @@ LICENSE_GROUPS = {
 ORGANIZATION_INFO = {
     'ucb': {
         'long_name': 'University of Colorado Boulder',
-        'suffix': None
+        'suffix': None,
+        'general_project_id': 'ucb-general'
     },
     'csu': {
         'long_name': 'Colorado State University',
-        'suffix': 'colostate.edu'
+        'suffix': 'colostate.edu',
+        'general_project_id': 'csu-general'
     },
     'xsede': {
         'long_name': 'XSEDE',
-        'suffix': 'xsede.org'
+        'suffix': 'xsede.org',
+        'general_project_id': 'rmacc-general'
     },
     'ncar': {
         'long_name': 'NCAR',
-        'suffix': 'ncar.ucar.edu'
+        'suffix': 'ncar.ucar.edu',
+        'general_project_id': None
     },
     'internal': {
         'long_name': 'Research Computing - Administrative',
-        'suffix': None
+        'suffix': None,
+        'general_project_id': None
     }
 }
 
