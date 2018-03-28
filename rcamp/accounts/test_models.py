@@ -298,9 +298,10 @@ class AccountRequestTestCase(SafeTestCase):
     def test_approve_request(self):
         mock_ldap_manager = mock.MagicMock()
         mock_rc_ldap_user = build_mock_rcldap_user()
+        mock_rc_ldap_user.organization = 'ucb'
         mock_rc_ldap_user.effective_uid = mock_rc_ldap_user.username
         mock_ldap_manager.create_user_from_request.return_value = mock_rc_ldap_user
-        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
+        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager),mock.patch('django.dispatch.Signal.send') as account_request_approved_mock:
             ar = AccountRequest.objects.get(username='testuser')
             ar.status = 'a'
             ar.save()
@@ -314,7 +315,7 @@ class AccountRequestTestCase(SafeTestCase):
         new_req = get_account_request_defaults()
         new_req.update(dict(username='testuser1',email='testuser1@colorado.edu'))
         mock_ldap_manager.reset_mock()
-        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
+        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager),mock.patch('django.dispatch.Signal.send') as account_request_approved_mock:
             ar = AccountRequest.objects.create(status='a',**new_req)
         expected_dict = copy.deepcopy(new_req)
         del expected_dict['department']
