@@ -21,6 +21,7 @@ from django.conf.urls import handler404
 from django.conf.urls import handler500
 # Make sure signals/receivers get loaded.
 from mailer import receivers
+from projects import receivers
 
 
 

@@ -105,6 +105,16 @@ class AccountRequest(models.Model):
                 organization=self.organization,
                 role=self.role
             )
+            # Create associated auth user
+            auth_user_defaults = dict(
+                email=rc_user.email,
+                first_name=rc_user.first_name,
+                last_name=rc_user.last_name
+            )
+            auth_user, created = User.objects.update_or_create(
+                username=rc_user.effective_uid,
+                defaults=auth_user_defaults
+            )
             account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
 
