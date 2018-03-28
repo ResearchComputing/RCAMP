@@ -1,6 +1,7 @@
 from django.dispatch import receiver
 from django.conf import settings
-from mailer.signals import *
+from mailer.signals import account_request_approved
+from lib.ldap_utils import get_suffixed_username
 
 from accounts.models import (
     User,
@@ -9,17 +10,20 @@ from accounts.models import (
 from projects.models import Project
 
 
-@receiver(account_created_from_request)
-def update_general_account_membership(sender, **kwargs):
-    rc_ldap_user = kwargs.get('account')
-    organization = rc_ldap_user.organization
-    username = rc_ldap_user.username
-    account_request = AccountRequest.objects.get(username=username,organization=organization)
+@receiver(account_request_approved)
+def check_general_eligibility(sender, **kwargs):
+    account_request = kwargs.get('account_request')
+    organization = account_request.organization
+    username = account_request.username
 
-    if not account_request.intent.reason_summit:
+    try:
+        if not account_request.intent.reason_summit:
+            return
+    except Intent.DoesNotExist:
         return
 
-    auth_user = User.objects.get(username=rc_ldap_user.effective_uid)
+    effective_uid = get_suffixed_username(username,organization)
+    auth_user = User.objects.get(username=effective_uid)
     general_project_id = settings.ORGANIZATION_INFO[organization].get('general_project_id',None)
     try:
         general_project = Project.objects.get(project_id=general_project_id)

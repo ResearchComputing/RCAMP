@@ -10,7 +10,10 @@ import logging
 import datetime
 import pam
 
-from mailer.signals import account_created_from_request
+from mailer.signals import (
+    account_created_from_request,
+    account_request_approved
+)
 
 logger = logging.getLogger(__name__)
 
@@ -93,7 +96,9 @@ class AccountRequest(models.Model):
 
     def save(self,*args,**kwargs):
         # Has model already been approved?
+        manually_approved = False
         if (self.status == 'a') and (not self.approved_on):
+            manually_approved = self.pk is not None
             # Approval process
             logger.info('Approving account request: '+self.username)
             self.approved_on=timezone.now()
@@ -115,8 +120,10 @@ class AccountRequest(models.Model):
                 username=rc_user.effective_uid,
                 defaults=auth_user_defaults
             )
-            account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
+            # account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
+        if manually_approved:
+            account_request_approved.send(sender=self.__class__,account_request=self)
 
 class Intent(models.Model):
     account_request = models.OneToOneField(AccountRequest,blank=True,null=True)

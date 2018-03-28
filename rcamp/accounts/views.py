@@ -14,7 +14,10 @@ from accounts.forms import (
     AccountRequestVerifyCsuForm,
     AccountRequestIntentForm
 )
-from mailer.signals import account_request_received
+from mailer.signals import (
+    account_request_received,
+    account_request_approved
+)
 
 
 
@@ -115,6 +118,7 @@ class AccountRequestIntentView(FormView):
                 **form.cleaned_data
             )
             intent = Intent.objects.create(**intent_dict)
+            account_request_approved.send(sender=account_request.__class__,account_request=account_request)
         except:
             # TODO: Add proper logging here, but don't make the request fail
             # if creating the Intent object does.

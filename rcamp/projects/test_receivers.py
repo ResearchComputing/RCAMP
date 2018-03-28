@@ -3,14 +3,14 @@ import mock
 from django.test import override_settings
 
 from lib.test.utils import SafeTestCase
-from lib.test.ldap import build_mock_rcldap_user
+from lib.test.ldap import get_ldap_user_defaults
 from accounts.models import (
     User,
     AccountRequest,
     Intent
 )
 from projects.models import Project
-from projects.receivers import update_general_account_membership
+from projects.receivers import check_general_eligibility
 
 
 organization_info = {
@@ -27,26 +27,24 @@ organization_info = {
 }
 
 @override_settings(ORGANIZATION_INFO=organization_info)
-class GeneralMembershipReceiverTestCase(SafeTestCase):
-    def test_receiver_update_membership(self):
-        ldap_user = build_mock_rcldap_user()
-        ldap_user.organization = 'ucb'
-        ldap_user.effective_uid = ldap_user.username
+class GeneralEligibilityReceiverTestCase(SafeTestCase):
+    def test_check_general_eligibility(self):
+        user_defaults = get_ldap_user_defaults()
 
         auth_user_defaults = dict(
-            username=ldap_user.username,
-            first_name=ldap_user.first_name,
-            last_name=ldap_user.last_name,
-            email=ldap_user.email
+            username=user_defaults['username'],
+            first_name=user_defaults['first_name'],
+            last_name=user_defaults['last_name'],
+            email=user_defaults['email']
         )
         auth_user = User.objects.create(**auth_user_defaults)
 
         account_request_defaults = dict(
-            username=ldap_user.username,
-            first_name=ldap_user.first_name,
-            last_name=ldap_user.last_name,
-            email=ldap_user.email,
-            organization=ldap_user.organization
+            username=auth_user.username,
+            first_name=auth_user.first_name,
+            last_name=auth_user.last_name,
+            email=auth_user.email,
+            organization='ucb'
         )
         account_request = AccountRequest.objects.create(**account_request_defaults)
         intent = Intent.objects.create(
@@ -63,7 +61,7 @@ class GeneralMembershipReceiverTestCase(SafeTestCase):
         )
         project = Project.objects.create(**project_defaults)
 
-        update_general_account_membership(ldap_user.__class__,account=ldap_user)
+        check_general_eligibility(account_request.__class__,account_request=account_request)
 
         project = Project.objects.get()
         self.assertIn(auth_user,project.collaborators.all())
@@ -73,30 +71,28 @@ class GeneralMembershipReceiverTestCase(SafeTestCase):
         intent.reason_summit = False
         intent.save()
 
-        update_general_account_membership(ldap_user.__class__,account=ldap_user)
+        check_general_eligibility(account_request.__class__,account_request=account_request)
 
         project = Project.objects.get()
         self.assertNotIn(auth_user,project.collaborators.all())
 
-    def test_receiver_update_membership_suffixed(self):
-        ldap_user = build_mock_rcldap_user()
-        ldap_user.organization = 'csu'
-        ldap_user.effective_uid = '{}@colostate.edu'.format(ldap_user.username)
-
+    def test_check_general_eligibility_suffixed(self):
+        user_defaults = get_ldap_user_defaults()
+        effective_uid = '{}@colostate.edu'.format(user_defaults['username'])
         auth_user_defaults = dict(
-            username=ldap_user.effective_uid,
-            first_name=ldap_user.first_name,
-            last_name=ldap_user.last_name,
-            email=ldap_user.email
+            username=effective_uid,
+            first_name=user_defaults['first_name'],
+            last_name=user_defaults['last_name'],
+            email=user_defaults['email']
         )
         auth_user = User.objects.create(**auth_user_defaults)
 
         account_request_defaults = dict(
-            username=ldap_user.username,
-            first_name=ldap_user.first_name,
-            last_name=ldap_user.last_name,
-            email=ldap_user.email,
-            organization=ldap_user.organization
+            username=user_defaults['username'],
+            first_name=auth_user.first_name,
+            last_name=auth_user.last_name,
+            email=auth_user.email,
+            organization='csu'
         )
         account_request = AccountRequest.objects.create(**account_request_defaults)
         intent = Intent.objects.create(
@@ -113,7 +109,7 @@ class GeneralMembershipReceiverTestCase(SafeTestCase):
         )
         project = Project.objects.create(**project_defaults)
 
-        update_general_account_membership(ldap_user.__class__,account=ldap_user)
+        check_general_eligibility(account_request.__class__,account_request=account_request)
 
         project = Project.objects.get()
         self.assertIn(auth_user,project.collaborators.all())

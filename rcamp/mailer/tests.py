@@ -16,6 +16,7 @@ class EventChoicesTestCase(TestCase):
         from mailer.models import EVENT_CHOICES as event_choices
         expected_choices = (
             ('account_created_from_request', 'account_created_from_request'),
+            ('account_request_approved', 'account_request_approved'),
             ('account_request_received', 'account_request_received'),
             ('allocation_created_from_request', 'allocation_created_from_request'),
             ('allocation_request_created_by_user', 'allocation_request_created_by_user'),
