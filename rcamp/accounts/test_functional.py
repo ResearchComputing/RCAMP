@@ -1,5 +1,6 @@
 import mock
 from unittest import skip
+from django.test import override_settings
 from lib.test.ldap import (
     get_ldap_user_defaults,
     get_ldap_group_defaults
@@ -13,8 +14,10 @@ from accounts.models import (
     IdTracker,
     AccountRequest,
     RcLdapUser,
-    RcLdapGroup
+    RcLdapGroup,
+    User
 )
+from projects.models import Project
 
 
 def get_request_form_defaults():
@@ -36,67 +39,114 @@ def get_org_user_defaults():
         username = 'testuser',
         first_name = 'Test',
         last_name = 'User',
-        email = 'testuser@colorado.edu'
+        email = 'testuser@colorado.edu',
+        edu_affiliation = ['Faculty','Alumni']
     )
     return defaults
 
-@skip("TODO: Update prior to release.")
-class AccountRequestGeneralTestCase(SafeStaticLiveServerTestCase):
+
+organization_info = {
+    'ucb': {
+        'long_name': 'University of Colorado Boulder',
+        'suffix': None,
+        'general_project_id': 'ucb-general'
+    },
+    'csu': {
+        'long_name': 'Colorado State University',
+        'suffix': 'colostate.edu',
+        'general_project_id': 'csu-general'
+    }
+}
+
+@override_settings(ORGANIZATION_INFO=organization_info)
+class AccountRequestTestCase(SafeStaticLiveServerTestCase):
     def setUp(self):
-        super(AccountRequestGeneralTestCase,self).setUp()
-        self.browser.get(self.live_server_url+'/accounts/account-request/create/general')
+        super(AccountRequestTestCase,self).setUp()
+        self.browser.get(self.live_server_url+'/accounts/account-request/create/organization')
+        ucb_general_project = Project.objects.create(
+            project_id = 'ucb-general',
+            organization = 'ucb',
+            title = 'UCB General',
+            description = 'UCB General Project',
+            pi_emails = ['a@a.org','b@b.org']
+        )
+        csu_general_project = Project.objects.create(
+            project_id = 'csu-general',
+            organization = 'csu',
+            title = 'CSU General',
+            description = 'CSU General Project',
+            pi_emails = ['a@a.org','b@b.org']
+        )
 
-    def test_request_create(self):
-        request_form_defaults = get_request_form_defaults()
-        # Org select field
-        org_options = self.browser.find_elements_by_css_selector('#id_organization > option')
-        self.assertEquals(len(org_options),2)
-        self.assertEquals(org_options[0].get_attribute('value'),'ucb')
-        self.assertEquals(org_options[1].get_attribute('value'),'csu')
+    def test_cu_request_auto_approve(self):
+        # Select organization
+        ucb_org_option = self.browser.find_element_by_css_selector('a[href="/accounts/account-request/create/verify/ucb"]')
+        ucb_org_option.click()
+        verify_url = '/accounts/account-request/create/verify/ucb'
+        self.assertIn(verify_url,self.browser.current_url)
 
-        # Fill out form
-        organization_option_ucb = self.browser.find_element_by_css_selector('#id_organization > option[value="ucb"]')
+        # Fill out verification form
         username_input = self.browser.find_element_by_css_selector('#id_username')
         password_input = self.browser.find_element_by_css_selector('#id_password')
+        department_input = self.browser.find_element_by_css_selector('#id_department')
         role_option_faculty = self.browser.find_element_by_css_selector('#id_role > option[value="faculty"]')
-        summit_checkbox = self.browser.find_element_by_css_selector('#id_summit')
-        blanca_checkbox = self.browser.find_element_by_css_selector('#id_blanca')
         submit_button = self.browser.find_element_by_css_selector('button[type="submit"]')
 
-        organization_option_ucb.click()
+        username_input.send_keys('testuser')
+        password_input.send_keys('testpass')
+        department_input.send_keys('Physics')
         role_option_faculty.click()
-        summit_checkbox.click()
-        blanca_checkbox.click()
-        username_input.send_keys(request_form_defaults['username'])
-        password_input.send_keys(request_form_defaults['password'])
 
         mock_cu_user_defaults = get_org_user_defaults()
         mock_cu_user = mock.MagicMock(**mock_cu_user_defaults)
         mock_cu_user_manager_get = mock.MagicMock(return_value=mock_cu_user)
         mock_cu_user_authenticated = mock.MagicMock(return_value=True)
-        with mock.patch('accounts.models.CuLdapUser.objects.get',mock_cu_user_manager_get):
-            with mock.patch('accounts.models.CuLdapUser.authenticate',mock_cu_user_authenticated):
-                submit_button.click()
+        with mock.patch('accounts.models.CuLdapUser.objects.get',mock_cu_user_manager_get),mock.patch('accounts.models.CuLdapUser.authenticate',mock_cu_user_authenticated):
+            submit_button.click()
+        intent_url = '/accounts/account-request/create/intent'
+        self.assertIn(intent_url,self.browser.current_url)
 
-        # Acknowledge contact info
-        # self.browser.implicitly_wait(1)
-        # email_ack_checkbox = self.browser.find_element_by_css_selector('#email_ack')
-        # submit_ack_button = self.browser.find_element_by_css_selector('#submit_ack')
-        # email_ack_checkbox.click()
-        # submit_ack_button.click()
+        # Fill out intent form
+        reason_summit_checkbox = self.browser.find_element_by_css_selector('#id_reason_summit')
+        reason_summit_checkbox.click()
 
-        account_request = AccountRequest.objects.get(username='testuser')
-        review_url = '/account-request/review/{}'.format(account_request.pk)
+        summit_description_input = self.browser.find_element_by_css_selector('#id_summit_description')
+        summit_pi_email_input = self.browser.find_element_by_css_selector('#id_summit_pi_email')
+        summit_funding_input = self.browser.find_element_by_css_selector('#id_summit_funding')
+        submit_button = self.browser.find_element_by_css_selector('button[type="submit"]')
+
+        summit_description_input.send_keys('a test project')
+        summit_pi_email_input.send_keys('veryimportantperson@colorado.edu,yavip@colorado.edu')
+        summit_funding_input.send_keys('NSF Grant# 12345678')
+        submit_button.click()
+
+        review_url = '/accounts/account-request/review'
         self.assertIn(review_url,self.browser.current_url)
         self.assertIn(mock_cu_user.email,self.browser.page_source)
 
+        account_request = AccountRequest.objects.get(username='testuser')
         self.assertEquals(account_request.first_name,'Test')
         self.assertEquals(account_request.last_name,'User')
         self.assertEquals(account_request.email,'testuser@colorado.edu')
         self.assertEquals(account_request.role, 'faculty')
-        self.assertEquals(account_request.login_shell,'/bin/bash')
-        self.assertEquals(account_request.resources_requested,'blanca,summit')
         self.assertEquals(account_request.organization,'ucb')
+        self.assertEquals(account_request.status,'a')
+
+        intent = Intent.objects.get(account_request=account_request)
+        self.assertEquals(intent.reason_summit,True)
+        self.assertEquals(intent.summit_description,'a test project')
+        self.assertEquals(intent.summit_pi_emails,['veryimportantperson@colorado.edu','yavip@colorado.edu'])
+        self.assertEquals(intent.summit_funding,'NSF Grant# 12345678')
+
+        ldap_user = RcLdapUser.objects.get_user_from_suffixed_username('testuser')
+        self.assertEquals(ldap_user.email,'testuser@colorado.edu')
+        self.assertIn(ldap_user.role,'faculty')
+
+        auth_user = User.objects.get(username='testuser')
+        self.assertEquals(auth_user.email,'testuser@colorado.edu')
+
+        ucb_general_project = Project.objects.get(project_id='ucb-general')
+        self.assertIn(auth_user,ucb_general_project.collaborators.all())
 
 class LdapGroupAdminTestCase(UserAuthenticatedLiveServerTestCase):
     def setUp(self):
