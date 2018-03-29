@@ -25,14 +25,11 @@
 {% endblock %}
 
 {% block container %}
-<div class="mailto-help">
-    Don't see your organization?
-    <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Account%20Request">
-        Contact us.
-    </a>
-</div>
 
 <legend>Please select your organization to begin.</legend>
+<div class="alert alert-info" role="alert">
+    If you're an RMACC user and do not see your organization listed, please follow the <a href="https://github.com/ResearchComputing/Research-Computing-User-Tutorials/wiki/XSEDE">XSEDE Account Request <span class="glyphicon glyphicon-new-window"></span></a> documentation for access to RC resources.
+</div>
 
 <div class="list-group">
   <a href="{% url 'accounts:account-request-verify-ucb' %}" class="list-group-item">
