@@ -20,7 +20,8 @@ from accounts.models import (
     IdTracker,
     AccountRequest,
     RcLdapUser,
-    RcLdapGroup
+    RcLdapGroup,
+    User
 )
 
 
@@ -166,8 +167,8 @@ def get_account_request_defaults():
         last_name = 'User',
         email = 'testuser@colorado.edu',
         role = 'faculty',
-        organization = 'ucb',
-        login_shell = '/bin/bash'
+        department = 'physics',
+        organization = 'ucb'
     )
     return account_request_defaults
 
@@ -251,7 +252,6 @@ class AccountCreationTestCase(LdapTestCase):
             'last_name': 'User',
             'email': 'requser@requests.org',
             'organization': 'ucb',
-            'login_shell': '/bin/bash',
         }
 
         for k in user_dict.keys():
@@ -297,19 +297,28 @@ class AccountRequestTestCase(SafeTestCase):
 
     def test_approve_request(self):
         mock_ldap_manager = mock.MagicMock()
-        mock_ldap_manager.create_user_from_request.return_value = None
-        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
+        mock_rc_ldap_user = build_mock_rcldap_user()
+        mock_rc_ldap_user.organization = 'ucb'
+        mock_rc_ldap_user.effective_uid = mock_rc_ldap_user.username
+        mock_ldap_manager.create_user_from_request.return_value = mock_rc_ldap_user
+        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager),mock.patch('django.dispatch.Signal.send') as account_request_approved_mock:
             ar = AccountRequest.objects.get(username='testuser')
             ar.status = 'a'
             ar.save()
-        mock_ldap_manager.create_user_from_request.assert_called_once_with(**self.ar_dict)
+        expected_dict = copy.deepcopy(self.ar_dict)
+        del expected_dict['department']
+        mock_ldap_manager.create_user_from_request.assert_called_once_with(**expected_dict)
         self.assertIsNotNone(ar.approved_on)
+        auth_user = User.objects.get(username=mock_rc_ldap_user.username)
+
         # Create new approved request
         new_req = get_account_request_defaults()
         new_req.update(dict(username='testuser1',email='testuser1@colorado.edu'))
         mock_ldap_manager.reset_mock()
-        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager):
+        with mock.patch('accounts.models.RcLdapUser.objects',mock_ldap_manager),mock.patch('django.dispatch.Signal.send') as account_request_approved_mock:
             ar = AccountRequest.objects.create(status='a',**new_req)
-        mock_ldap_manager.create_user_from_request.assert_called_once_with(**new_req)
+        expected_dict = copy.deepcopy(new_req)
+        del expected_dict['department']
+        mock_ldap_manager.create_user_from_request.assert_called_once_with(**expected_dict)
         self.assertEquals(ar.status,'a')
         self.assertIsNotNone(ar.approved_on)

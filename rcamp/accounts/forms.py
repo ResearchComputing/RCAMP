@@ -1,100 +1,85 @@
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.views.decorators.debug import sensitive_variables
-from accounts.models import CuLdapUser
-from accounts.models import CsuLdapUser
-from accounts.models import RcLdapUser
-from accounts.models import AccountRequest
-from accounts.models import SHELL_CHOICES
-from accounts.models import REQUEST_ROLES
+from lib.ldap_utils import get_suffixed_username
+from accounts.models import (
+    CuLdapUser,
+    CsuLdapUser,
+    RcLdapUser,
+    AccountRequest,
+    REQUEST_ROLES
+)
 
 
 
-class AccountRequestForm(forms.Form):
-    ORGS = (
-        ('ucb','University of Colorado Boulder'),
-        ('csu','Colorado State University'),
-        # ('xsede','XSEDE'),
-    )
-    organization = forms.ChoiceField(choices=ORGS,required=True)
-    username = forms.CharField(max_length=12,required=True)
-    password = forms.CharField(max_length=255,widget=forms.PasswordInput)
+class AccountRequestVerifyForm(forms.Form):
+    """
+    An abstract form for verifying user credentials against a configured authority
+    LDAP. Subclasses should set auth_user_model and organization attributes.
 
-    role = forms.ChoiceField(choices=REQUEST_ROLES)
-    login_shell = forms.ChoiceField(required=False,choices=SHELL_CHOICES)
+    For verification against CU for instance, AccountRequestVerifyForm.organization should be 'ucb'
+    and the AccountRequestVerifyForm.auth_user_model should be CuLdapUser.
+    """
+    username = forms.CharField(max_length=48,required=True)
+    password = forms.CharField(max_length=255,widget=forms.PasswordInput,required=True)
+    department = forms.CharField(max_length=128,required=True)
+    role = forms.ChoiceField(choices=REQUEST_ROLES,required=True)
 
-    blanca = forms.BooleanField(required=False)
-    summit = forms.BooleanField(required=False)
-    petalibrary_active = forms.BooleanField(required=False)
-    petalibrary_archive = forms.BooleanField(required=False)
-
-    @sensitive_variables('pw')
+    @sensitive_variables('password')
     def clean(self):
-        cleaned_data = super(AccountRequestForm,self).clean()
-        un = cleaned_data.get('username')
-        pw = cleaned_data.get('password')
-        org = cleaned_data.get('organization')
-        ars = AccountRequest.objects.filter(username=un)
-        for ar in ars:
-            if org == ar.organization:
-                raise forms.ValidationError(
-                    'An account request has already been submitted for {}'.format(un)
-                )
+        cleaned_data = super(AccountRequestVerifyForm,self).clean()
+        username = cleaned_data.get('username')
+        password = cleaned_data.get('password')
+
+        account_requests = AccountRequest.objects.filter(username=username,organization=self.organization)
+        if account_requests.count() > 0:
+            raise forms.ValidationError(
+                'An account request has already been submitted for {}'.format(username)
+            )
         try:
-            rcu = RcLdapUser.objects.filter(username=un)
-            for u in rcu:
-                user_org = u.org.split('=')[-1]
-                if org == user_org.lower():
-                    raise forms.ValidationError(
-                        'An account already exists with username {}'.format(un)
-                    )
+            suffixed_username = get_suffixed_username(username,self.organization)
+            rc_user = RcLdapUser.objects.get_user_from_suffixed_username(suffixed_username)
+            if rc_user:
+                raise forms.ValidationError(
+                    'An account already exists with username {}'.format(username)
+                )
+
             authed = False
-            if org == 'ucb':
-                user = CuLdapUser.objects.get(username=un)
-                authed = user.authenticate(pw)
-            elif org == 'csu':
-                user = CsuLdapUser.objects.get(username=un)
-                authed = user.authenticate(pw)
-            elif org == 'xsede':
-                pass
+            auth_user = self.auth_user_model.objects.get(username=username)
+            authed = auth_user.authenticate(password)
             if not authed:
                 raise forms.ValidationError('Invalid password')
             return cleaned_data
+
         except UnboundLocalError:
             raise forms.ValidationError('Invalid organization')
-        except CuLdapUser.DoesNotExist:
-            raise forms.ValidationError('Invalid username')
-        except CsuLdapUser.DoesNotExist:
+        except self.auth_user_model.DoesNotExist:
             raise forms.ValidationError('Invalid username')
         except TypeError:
             raise forms.ValidationError('Missing field(s)')
 
-class SponsoredAccountRequestForm(AccountRequestForm):
-    sponsor_email = forms.EmailField(required=True)
 
-    class Meta:
-        exclude = (
-            'organization',
-            'role',
-        )
+class AccountRequestVerifyUcbForm(AccountRequestVerifyForm):
+    organization = 'ucb'
+    auth_user_model = CuLdapUser
 
-    def __init__ (self, data=None, **kwargs):
-        if data is not None:
-            data['organization'] = 'ucb'
-            data['role'] = 'sponsored'
-        super(SponsoredAccountRequestForm, self).__init__(data=data, **kwargs)
 
-class ClassAccountRequestForm(AccountRequestForm):
-    course_number = forms.CharField(max_length=32,required=True)
+class AccountRequestVerifyCsuForm(AccountRequestVerifyForm):
+    organization = 'csu'
+    auth_user_model = CsuLdapUser
 
-    class Meta:
-        exclude = (
-            'organization',
-            'role',
-        )
 
-    def __init__ (self, data=None, **kwargs):
-        if data is not None:
-            data['organization'] = 'ucb'
-            data['role'] = 'student'
-        super(ClassAccountRequestForm, self).__init__(data=data, **kwargs)
+class AccountRequestIntentForm(forms.Form):
+    reason_summit = forms.BooleanField(required=False)
+    reason_course = forms.BooleanField(required=False)
+    reason_petalibrary = forms.BooleanField(required=False)
+    reason_blanca = forms.BooleanField(required=False)
+
+    # Summit additional info
+    summit_pi_email = forms.EmailField(required=False)
+    summit_funding = forms.CharField(widget=forms.Textarea,required=False)
+    summit_description = forms.CharField(widget=forms.Textarea,required=False)
+
+    # Course follow-up
+    course_instructor_email = forms.EmailField(required=False)
+    course_number = forms.CharField(max_length=48,required=False)

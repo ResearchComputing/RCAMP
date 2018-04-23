@@ -10,7 +10,10 @@ import logging
 import datetime
 import pam
 
-from mailer.signals import account_created_from_request
+from mailer.signals import (
+    account_created_from_request,
+    account_request_approved
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +22,14 @@ logger = logging.getLogger(__name__)
 ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in settings.ORGANIZATION_INFO.iteritems()])
 
 REQUEST_ROLES = (
-    ('student','Student',),
+    ('undergraduate','Undergraduate',),
+    ('graduate','Graduate',),
     ('postdoc','Post Doc',),
+    ('instructor','Instructor',),
     ('faculty','Faculty',),
+    ('affiliated_faculty','Affiliated Faculty',),
     ('staff','Staff',),
-    ('sponsored','Sponsored Affiliate',)
+    ('sponsored','Sponsored Affiliate',),
 )
 
 ROLES = REQUEST_ROLES + (
@@ -69,27 +75,30 @@ class AccountRequest(models.Model):
     last_name = models.CharField(max_length=128,blank=False,null=False)
     email = models.EmailField(unique=True)
 
-    sponsor_email = models.EmailField(null=True,blank=True)
-    course_number = models.CharField(max_length=128,null=True,blank=True)
-
-    login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
-    resources_requested = models.CharField(max_length=256,blank=True,null=True)
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
-    role = models.CharField(max_length=24,choices=REQUEST_ROLES,default='student')
+    department = models.CharField(max_length=128,blank=True,null=True)
+    role = models.CharField(max_length=24,choices=REQUEST_ROLES,default='undergraduate')
 
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField(null=True,blank=True)
     id_verified_by = models.CharField(max_length=128,blank=True,null=True)
-
     request_date = models.DateTimeField(auto_now_add=True)
+
+    # TODO: Deprecate these fields, as they are now represented in the Intent object
+    login_shell = models.CharField(max_length=24,choices=SHELL_CHOICES,default='/bin/bash')
+    resources_requested = models.CharField(max_length=256,blank=True,null=True)
+    sponsor_email = models.EmailField(blank=True,null=True)
+    course_number = models.CharField(max_length=128,blank=True,null=True)
 
     def __unicode__(self):
         return '%s_%s'%(self.username,self.request_date)
 
     def save(self,*args,**kwargs):
         # Has model already been approved?
+        manually_approved = False
         if (self.status == 'a') and (not self.approved_on):
+            manually_approved = self.pk is not None
             # Approval process
             logger.info('Approving account request: '+self.username)
             self.approved_on=timezone.now()
@@ -99,11 +108,35 @@ class AccountRequest(models.Model):
                 last_name=self.last_name,
                 email=self.email,
                 organization=self.organization,
-                login_shell=self.login_shell,
                 role=self.role
             )
-            account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
+            # Create associated auth user
+            auth_user_defaults = dict(
+                email=rc_user.email,
+                first_name=rc_user.first_name,
+                last_name=rc_user.last_name
+            )
+            auth_user, created = User.objects.update_or_create(
+                username=rc_user.effective_uid,
+                defaults=auth_user_defaults
+            )
+            # account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
         super(AccountRequest,self).save(*args,**kwargs)
+        if manually_approved:
+            account_request_approved.send(sender=self.__class__,account_request=self)
+
+class Intent(models.Model):
+    account_request = models.OneToOneField(AccountRequest,blank=True,null=True)
+    reason_summit = models.BooleanField(default=False)
+    reason_course = models.BooleanField(default=False)
+    reason_petalibrary = models.BooleanField(default=False)
+    reason_blanca = models.BooleanField(default=False)
+    sponsor_email = models.EmailField(blank=True,null=True)
+    course_instructor_email = models.EmailField(blank=True,null=True)
+    course_number = models.CharField(max_length=128,blank=True,null=True)
+    summit_description = models.TextField(null=True,blank=True)
+    summit_funding = models.TextField(null=True,blank=True)
+    summit_pi_email = models.EmailField(blank=True,null=True)
 
 class IdTracker(models.Model):
     class Meta:
@@ -190,8 +223,7 @@ class RcLdapUserManager(models.Manager):
         if email is not None:
             email = str(email).strip()
         organization = kwargs.get('organization')
-        login_shell = kwargs.get('login_shell')
-        if not all([username,first_name,last_name,email,organization,login_shell]):
+        if not all([username,first_name,last_name,email,organization]):
             raise TypeError('Missing required field.')
 
         id_tracker = IdTracker.objects.get(category='posix')
@@ -211,7 +243,6 @@ class RcLdapUserManager(models.Manager):
         user_fields['gecos'] = "%s %s,,," % (user_fields['first_name'],user_fields['last_name'])
         suffixed_username = ldap_utils.get_suffixed_username(user_fields['username'],organization)
         user_fields['home_directory'] = '/home/%s' % suffixed_username
-        user_fields['login_shell'] = login_shell
         user_fields['organization'] = organization
 
         role = kwargs.get('role')
@@ -221,7 +252,7 @@ class RcLdapUserManager(models.Manager):
                 today = datetime.date.today()
                 expiration_date = today.replace(year=today.year+1)
                 user_fields['expires'] = date_to_sp_expire(expiration_date)
-            if role == 'faculty':
+            if role in ['faculty','affiliated_faculty']:
                 user_fields['role'] = ['pi',role]
             else:
                 user_fields['role'] = [role]
@@ -277,7 +308,7 @@ class RcLdapUser(LdapUser):
     expires = ldap_fields.IntegerField(db_column='shadowExpire',blank=True,null=True)
     uid = ldap_fields.IntegerField(db_column='uidNumber',null=True,blank=True)
     gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
-    gecos =  ldap_fields.CharField(db_column='gecos',default='')
+    gecos = ldap_fields.CharField(db_column='gecos',default='')
     home_directory = ldap_fields.CharField(db_column='homeDirectory')
     login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
     #curcPerson attributes

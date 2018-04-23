@@ -36,24 +36,8 @@
         <td>{{ object.pk }}</td>
       </tr>
       <tr>
-        <td><strong>Funding Specified</strong></td>
-        <td>{{ object.funding }}</td>
-      </tr>
-      <tr>
-        <td><strong>Request Abstract</strong></td>
-        <td>{{ object.abstract }}</td>
-      </tr>
-      <tr>
         <td><strong>Proposal</strong></td>
         <td><a href="{{ object.proposal.url }}">{{ MEDIA_URL }}{{ object.proposal.name }}</a></td>
-      </tr>
-      <tr>
-        <td><strong>Time Requested</strong></td>
-        <td>{{ object.time_requested }} SU</td>
-      </tr>
-      <tr>
-        <td><strong>Software</strong></td>
-        <td>{{ object.software_request }}</td>
       </tr>
       <tr>
         <td><strong>Request Date</strong></td>

@@ -8,6 +8,7 @@ from accounts.models import (
     RcLdapGroup,
     IdTracker,
     AccountRequest,
+    Intent,
     ORGANIZATIONS
 )
 
@@ -37,6 +38,9 @@ class AccountRequestAdminForm(forms.ModelForm):
                 if user.organization == org:
                     raise forms.ValidationError('RC Account already exists: {}'.format(un))
 
+class IntentInline(admin.TabularInline):
+    model = Intent
+
 @admin.register(AccountRequest)
 class AccountRequestAdmin(admin.ModelAdmin):
     def approve_requests(modeladmin, request, queryset):
@@ -59,6 +63,7 @@ class AccountRequestAdmin(admin.ModelAdmin):
         'username',
         'role',
     ]
+    inlines = [IntentInline,]
     form = AccountRequestAdminForm
 
 class RcLdapModelForm(forms.ModelForm):

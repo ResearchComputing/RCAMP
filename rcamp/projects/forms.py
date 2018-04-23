@@ -9,6 +9,10 @@ from accounts.models import (
 from projects.models import Project
 
 
+class ProjectMembersModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return '{} ({} {})'.format(obj.username,obj.first_name,obj.last_name)
+
 class ProjectForm(forms.ModelForm):
 
     class Meta:
@@ -23,7 +27,7 @@ class ProjectForm(forms.ModelForm):
         ]
 
     pi_emails = MultiEmailField(required=True)
-    managers = forms.ModelMultipleChoiceField(
+    managers = ProjectMembersModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
@@ -31,7 +35,7 @@ class ProjectForm(forms.ModelForm):
             False,
         )
     )
-    collaborators = forms.ModelMultipleChoiceField(
+    collaborators = ProjectMembersModelMultipleChoiceField(
         queryset=User.objects.all(),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
@@ -58,12 +62,7 @@ class ReferenceForm(forms.Form):
 class AllocationRequestForm(forms.Form):
     VALID_DOC_TYPES = ['application/msword', 'application/pdf', 'text/plain','application/vnd.openxmlformats-officedocument.wordprocessingml.document']
 
-    abstract = forms.CharField(widget=forms.Textarea,required=True)
-    funding = forms.CharField(widget=forms.Textarea,required=True)
     proposal = forms.FileField(required=True)
-    time_requested = forms.IntegerField(min_value=0,required=True)
-    disk_space = forms.IntegerField(min_value=0,required=False)
-    software_request = forms.CharField(widget=forms.Textarea,required=False)
 
     def clean(self):
         cleaned_data = super(AllocationRequestForm,self).clean()
