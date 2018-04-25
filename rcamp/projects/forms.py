@@ -11,7 +11,7 @@ from projects.models import Project
 
 class ProjectMembersModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
-        return '{} ({} {})'.format(obj.username,obj.first_name,obj.last_name)
+        return u'{} ({} {})'.format(obj.username,obj.first_name,obj.last_name)
 
 class ProjectForm(forms.ModelForm):
 
