@@ -22,19 +22,19 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
 <ul class="list-group">
     <li class="list-group-item">
       <strong>Summit supercomputing cluster (2016)</strong>
-      <p>Summit is a heterogeneous supercomputing cluster based primarily on the Intel Xeon "Haswell" CPU, with secondary NVidia Tesla K80 and high-memory resources and, in the future, an Intel Xeon Phi "knights landing" MIC resource. It replaces Janus as Research Computing's flagship computational resource. All nodes sit on a first-generation Intel Omni-Path Architecture interconnect which also provides access to an IBM GPFS Parallel scratch file system. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a></p>
+      <p>Summit is a heterogeneous supercomputing cluster based primarily on the Intel Xeon "Haswell" CPU, with secondary NVidia Tesla K80 and high-memory resources and, in the future, an Intel Xeon Phi "knights landing" MIC resource. It replaces Janus as Research Computing's flagship computational resource. All nodes sit on a first-generation Intel Omni-Path Architecture interconnect which also provides access to an IBM GPFS Parallel scratch file system. <a href="https://www.colorado.edu/rc/resources/summit">Learn more about Summit.</a></p>
     </li>
     <li class="list-group-item">
       <strong>Blanca "condo" compute cluster</strong>
-      <p>The Research Computing Condo Computing service offers researchers the opportunity to purchase and own compute nodes that will be operated as part of the Blanca compute cluster. The aggregate cluster is made available to all condo partners while maintaining priority for the owner of each node. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a></p>
+      <p>The Research Computing Condo Computing service offers researchers the opportunity to purchase and own compute nodes that will be operated as part of the Blanca compute cluster. The aggregate cluster is made available to all condo partners while maintaining priority for the owner of each node. <a href="https://www.colorado.edu/rc/resources/blanca">Learn more about Blanca.</a></p>
     </li>
     <li class="list-group-item">
       <strong>PetaLibrary/active disk storage</strong>
-      <p>The PetaLibrary/active storage service is mounted at <code>/work/</code> on all Research Computing computational systems. This storage may be used by compute workloads, but it is not designed to be performant under I/O-intensive applications or parallel writes. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a></p>
+      <p>The PetaLibrary/active storage service is mounted at <code>/work/</code> on all Research Computing computational systems. This storage may be used by compute workloads, but it is not designed to be performant under I/O-intensive applications or parallel writes. <a href="https://www.colorado.edu/rc/resources/petalibrary">Learn more about PetaLibrary.</a></p>
     </li>
     <li class="list-group-item">
       <strong>PetaLibrary/archive long-term disk+tape storage</strong>
-      <p>PetaLibrary/archive is a hierarchical storage system that dynamically and simultaneously manages data on both disk and tape storage systems while presenting all data as part of a single, unified filesystem namespace. This provides good performance when accessing frequently-used data while remaining cost-effective for storing large quantities of archive data. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a></p>
+      <p>PetaLibrary/archive is a hierarchical storage system that dynamically and simultaneously manages data on both disk and tape storage systems while presenting all data as part of a single, unified filesystem namespace. This provides good performance when accessing frequently-used data while remaining cost-effective for storing large quantities of archive data. <a href="https://www.colorado.edu/rc/resources/petalibrary">Learn more about PetaLibrary.</a></p>
     </li>
 </ul>
 {% endblock %}
@@ -46,8 +46,8 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
         Contact us
     </a>
     or view our
-    <a href="https://www.rc.colorado.edu/support/getting-started.html">
-      Getting Started Guide.
+    <a href="https://github.com/ResearchComputing/Research-Computing-User-Tutorials/wiki">
+      Documentation.
     </a>
 </div>
 
@@ -75,7 +75,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
       <div class="checkbox">
         <label>
           <input id="id_reason_summit" class="reason-checkbox" type="checkbox" name="reason_summit" {% if form.reason_summit.value %}checked{% endif %}>
-          I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.rc.colorado.edu/resources/compute/summit">Learn more about Summit.</a>
+          I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.colorado.edu/rc/resources/summit">Learn more about Summit.</a>
         </label>
       </div>
 
@@ -205,14 +205,14 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
       <div class="checkbox">
         <label>
           <input id="id_reason_petalibrary" class="reason-checkbox" type="checkbox" name="reason_petalibrary" {% if form.reason_petalibrary.value %}checked{% endif %}>
-          My research group has purchased <strong>PetaLibrary</strong> space that I plan to use, or I plan to purchase Petalibrary space for my project. <a href="https://www.rc.colorado.edu/resources/storage/petalibrary">Learn more about PetaLibrary.</a>
+          My research group has purchased <strong>PetaLibrary</strong> space that I plan to use, or I plan to purchase Petalibrary space for my project. <a href="https://www.colorado.edu/rc/resources/petalibrary">Learn more about PetaLibrary.</a>
         </label>
       </div>
 
       <div class="checkbox">
         <label>
           <input id="id_reason_blanca" class="reason-checkbox" type="checkbox" name="reason_blanca" {% if form.reason_blanca.value %}checked{% endif %}>
-          My research group has purchased nodes in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project. <a href="https://www.rc.colorado.edu/resources/compute/blanca">Learn more about Blanca.</a>
+          My research group has purchased nodes in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project. <a href="https://www.colorado.edu/rc/resources/blanca">Learn more about Blanca.</a>
         </label>
       </div>
     </fieldset>
