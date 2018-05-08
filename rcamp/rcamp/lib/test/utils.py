@@ -17,7 +17,7 @@ def assert_test_env():
     assert settings.DATABASES['rcldap']['PASSWORD'] == 'password'
     # In an abundance of caution, also make sure that the LDAP connection is configured
     # to use localhost.
-    assert 'localhost' in settings.DATABASES['rcldap']['NAME']
+    assert 'test-ldap' in settings.DATABASES['rcldap']['NAME']
     # Probably not running against prod LDAP.
     return True
 

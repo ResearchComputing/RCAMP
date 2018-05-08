@@ -1,7 +1,7 @@
 import os
 from .toggles import *
 
-BASE_DIR = '/opt/rcamp'
+BASE_DIR = '/home/uwsgi/rcamp'
 
 
 if not DEBUG:
@@ -87,14 +87,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'rcamp','media','')
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR,'rcamp','static')
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR,'rcamp','static'),
 )
@@ -102,7 +99,7 @@ STATICFILES_DIRS = (
 # Media files (User-uploaded files)
 # https://docs.djangoproject.com/en/1.8/ref/settings/#media-root
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR,'rcamp','media','')
+MEDIA_ROOT = os.path.join(BASE_DIR,'media','')
 
 # GRAPPELLI ADMIN SETTINGS
 GRAPPELLI_ADMIN_TITLE = 'RCAMP'

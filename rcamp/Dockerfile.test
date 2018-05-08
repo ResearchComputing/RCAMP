@@ -1,0 +1,16 @@
+FROM dev/rcamp
+MAINTAINER Zebula Sampedro <sampedro@colorado.edu>
+
+ENV RCAMP_DEBUG=True
+
+# Install dev dependencies
+USER root
+RUN pip install selenium==3.7.0
+
+# Drop user, set workdir, and finish non-db app config
+USER uwsgi
+WORKDIR /home/uwsgi/rcamp
+RUN python manage.py collectstatic --noinput
+
+EXPOSE 9000
+CMD ["python","manage.py","runserver","0.0.0.0:9000"]

@@ -1,7 +1,7 @@
 import os
 from .toggles import *
 
-BASE_DIR = '/opt/rcamp'
+BASE_DIR = '/home/uwsgi/rcamp'
 
 if not DEBUG:
     # TODO: Sort out a concise approach for loading these values
@@ -10,7 +10,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': 'rcamp.sqlite',
+            'NAME': os.path.join(BASE_DIR,'rcamp.sqlite'),
         },
         # `test-ldap` is the name of the researchcomputing/rc-test-ldap service
         'rcldap': {

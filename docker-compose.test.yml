@@ -2,9 +2,23 @@ version: "3.6"
 
 services:
   rcamp-uwsgi:
-    build: rcamp
+    build:
+      context: rcamp
+      cache_from:
+        - dev/rcamp
+      dockerfile: Dockerfile.test
+    environment:
+      - RCAMP_DEBUG=True
     volumes:
-      - static-content:/home/uwsgi/rcamp/static
+      - ./rcamp/rcamp:/home/uwsgi/rcamp
+      - ./rcamp/ldapdb:/home/uwsgi/ldapdb
+    ports:
+      - "9000:9000"
+    links:
+      - test-ldap
+
+  test-ldap:
+    image: researchcomputing/rc-test-ldap
 
   nginx:
     image: nginx:stable

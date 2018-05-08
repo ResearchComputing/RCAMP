@@ -2,16 +2,16 @@ FROM centos:7
 MAINTAINER Zebula Sampedro <sampedro@colorado.edu>
 
 # Add uwsgi user to the image
-ARG USER=uwsgi
-ARG GROUP=uwsgi
-ARG UID=1000
-ARG GID=1000
-ARG HOMEDIR=/home/${USER}
+ARG UWSGI_UID=1000
+ARG UWSGI_GID=1000
+# Set env vars from these args, as there is no utility in forcing the user to set them twice in dev.
+ENV UID=${UWSGI_UID}
+ENV GID=${UWSGI_GID}
 
-RUN groupadd -g ${GID} ${GROUP} && \
-    useradd -d "${HOMEDIR}" -u "${UID}" -g "${GID}" -m -s /bin/bash "${USER}"
+RUN groupadd -g $GID uwsgi && \
+    useradd -d "/home/uwsgi" -u "$UID" -g "$GID" -m -s /bin/bash "uwsgi"
 
-WORKDIR ${HOMEDIR}
+WORKDIR /home/uwsgi
 
 # Install core dependencies
 RUN yum -y update && \
@@ -22,20 +22,18 @@ RUN yum -y update && \
     yum -y install openldap-devel
 
 # Add uwsgi conf
-ADD uwsgi.ini /opt/uwsgi.ini
+COPY --chown=uwsgi:uwsgi uwsgi.ini /home/uwsgi/uwsgi.ini
 
 # Add codebase to container and install
-ADD ldapdb /opt/ldapdb
-ADD rcamp /opt/rcamp
-RUN chown -R ${USER}:${GROUP} /opt/ldapdb && \
-    chown -R ${USER}:${GROUP} /opt/rcamp && \
-    cd /opt/ldapdb && \
-    python setup.py install && \
-    cd /opt/rcamp && \
-    pip2 install -r requirements.txt && \
-    python manage.py migrate && \
-    python manage.py collectstatic --noinput
+COPY --chown=uwsgi:uwsgi ldapdb /home/uwsgi/ldapdb
+COPY --chown=uwsgi:uwsgi rcamp /home/uwsgi/rcamp
 
-# Drop user and set cmd
-USER ${USER}
-CMD ["/usr/bin/uwsgi","/opt/uwsgi.ini"]
+WORKDIR /home/uwsgi/ldapdb
+RUN pip install -e .
+
+WORKDIR /home/uwsgi/rcamp
+RUN pip2 install -r requirements.txt
+
+# Drop user and finish configuration
+USER uwsgi
+CMD ["/usr/bin/uwsgi","/home/uwsgi/uwsgi.ini"]
