@@ -63,3 +63,4 @@ target/
 
 # Docker stuff:
 .env
+certs/

@@ -4,8 +4,33 @@ from .toggles import *
 BASE_DIR = '/home/uwsgi/rcamp'
 
 if not DEBUG:
-    # TODO: Sort out a concise approach for loading these values
-    DATABASES = {}
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'rcamp1712',
+            'USER': os.environ.get('RCAMP_DB_USER'),
+            'PASSWORD': os.environ.get('RCAMP_DB_PASSWORD'),
+            'HOST': os.environ.get('RCAMP_DB_HOST'),
+        },
+        'rcldap': {
+            'ENGINE': 'ldapdb.backends.ldap',
+            'NAME': os.environ.get('RCAMP_RC_LDAP_URI'),
+            'USER': os.environ.get('RCAMP_RC_LDAP_USER'),
+            'PASSWORD': os.environ.get('RCAMP_RC_LDAP_PASSWORD'),
+        },
+        'culdap': {
+            'ENGINE': 'ldapdb.backends.ldap',
+            'NAME': os.environ.get('RCAMP_UCB_LDAP_URI'),
+            'USER': os.environ.get('RCAMP_UCB_LDAP_USER'),
+            'PASSWORD': os.environ.get('RCAMP_UCB_LDAP_PASSWORD'),
+        },
+        'csuldap': {
+            'ENGINE': 'ldapdb.backends.ldap',
+            'NAME': os.environ.get('RCAMP_CSU_LDAP_URI'),
+            'USER': os.environ.get('RCAMP_CSU_LDAP_USER'),
+            'PASSWORD': os.environ.get('RCAMP_CSU_LDAP_PASSWORD'),
+        },
+    }
 else:
     DATABASES = {
         'default': {
