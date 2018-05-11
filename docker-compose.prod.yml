@@ -20,6 +20,10 @@ services:
       - RCAMP_CSU_LDAP_URI=${RCAMP_CSU_LDAP_URI}
       - RCAMP_CSU_LDAP_USER=${RCAMP_CSU_LDAP_USER}
       - RCAMP_CSU_LDAP_PASSWORD=${RCAMP_CSU_LDAP_PASSWORD}
+    volumes:
+      - /var/lib/sss/pipes:/var/lib/sss/pipes:rw
+      - /etc/nsswitch.conf:/etc/nsswitch.conf
+      - /etc/pam.d:/etc/pam.d
 
   nginx:
     hostname: ${HOSTNAME}

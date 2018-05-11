@@ -13,7 +13,6 @@ RUN yum -y install nodejs npm && \
 # Drop user, set workdir, and finish non-db app config
 USER uwsgi
 WORKDIR /home/uwsgi/rcamp
-RUN python manage.py collectstatic --noinput
 
 EXPOSE 9000
 CMD ["python","manage.py","runserver","0.0.0.0:9000"]

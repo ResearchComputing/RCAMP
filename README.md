@@ -21,6 +21,7 @@ You will need Docker 18.03+ and Compose 1.21+ before you begin. Documentation fo
 Start by cloning RCAMP.
 ```
 $ git clone https://github.com/ResearchComputing/RCAMP
+$ git submodule update --init
 $ cd RCAMP
 ```
 

@@ -18,8 +18,9 @@ RUN yum -y update && \
     yum makecache fast && \
     yum -y groupinstall "Development Tools" && \
     yum -y install epel-release curl which wget && \
+    yum -y install sssd pam-devel openssl-devel && \
     yum -y install python-devel python2-pip && \
-    yum -y install openldap-devel
+    yum -y install openldap-devel MySQL-python
 
 # Add uwsgi conf
 COPY --chown=uwsgi:uwsgi uwsgi.ini /home/uwsgi/uwsgi.ini
@@ -36,4 +37,5 @@ RUN pip2 install -r requirements.txt
 
 # Drop user and finish configuration
 USER uwsgi
+RUN export RCAMP_DEBUG=True && python manage.py collectstatic --noinput && unset RCAMP_DEBUG
 CMD ["/usr/bin/uwsgi","/home/uwsgi/uwsgi.ini"]
