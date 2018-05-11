@@ -14,11 +14,13 @@ def assert_test_env():
     """Helper method to verify that tests are not being executed in a production environment."""
     # We can reasonably assume that no production resource will satisfy this criteria, so
     # this is one of several safeguards against running the functional tests against prod.
+    assert settings.DEBUG
     assert settings.DATABASES['rcldap']['PASSWORD'] == 'password'
-    # In an abundance of caution, also make sure that the LDAP connection is configured
-    # to use localhost.
+    # In an abundance of caution, also make sure that the LDAP and MySQL connections are configured
+    # to use the test services.
     assert 'test-ldap' in settings.DATABASES['rcldap']['NAME']
-    # Probably not running against prod LDAP.
+    assert 'test-mysql' in settings.DATABASES['default']['HOST']
+    # Probably not running against prod backends.
     return True
 
 def _assert_test_env_or_false():

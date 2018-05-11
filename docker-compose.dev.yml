@@ -9,13 +9,16 @@ services:
       dockerfile: Dockerfile.test
     environment:
       - RCAMP_DEBUG=True
+      - RCAMP_UCB_LDAP_URI=${RCAMP_UCB_LDAP_URI}
+      - RCAMP_UCB_LDAP_USER=${RCAMP_UCB_LDAP_USER}
+      - RCAMP_UCB_LDAP_PASSWORD=${RCAMP_UCB_LDAP_PASSWORD}
+      - RCAMP_CSU_LDAP_URI=${RCAMP_CSU_LDAP_URI}
+      - RCAMP_CSU_LDAP_USER=${RCAMP_CSU_LDAP_USER}
+      - RCAMP_CSU_LDAP_PASSWORD=${RCAMP_CSU_LDAP_PASSWORD}
     volumes:
       - ./rcamp/rcamp:/home/uwsgi/rcamp
       - ./rcamp/ldapdb:/home/uwsgi/ldapdb
     ports:
       - "9000:9000"
-    links:
-      - test-ldap
-
-  test-ldap:
-    image: researchcomputing/rc-test-ldap
+    depends_on:
+      - test-mysql

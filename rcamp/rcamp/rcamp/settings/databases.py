@@ -33,11 +33,15 @@ if not DEBUG:
     }
 else:
     DATABASES = {
+        # `test-mysql` is the name of the rc-test-mysql service
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR,'rcamp.sqlite'),
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'rcamp1712',
+            'USER': 'rcamp',
+            'PASSWORD': 'password',
+            'HOST': 'test-mysql',
         },
-        # `test-ldap` is the name of the researchcomputing/rc-test-ldap service
+        # `test-ldap` is the name of the rc-test-ldap service
         'rcldap': {
             'ENGINE': 'ldapdb.backends.ldap',
             'NAME': 'ldap://test-ldap',
@@ -46,15 +50,15 @@ else:
         },
         'culdap': {
             'ENGINE': 'ldapdb.backends.ldap',
-            'NAME': 'ldap://test-ldap',
-            'USER': 'cn=Directory Manager',
-            'PASSWORD': 'password',
+            'NAME': os.environ.get('RCAMP_UCB_LDAP_URI','ldap://test-ldap'),
+            'USER': os.environ.get('RCAMP_UCB_LDAP_USER','cn=Directory Manager'),
+            'PASSWORD': os.environ.get('RCAMP_UCB_LDAP_PASSWORD','password'),
         },
         'csuldap': {
             'ENGINE': 'ldapdb.backends.ldap',
-            'NAME': 'ldap://test-ldap',
-            'USER': 'cn=Directory Manager',
-            'PASSWORD': 'password',
+            'NAME': os.environ.get('RCAMP_CSU_LDAP_URI','ldap://test-ldap'),
+            'USER': os.environ.get('RCAMP_CSU_LDAP_USER','cn=Directory Manager'),
+            'PASSWORD': os.environ.get('RCAMP_CSU_LDAP_PASSWORD','password'),
         },
     }
 

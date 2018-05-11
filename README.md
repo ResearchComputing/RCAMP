@@ -34,8 +34,8 @@ $ cd ..
 
 Build your dev environment and then start it using Compose.
 ```
-$ docker-compose -f docker-compose.yml -f docker-compose.dev.yml build
-$ docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml build
+$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml up -d
 ```
 
 Finish by migrating the DB and adding a superuser to the RCAMP app. You'll need to attach to the running RCAMP service to do this:

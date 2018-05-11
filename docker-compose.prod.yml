@@ -24,8 +24,9 @@ services:
       - /var/lib/sss/pipes:/var/lib/sss/pipes:rw
       - /etc/nsswitch.conf:/etc/nsswitch.conf
       - /etc/pam.d:/etc/pam.d
+      - ./media:/home/uwsgi/rcamp/media:rw
 
   nginx:
     hostname: ${HOSTNAME}
     volumes:
-      - ./certs:/etc/nginx/certs:ro
+      - ./media:/var/www/media:rw
