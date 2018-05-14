@@ -19,6 +19,7 @@ from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 from django.conf.urls import handler404
 from django.conf.urls import handler500
+from django.conf import settings
 # Make sure signals/receivers get loaded.
 from mailer import receivers
 from projects import receivers
@@ -38,3 +39,7 @@ urlpatterns = [
     url(r'^accounts/', include('accounts.urls', namespace='accounts')),
     url(r'^projects/', include('projects.urls', namespace='projects')),
 ]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
