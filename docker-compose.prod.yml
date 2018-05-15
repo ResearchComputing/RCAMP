@@ -24,6 +24,10 @@ services:
       - /var/lib/sss/pipes:/var/lib/sss/pipes:rw
       - /etc/nsswitch.conf:/etc/nsswitch.conf
       - /etc/pam.d:/etc/pam.d
+      - rcamp-logs:/home/uwsgi/rcamp/logs
 
   nginx:
     hostname: ${HOSTNAME}
+
+volumes:
+  rcamp-logs:
