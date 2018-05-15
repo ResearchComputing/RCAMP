@@ -1,6 +1,23 @@
 FROM centos:7
 MAINTAINER Zebula Sampedro <sampedro@colorado.edu>
 
+# Install gosu to drop user and chown shared volumes at runtime
+RUN export GOSU_VERSION=1.10 && \
+    yum -y install epel-release && \
+  	yum -y install wget dpkg && \
+  	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
+  	wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
+  	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
+  	export GNUPGHOME="$(mktemp -d)" && \
+  	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
+  	gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu && \
+  	rm -r "$GNUPGHOME" /tmp/gosu.asc && \
+  	chmod +x /usr/bin/gosu; \
+  	gosu nobody true && \
+  	yum -y remove wget dpkg && \
+  	yum clean all && \
+    unset GOSU_VERSION
+
 # Add uwsgi user to the image
 ARG UWSGI_UID=1000
 ARG UWSGI_GID=1000
@@ -35,7 +52,7 @@ RUN pip install -e .
 WORKDIR /home/uwsgi/rcamp
 RUN pip2 install -r requirements.txt
 
-# Drop user and finish configuration
-USER uwsgi
-RUN export RCAMP_DEBUG=True && python manage.py collectstatic --noinput && unset RCAMP_DEBUG
+# Set gosu entrypoint and default command
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
 CMD ["/usr/bin/uwsgi","/home/uwsgi/uwsgi.ini"]

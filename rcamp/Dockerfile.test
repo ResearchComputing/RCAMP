@@ -4,7 +4,6 @@ MAINTAINER Zebula Sampedro <sampedro@colorado.edu>
 ENV RCAMP_DEBUG=True
 
 # Install dev dependencies
-USER root
 RUN yum -y install nodejs npm && \
     yum -y install openssl pamtester fontconfig freetype freetype-devel fontconfig-devel libstdc++ && \
     npm install -g phantomjs-prebuilt && \
@@ -14,8 +13,6 @@ RUN yum -y install nodejs npm && \
 RUN useradd -M -p $(echo password | openssl passwd -1 -stdin) testuser1 && \
     useradd -M -p $(echo password | openssl passwd -1 -stdin) testuser2
 
-# Drop user, set workdir, and finish non-db app config
-USER uwsgi
 WORKDIR /home/uwsgi/rcamp
 
 EXPOSE 9000
