@@ -1,10 +1,10 @@
 import mock
 from unittest import skip
-from lib.test.ldap import (
+from tests.utilities.ldap import (
     get_ldap_user_defaults,
     get_ldap_group_defaults
 )
-from lib.test.functional import (
+from tests.utilities.functional import (
     SafeStaticLiveServerTestCase,
     UserAuthenticatedLiveServerTestCase
 )

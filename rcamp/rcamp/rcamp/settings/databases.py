@@ -37,7 +37,7 @@ else:
         'default': {
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'rcamp1712',
-            'USER': 'rcamp',
+            'USER': 'root',
             'PASSWORD': 'password',
             'HOST': 'test-mysql',
         },

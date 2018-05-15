@@ -4,7 +4,7 @@ from lib.ldap_utils import (
     get_suffixed_username,
     get_ldap_username_and_org
 )
-from lib.test.utils import SafeTestCase
+from tests.utilities.utils import SafeTestCase
 
 
 class LdapUtilsTestCase(SafeTestCase):

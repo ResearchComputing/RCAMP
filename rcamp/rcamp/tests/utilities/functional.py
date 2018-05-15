@@ -5,7 +5,7 @@ import datetime
 import unittest
 import copy
 
-from lib.test.utils import (
+from tests.utilities.utils import (
     _assert_test_env_or_false,
     assert_test_env,
     _purge_ldap_objects

@@ -2,7 +2,7 @@ from django.conf import settings
 import mock
 import pam
 from lib.pam_backend import PamBackend
-from lib.test.ldap import (
+from tests.utilities.ldap import (
     LdapTestCase,
     get_ldap_user_defaults
 )

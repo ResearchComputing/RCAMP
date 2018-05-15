@@ -2,8 +2,8 @@ from selenium.common.exceptions import NoSuchElementException
 from accounts.models import User
 import copy
 
-from lib.test.utils import get_auth_user_defaults
-from lib.test.functional import UserAuthenticatedLiveServerTestCase
+from tests.utilities.utils import get_auth_user_defaults
+from tests.utilities.functional import UserAuthenticatedLiveServerTestCase
 from projects.models import Project
 
 

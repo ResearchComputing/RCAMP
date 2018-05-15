@@ -11,8 +11,8 @@ import datetime
 from django.conf import settings
 from django.contrib.sessions.middleware import SessionMiddleware
 
-from lib.test.ldap import LdapTestCase
-from lib.test.utils import (
+from tests.utilities.ldap import LdapTestCase
+from tests.utilities.utils import (
     SessionEnabledTestMixin,
     SafeTestCase
 )

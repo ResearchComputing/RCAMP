@@ -3,12 +3,28 @@ from django.utils import timezone
 import datetime
 import sys
 
-from lib.test.ldap import get_ldap_user_defaults
 from lib.ldap_utils import get_ldap_username_and_org
 from accounts.models import (
     User,
     RcLdapUser
 )
+
+
+def get_ldap_user_defaults():
+    """Return a dictionary of reasonable defaults for creating RcLdapUser objects via the ORM."""
+    ldap_user_defaults = dict(
+        username = 'testuser',
+        first_name = 'Test',
+        last_name = 'User',
+        full_name = 'User, Test',
+        email = 'testuser@colorado.edu',
+        modified_date=datetime.datetime(2015,11,06,03,43,24),
+        uid = 1010,
+        gid = 1010,
+        gecos='Test User,,,',
+        home_directory='/home/testuser'
+    )
+    return ldap_user_defaults
 
 
 class Command(BaseCommand):

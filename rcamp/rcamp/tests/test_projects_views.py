@@ -6,7 +6,7 @@ from django.http.response import HttpResponseRedirect
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
-from lib.test.ldap import (
+from tests.utilities.ldap import (
     LdapTestCase,
     get_ldap_user_defaults
 )

@@ -17,7 +17,7 @@ else:
     ALLOWED_HOSTS = []
 
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -34,7 +34,10 @@ INSTALLED_APPS = (
     'mailer',
     'accounts',
     'projects',
-)
+]
+
+if DEBUG:
+    INSTALLED_APPS.append('tests')
 
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',

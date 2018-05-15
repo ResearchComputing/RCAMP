@@ -2,8 +2,8 @@ from mock import MagicMock
 import mock
 from django.test import override_settings
 
-from lib.test.utils import SafeTestCase
-from lib.test.ldap import get_ldap_user_defaults
+from tests.utilities.utils import SafeTestCase
+from tests.utilities.ldap import get_ldap_user_defaults
 from accounts.models import (
     User,
     AccountRequest,

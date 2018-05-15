@@ -4,7 +4,7 @@ import pytz
 import json
 import datetime
 
-from lib.test.utils import (
+from tests.utilities.utils import (
     get_auth_user_defaults,
     SafeTestCase
 )
