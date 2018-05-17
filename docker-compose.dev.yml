@@ -19,6 +19,7 @@ services:
       - ./rcamp/rcamp:/home/uwsgi/rcamp
       - ./rcamp/ldapdb:/home/uwsgi/ldapdb
     ports:
-      - "9000:9000"
+      - "${RCAMP_PORT}:9000"
     depends_on:
       - test-mysql
+      - test-ldap

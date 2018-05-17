@@ -15,5 +15,4 @@ RUN useradd -M -p $(echo password | openssl passwd -1 -stdin) testuser1 && \
 
 WORKDIR /home/uwsgi/rcamp
 
-EXPOSE 9000
 CMD ["python","manage.py","runserver","0.0.0.0:9000"]

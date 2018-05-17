@@ -6,22 +6,7 @@ services:
     volumes:
       - static-content:/home/uwsgi/rcamp/static
       - media-uploads:/home/uwsgi/rcamp/media
-  nginx:
-    image: nginx:stable
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params:ro
-      - ./certs:/etc/nginx/certs:ro
-      - static-content:/var/www/static:ro
-      - media-uploads:/var/www/media:ro
-      - nginx-logs:/var/logs/nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - rcamp-uwsgi
 
 volumes:
   static-content:
   media-uploads:
-  nginx-logs:

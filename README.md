@@ -34,7 +34,9 @@ $ cd ..
 
 Build your dev environment and then start it using Compose.
 ```
+$ export RCAMP_PORT=9000
 $ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml build
+$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml run --rm --service-ports rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
 $ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml up -d
 ```
 

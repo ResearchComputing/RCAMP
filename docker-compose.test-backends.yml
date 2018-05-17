@@ -4,7 +4,8 @@ services:
   test-mysql:
     image: mysql:5.7
     environment:
-      - MYSQL_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=rcamp1712
     volumes:
       - ./db:/var/lib/mysql
 
