@@ -1,0 +1,39 @@
+version: "3.6"
+
+services:
+  rcamp-uwsgi:
+    environment:
+      # Jenkins will load these values from Vault and then export them to the environment
+      # during deployment.
+      - RCAMP_DEBUG=False
+      - RCAMP_SECRET_KEY=${RCAMP_SECRET_KEY}
+      - RCAMP_ALLOWEDHOSTS=${RCAMP_ALLOWEDHOSTS}
+      - RCAMP_DB_HOST=${RCAMP_DB_HOST}
+      - RCAMP_DB_USER=${RCAMP_DB_USER}
+      - RCAMP_DB_PASSWORD=${RCAMP_DB_PASSWORD}
+      - RCAMP_RC_LDAP_URI=${RCAMP_RC_LDAP_URI}
+      - RCAMP_RC_LDAP_USER=${RCAMP_RC_LDAP_USER}
+      - RCAMP_RC_LDAP_PASSWORD=${RCAMP_RC_LDAP_PASSWORD}
+    volumes:
+      - /var/lib/sss/pipes:/var/lib/sss/pipes:rw
+      - /etc/nsswitch.conf:/etc/nsswitch.conf
+      - /etc/pam.d:/etc/pam.d
+
+  nginx:
+    hostname: ${HOSTNAME}
+    image: nginx:stable
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params:ro
+      - ./certs:/etc/nginx/certs:ro
+      - static-content:/var/www/static:ro
+      - media-uploads:/var/www/media:ro
+      - nginx-logs:/var/logs/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - rcamp-uwsgi
+
+volumes:
+  nginx-logs:

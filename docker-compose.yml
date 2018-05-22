@@ -1,0 +1,21 @@
+version: "3.6"
+
+services:
+  rcamp-uwsgi:
+    build: rcamp
+    environment:
+      - RCAMP_UCB_LDAP_URI=${RCAMP_UCB_LDAP_URI}
+      - RCAMP_UCB_LDAP_USER=${RCAMP_UCB_LDAP_USER}
+      - RCAMP_UCB_LDAP_PASSWORD=${RCAMP_UCB_LDAP_PASSWORD}
+      - RCAMP_CSU_LDAP_URI=${RCAMP_CSU_LDAP_URI}
+      - RCAMP_CSU_LDAP_USER=${RCAMP_CSU_LDAP_USER}
+      - RCAMP_CSU_LDAP_PASSWORD=${RCAMP_CSU_LDAP_PASSWORD}
+    volumes:
+      - static-content:/home/uwsgi/rcamp/static
+      - media-uploads:/home/uwsgi/rcamp/media
+      - rcamp-logs:/home/uwsgi/rcamp/logs
+
+volumes:
+  static-content:
+  media-uploads:
+  rcamp-logs:
