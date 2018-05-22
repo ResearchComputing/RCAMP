@@ -5,7 +5,8 @@ from lib.ldap_utils import get_suffixed_username
 
 from accounts.models import (
     User,
-    AccountRequest
+    AccountRequest,
+    Intent
 )
 from projects.models import Project
 
