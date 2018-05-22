@@ -1,0 +1,19 @@
+version: "3.6"
+
+services:
+  rcamp-uwsgi:
+    build:
+      context: rcamp
+      cache_from:
+        - dev/rcamp
+      dockerfile: Dockerfile.test
+    environment:
+      - RCAMP_DEBUG=True
+    volumes:
+      - ./rcamp/rcamp:/home/uwsgi/rcamp
+      - ./rcamp/ldapdb:/home/uwsgi/ldapdb
+    ports:
+      - "${RCAMP_PORT}:9000"
+    depends_on:
+      - test-mysql
+      - test-ldap

@@ -1,0 +1,3 @@
+[submodule "rcamp/ldapdb"]
+	path = rcamp/ldapdb
+	url = https://github.com/ResearchComputing/django-ldapdb.git
