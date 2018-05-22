@@ -15,40 +15,37 @@ Research Computing Administrative &amp; Management Portal
 
 **rcamp** - The rcamp directory contains site code and, most importantly, settings.
 
-## Installation
+## Setting up your dev environment
+You will need Docker 18.03+ and Compose 1.21+ before you begin. Documentation for Docker can be found here: https://docs.docker.com/install/.
 
-Clone RCAMP
+Start by cloning RCAMP.
 ```
-git clone https://github.com/ResearchComputing/RCAMP
-```
-
-Install the RC fork of django-ldapdb
-```
-git clone https://github.com/ResearchComputing/django-ldapdb
-cd django-ldapdb
-python setup.py install
+$ git clone https://github.com/ResearchComputing/RCAMP
+$ git submodule update --init
+$ cd RCAMP
 ```
 
-Install remaining project dependencies
+Then build the RCAMP base image, making sure to pass your local account UID/GID as build args _(this is necessary for bind-mounting your code later)_.
 ```
-cd ../RCAMP
-pip install -r requirements.txt
-```
-
-Configure local settings. Configuration in `local_settings.py` will override configuration in `settings.py`.
-```
-cd rcamp/rcamp
-touch local_settings.py
-# Configure fields in local_settings as needed.
-```
-Collect static files
-```
-python manage.py collectstatic
+$ cd rcamp
+$ docker build -t dev/rcamp --build-arg UWSGI_UID=$(id -u) --build-arg UWSGI_GID=$(id -g) .
+$ cd ..
 ```
 
-Set up the database (SQLite3 preferred for dev/testing).
+Build your dev environment and then start it using Compose.
 ```
-python manage.py migrate
+$ export RCAMP_PORT=9000
+$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml build
+$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml run --rm --service-ports rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
+$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml up -d
+```
+
+Finish by migrating the DB and adding a superuser to the RCAMP app. You'll need to attach to the running RCAMP service to do this:
+```
+$ docker exec -it rcamp_rcamp-uwsgi_1 /bin/bash
+~rcamp-uwsgi$ python manage.py migrate
+~rcamp-uwsgi$ python manage.py createsuperuser
+...
 ```
 
 ## Writing and Running Tests
