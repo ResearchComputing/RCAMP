@@ -1,0 +1,15 @@
+sudo: required
+
+language: python
+
+services:
+  - docker
+
+before_install:
+- cd rcamp
+- docker build -t dev/rcamp --build-arg UWSGI_UID=$(id -u) --build-arg UWSGI_GID=$(id -u) .
+- cd ..
+- export RCAMP_PORT=9000
+- docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml build
+- docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml run --rm --service-ports rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
+- docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml run --rm --service-ports rcamp-uwsgi bash -c 'python manage.py test'
