@@ -58,30 +58,35 @@ class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
 
     All RCAMP functional tests should inherit from this class.
     """
-    @classmethod
-    def setUpClass(cls):
-        assert_test_env()
-        # Start the web driver
-        cls.browser = PhantomJSWithRetry()
-        cls.browser.set_page_load_timeout(10)
-        cls.browser.set_script_timeout(10)
-        cls.browser.set_window_size(1366, 768)
-        super(SafeStaticLiveServerTestCase,cls).setUpClass()
+    # @classmethod
+    # def setUpClass(cls):
+    #     assert_test_env()
+    #     # Start the web driver
+    #     cls.browser = PhantomJSWithRetry()
+    #     cls.browser.set_page_load_timeout(10)
+    #     cls.browser.set_script_timeout(10)
+    #     cls.browser.set_window_size(1366, 768)
+    #     super(SafeStaticLiveServerTestCase,cls).setUpClass()
 
-    @classmethod
-    def tearDownClass(cls):
-        cls.browser.quit()
-        assert_test_env()
-        super(SafeStaticLiveServerTestCase,cls).tearDownClass()
+    # @classmethod
+    # def tearDownClass(cls):
+    #     cls.browser.quit()
+    #     assert_test_env()
+    #     super(SafeStaticLiveServerTestCase,cls).tearDownClass()
 
     def setUp(self):
         assert_test_env()
+        self.browser = PhantomJSWithRetry()
+        self.browser.set_page_load_timeout(10)
+        self.browser.set_script_timeout(10)
+        self.browser.set_window_size(1366, 768)
         _purge_ldap_objects()
         super(SafeStaticLiveServerTestCase,self).setUp()
 
     def tearDown(self):
         assert_test_env()
         _purge_ldap_objects()
+        self.browser.quit()
         super(SafeStaticLiveServerTestCase,self).tearDown()
 
 class UserAuthenticatedLiveServerTestCase(SafeStaticLiveServerTestCase):
