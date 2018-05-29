@@ -1,6 +1,7 @@
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.conf import settings
 from selenium import webdriver
+from selenium.common import exceptions
 import datetime
 import unittest
 import copy
@@ -16,6 +17,27 @@ from accounts.models import (
     RcLdapUser,
     RcLdapGroup
 )
+
+
+class PhantomJSWithRetry(webdriver.PhantomJS):
+    """
+    Pulled from https://github.com/chris48s/UK-Polling-Stations/blob/66e96b52ce6bb6e9c0d864a8eb7e9bd53192f8b8/polling_stations/apps/data_finder/features/index.py
+    to get around https://github.com/ariya/phantomjs/issues/11526#issuecomment-133570834
+    and https://github.com/travis-ci/travis-ci/issues/3251.
+
+    Override execute() so it will retry if we get a selenium.common.exceptions.TimeoutException
+    this is a hack to work around an underlying issue in selenium and phantomjs running within a
+    Docker container.
+    """
+    def execute(self, driver_command, params=None):
+        for _ in range(3):
+            try:
+                return super(PhantomJSWithRetry,self).execute(driver_command, params)
+            except exceptions.TimeoutException as e:
+                print('trying again...')
+                error = e
+        print('giving up! :(')
+        raise error
 
 
 @unittest.skipUnless(_assert_test_env_or_false(),"Tests are not being run against a safe test environment!")
@@ -40,7 +62,9 @@ class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
     def setUpClass(cls):
         assert_test_env()
         # Start the web driver
-        cls.browser = webdriver.PhantomJS()
+        cls.browser = PhantomJSWithRetry()
+        cls.browser.set_page_load_timeout(10)
+        cls.browser.set_script_timeout(10)
         cls.browser.set_window_size(1366, 768)
         super(SafeStaticLiveServerTestCase,cls).setUpClass()
 
