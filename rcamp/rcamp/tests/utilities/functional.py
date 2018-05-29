@@ -58,22 +58,6 @@ class SafeStaticLiveServerTestCase(StaticLiveServerTestCase):
 
     All RCAMP functional tests should inherit from this class.
     """
-    # @classmethod
-    # def setUpClass(cls):
-    #     assert_test_env()
-    #     # Start the web driver
-    #     cls.browser = PhantomJSWithRetry()
-    #     cls.browser.set_page_load_timeout(10)
-    #     cls.browser.set_script_timeout(10)
-    #     cls.browser.set_window_size(1366, 768)
-    #     super(SafeStaticLiveServerTestCase,cls).setUpClass()
-
-    # @classmethod
-    # def tearDownClass(cls):
-    #     cls.browser.quit()
-    #     assert_test_env()
-    #     super(SafeStaticLiveServerTestCase,cls).tearDownClass()
-
     def setUp(self):
         assert_test_env()
         self.browser = PhantomJSWithRetry()
