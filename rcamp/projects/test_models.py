@@ -49,36 +49,69 @@ class ProjectTestCase(SafeTestCase):
         self.assertEqual(proj.project_id,'ucb11')
 
 class AllocationTestCase(SafeTestCase):
-    def setUp(self):
-        self.proj_dict = {
-            'project_id': 'ucb1',
+
+    def test_create_alloc_no_id(self):
+        proj_dict = {
+            'project_id': 'ucb7',
             'title': 'Test Project',
             'description': 'A test project',
             'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
             'organization':'ucb',
         }
-        self.proj = Project.objects.create(**self.proj_dict)
+        proj = Project.objects.create(**proj_dict)
 
         sdate = datetime.datetime(2016,02,02)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
         edate = datetime.datetime(2017,02,02)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
 
-        self.alloc_dict = {
-            'project': self.proj,
-            'allocation_id': 'ucb1_summit2',
+        alloc_dict = {
+            'project': proj,
+            'allocation_id': 'ucb7_summit2',
             'amount': '50000',
             'start_date': sdate_tz,
             'end_date': edate_tz,
         }
-        self.alloc1 = Allocation.objects.create(**self.alloc_dict)
+        alloc1 = Allocation.objects.create(**alloc_dict)
 
-    def test_create_alloc_no_id(self):
-        alloc_dict = copy.deepcopy(self.alloc_dict)
+        alloc_dict = copy.deepcopy(alloc_dict)
         del alloc_dict['allocation_id']
         alloc = Allocation.objects.create(**alloc_dict)
 
-        self.assertEqual(alloc.allocation_id,'ucb1_summit3')
+        self.assertEqual(alloc.allocation_id,'ucb7_summit3')
+
+    def test_create_alloc_no_id_multidigit_collision(self):
+        proj_dict = {
+            'project_id': 'ucb7',
+            'title': 'Test Project',
+            'description': 'A test project',
+            'pi_emails': ['testuser@test.org','cuuser@cu.edu'],
+            'organization':'ucb',
+        }
+        proj = Project.objects.create(**proj_dict)
+        proj2_dict = copy.deepcopy(proj_dict)
+        proj2_dict['project_id'] = 'ucb78'
+        proj2 = Project.objects.create(**proj2_dict)
+
+        sdate = datetime.datetime(2016,02,02)
+        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
+        edate = datetime.datetime(2017,02,02)
+        edate_tz = pytz.timezone('America/Denver').localize(edate)
+
+        alloc_dict = {
+            'project': proj,
+            'allocation_id': 'ucb78_summit1',
+            'amount': '50000',
+            'start_date': sdate_tz,
+            'end_date': edate_tz,
+        }
+        alloc1 = Allocation.objects.create(**alloc_dict)
+
+        alloc_dict = copy.deepcopy(alloc_dict)
+        del alloc_dict['allocation_id']
+        alloc = Allocation.objects.create(**alloc_dict)
+
+        self.assertEqual(alloc.allocation_id,'ucb7_summit1')
 
 class AllocationCreateTestCase(SafeTestCase):
     def setUp(self):
