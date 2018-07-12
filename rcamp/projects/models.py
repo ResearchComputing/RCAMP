@@ -109,9 +109,10 @@ class Allocation(models.Model):
 
         if (not self.allocation_id) or (self.allocation_id == ''):
             proj_id = self.project.project_id
+            search_prefix = '{project_id}_summit'.format(project_id=proj_id)
             prefix_offset = len(proj_id) + 1
             allocs = Allocation.objects.filter(
-                allocation_id__startswith=proj_id
+                allocation_id__startswith=search_prefix
             ).annotate(
                 alloc_number_int=Cast(Substr('allocation_id', prefix_offset), target_type='UNSIGNED')
             ).order_by('-alloc_number_int')
