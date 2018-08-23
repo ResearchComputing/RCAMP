@@ -286,10 +286,7 @@ class AllocationRequestCreateView(FormView,ProjectAccessMixin):
         ar_dict.update(form.cleaned_data)
         ar = AllocationRequest.objects.create(**ar_dict)
 
-        try:
-            requester = RcLdapUser.objects.get(username=ar.requester.username)
-        except RcLdapUser.DoesNotExist:
-            requester = None
+        requester = RcLdapUser.objects.get_user_from_suffixed_username(ar.requester.username)
 
         allocation_request_created_by_user.send(sender=ar.__class__,allocation_request=ar,requester=requester)
         self.success_url = reverse_lazy(
