@@ -13,9 +13,7 @@ services:
     volumes:
       - static-content:/home/uwsgi/rcamp/static
       - media-uploads:/home/uwsgi/rcamp/media
-      - rcamp-logs:/home/uwsgi/rcamp/logs
 
 volumes:
   static-content:
   media-uploads:
-  rcamp-logs:

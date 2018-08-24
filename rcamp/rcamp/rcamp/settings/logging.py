@@ -7,35 +7,40 @@ if not DEBUG:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+_log_level = 'DEBUG' if DEBUG else 'INFO'
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'file': {
-            'level': 'WARN',
-            'class': 'logging.FileHandler',
-            'filename': '/home/uwsgi/rcamp/logs/rcamp.log',
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': True,
         },
         'rcamp': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'projects': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': _log_level,
             'propagate': True,
         },
         'accounts': {
-            'handlers': ['file'],
-            'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': _log_level,
+            'propagate': True,
+        },
+        'projects': {
+            'handlers': ['console'],
+            'level': _log_level,
+            'propagate': True,
+        },
+        'mailer': {
+            'handlers': ['console'],
+            'level': _log_level,
             'propagate': True,
         },
     },

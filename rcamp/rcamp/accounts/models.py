@@ -6,7 +6,6 @@ from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
-import logging
 import datetime
 import pam
 
@@ -15,6 +14,7 @@ from mailer.signals import (
     account_request_approved
 )
 
+import logging
 logger = logging.getLogger(__name__)
 
 
@@ -100,7 +100,7 @@ class AccountRequest(models.Model):
         if (self.status == 'a') and (not self.approved_on):
             manually_approved = self.pk is not None
             # Approval process
-            logger.info('Approving account request: '+self.username)
+            logger.info('Approving account request: {}'.format(self.username))
             self.approved_on=timezone.now()
             rc_user = RcLdapUser.objects.create_user_from_request(
                 username=self.username,
@@ -257,6 +257,7 @@ class RcLdapUserManager(models.Manager):
             else:
                 user_fields['role'] = [role]
 
+        logging.info('Creating user and groups for {} user: {}'.format(organization, username))
         user = self.create(**user_fields)
         pgrp = RcLdapGroup.objects.create(
                 name='%spgrp'%username,
@@ -281,6 +282,7 @@ class RcLdapUserManager(models.Manager):
                 # TODO: Extend ldapdb ListField to include an append method.
                 ucb_grp.members = ucb_grp.members + [username]
                 ucb_grp.save(organization='ucb')
+                logging.info('Added user to UCB license group: {}'.format(user.effective_uid))
 
         return user
 
@@ -345,10 +347,13 @@ class RcLdapUser(LdapUser):
             uid = id_tracker.get_next_id()
             self.uid = uid
             self.gid = uid
+            logging.info('Auto-assigning UID and GID to user: {}, {}'.format(uid, self.effective_uid))
         elif self.uid == None:
             self.uid = self.gid
+            logging.info('Auto-assigning UID to user: {}, {}'.format(self.gid, self.effective_uid))
         elif self.gid == None:
             self.gid = self.uid
+            logging.info('Auto-assigning GID to user: {}, {}'.format(self.uid, self.effective_uid))
 
         super(RcLdapUser,self).save(*args,**kwargs)
 
@@ -368,6 +373,7 @@ class CuLdapUser(LdapUser):
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
         authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
+        logging.info('CU user {} auth attempt: {}'.format(self.username, authed))
         return authed
 
 class CsuLdapUser(LdapUser):
@@ -381,6 +387,7 @@ class CsuLdapUser(LdapUser):
     def authenticate(self,pwd):
         p = pam.pam()
         authed = p.authenticate(self.username, pwd, service=settings.PAM_SERVICES['csu'])
+        logging.info('CSU user {} auth attempt: {}'.format(self.username, authed))
         return authed
 # Monkey-patch LDAP attr names in field bindings
 CsuLdapUser._meta.get_field('username').db_column = 'sAMAccountName'
@@ -458,6 +465,7 @@ class RcLdapGroup(ldapdb.models.Model):
             id_tracker = IdTracker.objects.get(category='posix')
             gid = id_tracker.get_next_id()
             self.gid = gid
+            logging.info('Auto-assigned GID to group: {}, {}'.format(gid, self.name))
 
         super(RcLdapGroup,self).save(*args,**kwargs)
 
