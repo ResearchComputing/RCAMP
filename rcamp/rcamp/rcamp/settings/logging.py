@@ -15,6 +15,12 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': 'rcamp: %(module)s %(levelname)s (%(asctime)s): %(message)s',
         },
     },
     'loggers': {
