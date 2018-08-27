@@ -19,7 +19,7 @@ from projects.models import (
 # for filtered multiselect widget.
 class ProjectAdminForm(forms.ModelForm):
     managers = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.all().order_by('username'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'managers',
@@ -27,7 +27,7 @@ class ProjectAdminForm(forms.ModelForm):
         )
     )
     collaborators = forms.ModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.all().order_by('username'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'collaborators',
