@@ -28,7 +28,7 @@ class ProjectForm(forms.ModelForm):
 
     pi_emails = MultiEmailField(required=True)
     managers = ProjectMembersModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.all().order_by('username'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'managers',
@@ -36,7 +36,7 @@ class ProjectForm(forms.ModelForm):
         )
     )
     collaborators = ProjectMembersModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=User.objects.all().order_by('username'),
         required=False,
         widget=admin.widgets.FilteredSelectMultiple(
             'collaborators',
