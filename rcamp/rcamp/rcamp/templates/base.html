@@ -22,36 +22,35 @@
 {% block body %}
 <div class="container">
 
-    <div class="pull-right">
-      {% if request.user.is_authenticated %}
-      <span class="logout"><a href="/logout">Logout {{ request.user.username }}</a></span>
-      {% else %}
-      <span class="login"><a href="/login">Portal sign-in</a></span>
-      {% endif %}
-    </div>
-
-    <div class="masthead">
-        <h3 class="text-muted"><img src="/static/img/logo.png" /></h3>
-        <ul class="nav nav-justified">
-            <li><a href="{% url 'index' %}">Account portal</a></li>
-            <li><a href="https://www.colorado.edu/rc">Home</a></li>
-            <li><a href="https://www.colorado.edu/rc/resources">Resources</a></li>
-            <li><a href="https://www.colorado.edu/rc/userservices">Support</a></li>
-            <li><a href="https://www.colorado.edu/rc/contact">Contact Us</a></li>
-        </ul>
-      </div>
-
-    {% block jumbotron %}
-    <div class="jumbotron">
-        {% block jumbotron_heading %}<h1>Research Computing</h1>{% endblock %}
-        {% block jumbotron_subheading %}
-        <p>Welcome to Research Computing.</p>
-        {% endblock %}
-        {% block jumbotron_button %}
-        <p><a class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
-        {% endblock %}
-    </div>
-    {% endblock %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <img class="navbar-logo" src="/static/img/logo.png"/>
+                <!-- <a class="navbar-brand" href="{% url 'index' %}"><img class="navbar-logo" src="/static/img/logo.png"/>RC User Portal</a> -->
+            </div>
+            <div id="navbar" class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.is_authenticated %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{ request.user.username }}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/projects/list">Manage My Projects</a></li>
+                            <li><a href="/logout">Logout</a></li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li><a href="/login">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </nav>
 
     {% block modal %}
     <!-- Modal -->
