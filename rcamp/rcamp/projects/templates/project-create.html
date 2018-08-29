@@ -7,12 +7,14 @@
 <link href="/static/css/selector.css" rel="stylesheet"/>
 {% endblock %}
 
-{% block jumbotron_heading %}<h1>Create a new project</h1>{% endblock %}
-{% block jumbotron_subheading %}
-<p>Create a new Research Computing project.</p>
-{% endblock %}
-
 {% block container %}
+<div class="row">
+  <div class="jumbotron text-center">
+    <h1>Create a new project</h1>
+    <p>Create a new Research Computing project.</p>
+  </div>
+</div>
+
 <ol class="breadcrumb">
   <li><a href="{% url 'index' %}">Index</a></li>
   <li><a href="{% url 'projects:project-list' %}">My Projects</a></li>
