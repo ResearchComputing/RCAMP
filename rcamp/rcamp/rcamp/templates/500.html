@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 
-{% block jumbotron_heading %}
-<h1>Oops!</h1>
-{% endblock %}
-
-{% block jumbotron_subheading %}
-<p>An error has occurred! <strong><a href="mailto:rc-help@colorado.edu">Contact rc-help</a></strong> with any questions.</p>
-{% endblock %}
-
-{% block jumbotron_button %}
-<p><a href="/" class="btn btn-primary btn-lg" role="button">Return Home</a></p>
+{% block container %}
+<div class="row">
+    <div class="jumbotron text-center">
+        <h1>We're sorry...</h1>
+        <p>An error has occurred! <strong><a href="mailto:rc-help@colorado.edu">Contact rc-help</a></strong> with any questions.</p>
+    </div>
+</div>
 {% endblock %}

@@ -6,18 +6,18 @@
 <link href="/static/css/org-select.css" rel="stylesheet"/>
 {% endblock %}
 
-{% block jumbotron_heading %}<h1>Account Request Submitted</h1>{% endblock %}
-{% block jumbotron_subheading %}
-  {% if account_request.status != 'a' %}
-  <p>We will review your request within 7 days.</p>
-  {% else %}
-  <p>Welcome to Research Computing!</p>
-  {% endif %}
-{% endblock %}
-{% block jumbotron_button %}
-{% endblock %}
-
 {% block container %}
+<div class="row">
+    <div class="jumbotron text-center">
+        <h1>Account Request Submitted</h1>
+        {% if account_request.status != 'a' %}
+        <p>We will review your request within 7 days.</p>
+        {% else %}
+        <p>Welcome to Research Computing!</p>
+        {% endif %}
+    </div>
+</div>
+
 <div class="mailto-help">
     Questions about your request?
     <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Submitted%20Request%20(%23{{account_request.id}})">
