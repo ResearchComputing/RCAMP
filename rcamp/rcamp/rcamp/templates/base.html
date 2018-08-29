@@ -41,6 +41,9 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-user" aria-hidden="true"></i>&nbsp;{{ request.user.username }}<span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li><a href="/projects/list">Manage My Projects</a></li>
+                            {% if request.user.is_authenticated %}
+                            <li><a href="/admin">Admin</a></li>
+                            {% endif %}
                             <li><a href="/logout">Logout</a></li>
                         </ul>
                     </li>

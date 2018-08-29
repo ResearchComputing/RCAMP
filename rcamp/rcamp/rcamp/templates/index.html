@@ -1,31 +1,7 @@
 {% extends "base.html" %}
 
-{% block jumbotron_button %}
-<p><a data-toggle="modal" href="#helpmodal"
-      class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
-{% endblock %}
-
-{% block modal_title %}
-<h2 class="modal-title">Terms &amp; Conditions</h2>
-{% endblock %}
-
-{% block modal_body %}
-{% include "terms-and-conditions.html" %}
-{% endblock %}
-
 {% block container %}
 <div class="row">
-  {% if user.is_authenticated %}
-  <div class="col-md-12 text-center">
-    <h2>Project management</h2>
-    <p>
-      The <a href="/projects/list">Project Management Page</a> allows
-      you to define projects, review, edit, and request allocations
-      for your projects, and request access
-      to <code>ucb-general</code> or <code>csu-general</code>.
-    </p>
-  </div>
-  {% else %}
 
   <div class="col-md-4 col-md-offset-1 text-center">
     <h2>Account request</h2>
@@ -39,6 +15,6 @@
     <p><a href="/login">Sign in</a> to request compute access or
     manage your projects and allocation requests.</p>
   </div>
-  {% endif %}
+  
 </div>
 {% endblock %}
