@@ -1,5 +1,5 @@
 body {
-  padding-top: 80px;
+  padding-top: 100px;
 }
 
 .navbar-default {
@@ -11,7 +11,7 @@ body {
 }
 
 .jumbotron {
-  background-image:url("/static/img/coolaisle-blue-cmp.jpg");
+  background-image:url("/static/img/memory-heatmap-cmp.jpg");
 }
 
 .terms-and-conditions {

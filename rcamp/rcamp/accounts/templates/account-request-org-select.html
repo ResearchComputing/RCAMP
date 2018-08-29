@@ -6,25 +6,13 @@
 <link href="/static/css/account-request.css" rel="stylesheet"/>
 {% endblock %}
 
-{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
-{% block jumbotron_subheading %}
-<p>Request a Research Computing account.</p>
-{% endblock %}
-
-{% block jumbotron_button %}
-<p><a data-toggle="modal" href="#helpmodal"
-      class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
-{% endblock %}
-
-{% block modal_title %}
-<h2 class="modal-title">Terms &amp; Conditions</h2>
-{% endblock %}
-
-{% block modal_body %}
-{% include "terms-and-conditions.html" %}
-{% endblock %}
-
 {% block container %}
+<div class="row">
+  <div class="jumbotron text-center">
+    <h1>Account Request</h1>
+    <p>Request a Research Computing account.</p>
+  </div>
+</div>
 
 <legend>Please select your organization to begin.</legend>
 <div class="alert alert-info" role="alert">

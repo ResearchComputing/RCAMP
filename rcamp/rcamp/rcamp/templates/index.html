@@ -2,19 +2,41 @@
 
 {% block container %}
 <div class="row">
+    <div class="jumbotron text-center">
+        <h1>Research Computing</h1>
+        <p>Welcome to Research Computing!</p>
+    </div>
+</div>
 
-  <div class="col-md-4 col-md-offset-1 text-center">
-    <h2>Account request</h2>
-    <p><a href="{% url 'accounts:account-request-org-select' %}">Request a
-      Research Computing account</a> to access our resources and
-      manage projects.</p>
-  </div>
+<div class="row">
 
-  <div class="col-md-4 col-md-offset-2 text-center">
-    <h2>Sign in</h2>
-    <p><a href="/login">Sign in</a> to request compute access or
-    manage your projects and allocation requests.</p>
-  </div>
-  
+    <div class="col-md-4 col-md-offset-1 text-center">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Account Request</h3>
+            </div>
+            <div class="panel-body">
+                <p>Request a Research Computing account to access our resources and manage projects.</p>
+                <a href="{% url 'accounts:account-request-org-select' %}">
+                    <button type="submit" class="btn btn-primary btn-block">Request Account &raquo;</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-md-offset-1 text-center">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Sign In</h3>
+            </div>
+            <div class="panel-body">
+                <p>Sign in to request compute access or manage your projects and allocation requests.</p>
+                <a href="/login">
+                    <button type="submit" class="btn btn-primary btn-block">Sign In &raquo;</button>
+                </a>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
