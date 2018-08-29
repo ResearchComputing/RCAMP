@@ -2,24 +2,18 @@
 
 {% block title %}Research Computing - Login{% endblock %}
 
-{% block jumbotron_button %}
-<p><a data-toggle="modal" href="#helpmodal"
-      class="btn btn-primary btn-lg" role="button">Terms &amp; Conditions &raquo;</a></p>
-{% endblock %}
-
-{% block modal_title %}
-<h2 class="modal-title">Terms &amp; Conditions</h2>
-{% endblock %}
-
-{% block modal_body %}
-{% include "terms-and-conditions.html" %}
-{% endblock %}
-
 {% block extra_style %}
 <link href="/static/css/login.css" rel="stylesheet"/>
 {% endblock %}
 
 {% block container %}
+<div class="row">
+    <div class="jumbotron text-center">
+        <h1>Research Computing</h1>
+        <p>Welcome to Research Computing!</p>
+    </div>
+</div>
+
 <form method="POST" id="login-form">
   {% csrf_token %}
   <div class="form-group">

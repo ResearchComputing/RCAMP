@@ -1,5 +1,17 @@
+body {
+  padding-top: 100px;
+}
+
+.navbar-default {
+  background-color: #fff;
+}
+
+.navbar-logo {
+  height: 80px;
+}
+
 .jumbotron {
-  background-image:url("/static/img/coolaisle-blue-cmp.jpg");
+  background-image:url("/static/img/memory-heatmap-cmp.jpg");
 }
 
 .terms-and-conditions {
