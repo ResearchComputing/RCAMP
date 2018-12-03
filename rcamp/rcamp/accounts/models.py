@@ -61,7 +61,7 @@ class User(AbstractUser):
 
 class AccountRequest(models.Model):
     class Meta:
-        unique_together = (('username','organization'),)
+        unique_together = (('username','organization','email'),)
 
     STATUSES = (
         ('p','Pending'),
@@ -73,7 +73,7 @@ class AccountRequest(models.Model):
     username = models.CharField(max_length=48)
     first_name = models.CharField(max_length=128,blank=False,null=False)
     last_name = models.CharField(max_length=128,blank=False,null=False)
-    email = models.EmailField(unique=True)
+    email = models.EmailField()
 
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
     department = models.CharField(max_length=128,blank=True,null=True)
