@@ -1,5 +1,5 @@
 [Unit]
-Description=RCAMP Docker Compose Service (Staging)
+Description=RCAMP Docker Compose Service (Production)
 Requires=docker.service
 After=docker.service
 
