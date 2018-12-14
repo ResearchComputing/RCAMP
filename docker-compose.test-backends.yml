@@ -1,21 +1,6 @@
 version: "3.6"
 
 services:
-  nginx:
-    volumes:
-      - certs:/etc/nginx/certs:ro
-    depends_on:
-      - cert-gen
-
-  cert-gen:
-    build:
-      context: ./cert-gen
-      args:
-        - common_name=${HOSTNAME}
-        - cert_name=rcamp
-    volumes:
-      - certs:/home/root/certs
-
   test-mysql:
     image: mysql:5.7
     environment:
@@ -27,6 +12,21 @@ services:
   test-ldap:
     image: researchcomputing/rc-test-ldap
     # build: ldap
+
+  cert-gen:
+    build:
+      context: ./cert-gen
+      args:
+        - common_name=${HOSTNAME}
+        - cert_name=rcamp
+    volumes:
+      - certs:/home/root/certs
+
+  nginx:
+    volumes:
+      - certs:/etc/nginx/certs:ro
+    depends_on:
+      - cert-gen
 
 volumes:
   certs:

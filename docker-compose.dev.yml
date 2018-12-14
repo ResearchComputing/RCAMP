@@ -2,11 +2,7 @@ version: "3.6"
 
 services:
   rcamp-uwsgi:
-    build:
-      context: rcamp
-      cache_from:
-        - dev/rcamp
-      dockerfile: Dockerfile.test
+    command: ["python", "manage.py", "runserver", "0.0.0.0:9000"]
     environment:
       - RCAMP_DEBUG=True
     volumes:
