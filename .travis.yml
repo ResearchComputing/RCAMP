@@ -14,7 +14,7 @@ before_install:
 - docker build -t dev/rcamp --build-arg UWSGI_UID=$UWSGI_UID --build-arg UWSGI_GID=$UWSGI_GID rcamp/
 - docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml build
 - docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml run --rm --service-ports rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml run --rm --service-ports rcamp-uwsgi bash -c 'python manage.py test'
+- travis_retry docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml run --rm --service-ports rcamp-uwsgi bash -c 'python manage.py test'
 
 install: true
 script: true
