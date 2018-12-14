@@ -14,5 +14,3 @@ RUN useradd -M -p $(echo password | openssl passwd -1 -stdin) testuser1 && \
     useradd -M -p $(echo password | openssl passwd -1 -stdin) testuser2
 
 WORKDIR /home/uwsgi/rcamp
-
-CMD ["python","manage.py","runserver","0.0.0.0:9000"]
