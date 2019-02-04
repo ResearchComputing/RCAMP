@@ -40,7 +40,8 @@ RUN yum -y update && \
     yum -y install openldap-devel MySQL-python
 
 ADD requirements.txt /home/uwsgi/
-RUN pip2 install -r requirements.txt
+RUN pip2 install --upgrade pip && \
+    pip2 install -r requirements.txt
 
 WORKDIR /home/uwsgi/ldapdb
 COPY --chown=uwsgi:uwsgi ldapdb /home/uwsgi/ldapdb
