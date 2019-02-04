@@ -1,3 +1,0 @@
-[submodule "ldapdb"]
-	path = ldapdb
-	url = https://github.com/ResearchComputing/django-ldapdb.git
