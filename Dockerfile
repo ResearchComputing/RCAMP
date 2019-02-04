@@ -41,11 +41,8 @@ RUN yum -y update && \
 
 ADD requirements.txt /home/uwsgi/
 RUN pip2 install --upgrade pip && \
-    pip2 install -r requirements.txt
-
-WORKDIR /home/uwsgi/ldapdb
-COPY --chown=uwsgi:uwsgi ldapdb /home/uwsgi/ldapdb
-RUN pip install -e .
+    pip2 install -r requirements.txt && \
+    pip2 install -e git://github.com/ResearchComputing/django-ldapdb.git@v0.5.1#egg=django-ldapdb
 
 # Add uwsgi conf
 COPY --chown=uwsgi:uwsgi uwsgi.ini /home/uwsgi/uwsgi.ini
