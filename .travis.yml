@@ -1,23 +1,13 @@
 sudo: required
-
 language: python
-
 services:
   - docker
 
-before_install:
-- pip install --upgrade docker-compose
-- export UWSGI_UID=$(id -u)
-- export UWSGI_GID=$(id -u)
-- export RCAMP_PORT=9000
-- export HOSTNAME=localhost
-- docker build -t dev/rcamp --build-arg UWSGI_UID=$UWSGI_UID --build-arg UWSGI_GID=$UWSGI_GID rcamp/
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml build
-- docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml run --rm --service-ports rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
-- travis_retry docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.test-backends.yml run --rm --service-ports rcamp-uwsgi bash -c 'python manage.py test'
+install:
+  - docker build -t dev/rcamp .
 
-install: true
-script: true
+script:
+  - docker run --rm --entrypoint="python" dev/rcamp manage.py test
 
 notifications:
   email: false

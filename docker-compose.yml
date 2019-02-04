@@ -3,42 +3,41 @@ version: "3.6"
 services:
   rcamp-uwsgi:
     build:
-      context: ./rcamp
+      context: .
       args:
         - UWSGI_UID=${UWSGI_UID}
         - UWSGI_GID=${UWSGI_GID}
     container_name: rcamp-uwsgi
-    environment:
-      - RCAMP_UCB_LDAP_URI=${RCAMP_UCB_LDAP_URI}
-      - RCAMP_UCB_LDAP_USER=${RCAMP_UCB_LDAP_USER}
-      - RCAMP_UCB_LDAP_PASSWORD=${RCAMP_UCB_LDAP_PASSWORD}
-      - RCAMP_CSU_LDAP_URI=${RCAMP_CSU_LDAP_URI}
-      - RCAMP_CSU_LDAP_USER=${RCAMP_CSU_LDAP_USER}
-      - RCAMP_CSU_LDAP_PASSWORD=${RCAMP_CSU_LDAP_PASSWORD}
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    env_file:
+      - dev-environment.env
     volumes:
-      - static-content:/home/uwsgi/rcamp/static
-      - media-uploads:/home/uwsgi/rcamp/media
-      - rcamp-logs:/home/uwsgi/rcamp/logs
-
-  nginx:
-    hostname: ${HOSTNAME}
-    image: nginx:stable
-    container_name: nginx
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params:ro
-      - ./certs:/etc/nginx/certs:ro
-      - static-content:/var/www/static:ro
-      - media-uploads:/var/www/media:ro
-      - nginx-logs:/var/logs/nginx
+      - ./rcamp:/home/uwsgi/rcamp
+      - ./ldapdb:/home/uwsgi/ldapdb
+      - static-content:/home/uwsgi/static
+      - media-uploads:/home/uwsgi/media
+      - rcamp-logs:/home/uwsgi/logs
     ports:
-      - "80:80"
-      - "443:443"
+      - "8000:8000"
     depends_on:
-      - rcamp-uwsgi
+      - database
+      - ldap
+
+  database:
+    image: mysql:5.7
+    container_name: database
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=rcamp1712
+    volumes:
+      - database:/var/lib/mysql
+
+  ldap:
+    image: researchcomputing/rc-test-ldap
+    container_name: ldap
 
 volumes:
   static-content:
   media-uploads:
   rcamp-logs:
-  nginx-logs:
+  database:
