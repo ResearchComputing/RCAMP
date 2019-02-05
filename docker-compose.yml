@@ -4,9 +4,6 @@ services:
   rcamp-uwsgi:
     build:
       context: .
-      args:
-        - UWSGI_UID=${UWSGI_UID}
-        - UWSGI_GID=${UWSGI_GID}
     container_name: rcamp-uwsgi
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     env_file:
