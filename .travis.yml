@@ -3,11 +3,14 @@ language: python
 services:
   - docker
 
+before_install:
+  - pip install --upgrade docker-compose
+
 install:
-  - docker build -t dev/rcamp .
+  - docker-compose build
 
 script:
-  - docker run --rm --entrypoint="python" dev/rcamp manage.py test
+  - docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py test
 
 notifications:
   email: false
