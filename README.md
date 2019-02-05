@@ -21,32 +21,24 @@ You will need Docker 18.03+ and Compose 1.21+ before you begin. Documentation fo
 Start by cloning RCAMP.
 ```
 $ git clone https://github.com/ResearchComputing/RCAMP
-$ git submodule update --init
 $ cd RCAMP
-```
-
-Then build the RCAMP base image, making sure to pass your local account UID/GID as build args _(this is necessary for bind-mounting your code later)_.
-```
-$ cd rcamp
-$ docker build -t dev/rcamp --build-arg UWSGI_UID=$(id -u) --build-arg UWSGI_GID=$(id -g) .
-$ cd ..
 ```
 
 Build your dev environment and then start it using Compose.
 ```
-$ export RCAMP_PORT=9000
-$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml build
-$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml run --rm --service-ports rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
-$ docker-compose -f docker-compose.yml -f docker-compose.test-backends.yml -f docker-compose.dev.yml up -d
+$ docker-compose build
+$ docker-compose up -d
 ```
 
 Finish by migrating the DB and adding a superuser to the RCAMP app. You'll need to attach to the running RCAMP service to do this:
 ```
-$ docker exec -it rcamp_rcamp-uwsgi_1 /bin/bash
-~rcamp-uwsgi$ python manage.py migrate
-~rcamp-uwsgi$ python manage.py createsuperuser
-...
+$ docker-compose exec --entrypoint "python" rcamp-uwsgi manage.py migrate
+$ docker-compose exec -it --entrypoint "python" rcamp-uwsgi manage.py createsuperuser
 ```
 
 ## Writing and Running Tests
 Documentation on use and installation of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
+
+```
+$ docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py test
+```

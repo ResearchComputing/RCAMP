@@ -19,8 +19,8 @@ def assert_test_env():
     assert settings.DATABASES['rcldap']['PASSWORD'] == 'password'
     # In an abundance of caution, also make sure that the LDAP and MySQL connections are configured
     # to use the test services.
-    assert 'test-ldap' in settings.DATABASES['rcldap']['NAME']
-    assert 'test-mysql' in settings.DATABASES['default']['HOST']
+    assert 'ldap' in settings.DATABASES['rcldap']['NAME']
+    assert 'database' in settings.DATABASES['default']['HOST']
     # Probably not running against prod backends.
     return True
 
