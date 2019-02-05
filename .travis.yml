@@ -9,6 +9,7 @@ before_install:
 install:
   - docker-compose build
   - docker-compose up -d
+  - docker-compose exec rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
 
 script:
   - docker-compose exec rcamp-uwsgi python manage.py test
