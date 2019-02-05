@@ -8,9 +8,10 @@ before_install:
 
 install:
   - docker-compose build
+  - docker-compose up -d
 
 script:
-  - docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py test
+  - docker-compose exec --entrypoint "python" rcamp-uwsgi manage.py test
 
 notifications:
   email: false
