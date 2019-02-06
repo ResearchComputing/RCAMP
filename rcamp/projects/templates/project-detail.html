@@ -80,6 +80,14 @@
 
   {% if user in object.managers.all %}
   <legend>References and publications for {{ object.project_id }}</legend>
+
+  <div class="mailto-help">
+    <small>
+      RMACC Summit must be acknowledged in any published or presented work for which results were obtained using RMACC Summit. Take a look at our <a href="https://www.colorado.edu/rc/resources/summit/citations">citation instructions.</a>
+    </small>
+  </div>
+
+
   <ul class="list-group">
     {% for reference in references %}
     <a href="{% url 'projects:reference-detail' project_pk=object.pk pk=reference.pk %}" class="list-group-item">
@@ -100,6 +108,20 @@
 
   {% if user in object.managers.all %}
   <legend>Allocations and Requests for {{ object.project_id }}</legend>
+
+  <div class="mailto-help">
+    <small>
+      When you receive an account you will automatically be assigned a general share for your organization, which is a great place to run smaller jobs or to use to test and benchmark your code. General share users have a lower priority. To receive higher priority, you can apply for an allocation to run on our systems. Questions about projects and allocations?
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Creation">
+        Contact us
+      </a>
+      or view our
+        <a href="https://www.colorado.edu/rc/userservices/allocations">
+          allocations documentation.
+        </a>
+    </small>
+  </div>
+
   <ul class="list-group">
     {% for allocation_request in allocation_requests %}
     <a href="{% url 'projects:allocation-request-detail' project_pk=object.pk pk=allocation_request.pk %}" class="list-group-item">
