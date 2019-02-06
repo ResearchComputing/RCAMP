@@ -272,15 +272,15 @@ class RcLdapUserManager(models.Manager):
                 organization=organization
             )
 
-        # Add CU users to ucb posix group
-        if ('ucb' in settings.LICENSE_GROUPS) and (organization == 'ucb'):
-            license_grp = settings.LICENSE_GROUPS['ucb']
-            ucb_grps = RcLdapGroup.objects.filter(name=license_grp)
-            if ucb_grps.count() > 0:
-                ucb_grp = ucb_grps[0]
+        # Add users to org-appropriate posix group
+        if (organization in settings.LICENSE_GROUPS) and (organization == organization):
+            license_grp = settings.LICENSE_GROUPS[organization]
+            org_grps = RcLdapGroup.objects.filter(name=license_grp)
+            if org_grps.count() > 0:
+                org_grp = org_grps[0]
                 # TODO: Extend ldapdb ListField to include an append method.
-                ucb_grp.members = ucb_grp.members + [username]
-                ucb_grp.save(organization='ucb')
+                org_grp.members = org_grp.members + [username]
+                org_grp.save(organization=organization)
 
         return user
 
