@@ -1,7 +1,7 @@
 import os
 from .toggles import *
 
-BASE_DIR = '/home/uwsgi/rcamp'
+BASE_DIR = '/opt/rcamp'
 
 DATABASES = {
     'default': {

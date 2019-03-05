@@ -15,7 +15,7 @@ LOGGING = {
         'file': {
             'level': 'WARN',
             'class': 'logging.FileHandler',
-            'filename': '/home/uwsgi/logs/rcamp.log',
+            'filename': '/opt/logs/rcamp.log',
         },
     },
     'loggers': {
