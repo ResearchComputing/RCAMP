@@ -1,8 +1,8 @@
 import os
 from .toggles import *
 
-HOME_DIR = '/home/uwsgi'
-BASE_DIR = '/home/uwsgi/rcamp'
+HOME_DIR = '/opt'
+BASE_DIR = '/opt/rcamp'
 
 
 SECRET_KEY = os.environ.get('RCAMP_SECRET_KEY')

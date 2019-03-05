@@ -18,17 +18,10 @@ RUN export GOSU_VERSION=1.10 && \
   	yum clean all && \
     unset GOSU_VERSION
 
-# Add uwsgi user to the image
-ARG UWSGI_UID=1000
-ARG UWSGI_GID=1000
-# Set env vars from these args, as there is no utility in forcing the user to set them twice in dev.
-ENV UID=${UWSGI_UID}
-ENV GID=${UWSGI_GID}
+ENV UWSGI_UID=1000
+ENV UWSGI_GID=1000
 
-RUN groupadd -g $GID uwsgi && \
-    useradd -d "/home/uwsgi" -u "$UID" -g "$GID" -m -s /bin/bash "uwsgi"
-
-WORKDIR /home/uwsgi
+WORKDIR /opt
 
 # Install core dependencies
 RUN yum -y update && \
@@ -39,19 +32,19 @@ RUN yum -y update && \
     yum -y install python-devel python2-pip && \
     yum -y install openldap-devel MySQL-python
 
-ADD requirements.txt /home/uwsgi/
+ADD requirements.txt /opt/
 RUN pip2 install --upgrade pip && \
     pip2 install -r requirements.txt && \
     pip2 install -e git://github.com/ResearchComputing/django-ldapdb.git@v0.5.1#egg=django-ldapdb
 
 # Add uwsgi conf
-COPY --chown=uwsgi:uwsgi uwsgi.ini /home/uwsgi/uwsgi.ini
+COPY uwsgi.ini /opt/uwsgi.ini
 
 # Add codebase to container
-COPY --chown=uwsgi:uwsgi rcamp /home/uwsgi/rcamp
+COPY rcamp /opt/rcamp
 
-WORKDIR /home/uwsgi/rcamp
+WORKDIR /opt/rcamp
 # Set gosu entrypoint and default command
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
-CMD ["/usr/bin/uwsgi","/home/uwsgi/uwsgi.ini"]
+CMD ["/usr/bin/uwsgi","/opt/uwsgi.ini"]
