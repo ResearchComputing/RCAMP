@@ -5,7 +5,7 @@ import datetime
 import pytz
 
 from django.conf import settings
-from lib.test.utils import (
+from tests.utilities.utils import (
     SafeTestCase,
     get_auth_user_defaults
 )

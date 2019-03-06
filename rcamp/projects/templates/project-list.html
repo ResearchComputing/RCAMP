@@ -6,12 +6,14 @@
 <link href="/static/css/projects.css" rel="stylesheet"/>
 {% endblock %}
 
-{% block jumbotron_heading %}<h1>My Projects</h1>{% endblock %}
-{% block jumbotron_subheading %}
-<p>Review, manage, and request projects.</p>
-{% endblock %}
-
 {% block container %}
+<div class="row">
+  <div class="jumbotron text-center">
+    <h1>My Projects</h1>
+    <p>Review, manage, and request projects.</p>
+  </div>
+</div>
+
 <div class="row">
 
   <ol class="breadcrumb">
@@ -20,6 +22,20 @@
   </ol>
 
   <legend>My Projects</legend>
+
+  <div class="mailto-help">
+    <small>
+      Projects are how you manage Allocations, membership, requests, and references for your usage of Research Computing resources. Questions about projects and allocations?
+      <a href="mailto:rc-help@colorado.edu?subject=Question%20About%20Project%20Creation">
+        Contact us
+      </a>
+      or view our
+        <a href="https://www.colorado.edu/rc/userservices/allocations">
+          allocations documentation.
+        </a>
+    </small>
+  </div>
+
   <ul class="list-group">
     {% for project in object_list %}
       <a href="{% url 'projects:project-detail' project.pk %}" class="list-group-item">

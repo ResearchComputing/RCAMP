@@ -6,31 +6,6 @@
 <link href="/static/css/account-request.css" rel="stylesheet"/>
 {% endblock %}
 
-{% block jumbotron_heading %}<h1>Account Request</h1>{% endblock %}
-{% block jumbotron_subheading %}
-<p>Request an account with University of Colorado Boulder Research Computing.</p>
-{% endblock %}
-{% block jumbotron_button %}
-<p><a data-toggle="modal" href="#helpmodal"
-class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;</a></p>
-{% endblock %}
-
-{% block modal_title %}
-<h4 class="modal-title">Definitions &amp; Form Help</h4>
-{% endblock %}
-{% block modal_body %}
-<ul class="list-group">
-    <li class="list-group-item">
-        <strong>Organization Credentials</strong>
-        <p>The request form requires that you successfully authenticate against
-          the organization with which you are affiliated to verify your identity.
-          The organization credentials should be the username/password pair you
-          to access your organization's resources.
-        </p>
-    </li>
-</ul>
-{% endblock %}
-
 {% block container %}
 <div class="mailto-help">
     Questions about the account request process?
@@ -38,7 +13,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
         Contact us
     </a>
     or view our
-    <a href="https://github.com/ResearchComputing/Research-Computing-User-Tutorials/wiki">
+    <a href="https://curc.readthedocs.io/en/latest/">
       Documentation.
     </a>
 </div>
@@ -69,7 +44,7 @@ class="btn btn-primary btn-lg" role="button">Definitions &amp; Form Help &raquo;
         <div class="form-group">
         {% endif %}
             <div class="col-sm-12">
-              <p id="ucb-login-help"><i class="fa fa-info-circle" aria-hidden="true"></i> CSU users use their CSU EID as username. Password is <code>csu_password,duo_key</code> or <code>csu_password,push.</code></p>
+              <p id="ucb-login-help"><i class="fa fa-info-circle" aria-hidden="true"></i> CSU users use their CSU EID as username. Password is <code>csu_password,duo_key</code> or <code>csu_password,push</code>.</p>
             </div>
             <label class="col-sm-2 control-label" for="id_username">CSU EID Username</label>
             <div class="col-sm-8">

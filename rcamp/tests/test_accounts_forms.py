@@ -7,7 +7,7 @@ import pam
 import copy
 
 from django.conf import settings
-from lib.test.ldap import (
+from tests.utilities.ldap import (
     LdapTestCase,
     build_mock_rcldap_user
 )

@@ -7,8 +7,8 @@ import copy
 from django.conf import settings
 from django.core.management import call_command
 
-from lib.test.utils import SafeTestCase
-from lib.test.ldap import (
+from tests.utilities.utils import SafeTestCase
+from tests.utilities.ldap import (
     get_ldap_user_defaults,
     get_ldap_group_defaults,
     build_mock_rcldap_user,

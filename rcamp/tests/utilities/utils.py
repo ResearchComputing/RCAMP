@@ -1,3 +1,4 @@
+import os
 from django.test import TestCase
 from django.conf import settings
 from accounts.models import User
@@ -14,11 +15,13 @@ def assert_test_env():
     """Helper method to verify that tests are not being executed in a production environment."""
     # We can reasonably assume that no production resource will satisfy this criteria, so
     # this is one of several safeguards against running the functional tests against prod.
+    assert os.environ.get('RCAMP_DEBUG') == 'True'
     assert settings.DATABASES['rcldap']['PASSWORD'] == 'password'
-    # In an abundance of caution, also make sure that the LDAP connection is configured
-    # to use localhost.
-    assert 'localhost' in settings.DATABASES['rcldap']['NAME']
-    # Probably not running against prod LDAP.
+    # In an abundance of caution, also make sure that the LDAP and MySQL connections are configured
+    # to use the test services.
+    assert 'ldap' in settings.DATABASES['rcldap']['NAME']
+    assert 'database' in settings.DATABASES['default']['HOST']
+    # Probably not running against prod backends.
     return True
 
 def _assert_test_env_or_false():
@@ -63,7 +66,7 @@ class SafeTestCase(TestCase):
     connection settings can be changed within the context of of individual test cases.
 
     IMPORTANT: Every unit or integration test should inherit from this class. For functional tests
-    user lib.test.functional.SafeStaticLiveServerTestCase instead.
+    user tests.utilities.functional.SafeStaticLiveServerTestCase instead.
     """
     @classmethod
     def setUpClass(cls):

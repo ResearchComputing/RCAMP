@@ -1,4 +1,4 @@
-Django==1.8.5
+Django==1.8.19
 django-crispy-forms==1.5.2
 django-easy-pjax==1.2.0
 django-filter==1.0.2
@@ -16,4 +16,4 @@ python-ldap==2.4.22
 python-pam==1.8.2
 pytz==2016.4
 six==1.10.0
-git+git://github.com/ResearchComputing/django-ldapdb.git@master
+uWSGI==2.0.17

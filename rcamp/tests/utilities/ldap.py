@@ -1,4 +1,4 @@
-from lib.test.utils import (
+from tests.utilities.utils import (
     _purge_ldap_objects,
     SafeTestCase
 )

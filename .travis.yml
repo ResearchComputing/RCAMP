@@ -1,0 +1,23 @@
+sudo: required
+language: python
+services:
+  - docker
+
+before_install:
+  - pip install --upgrade docker-compose
+
+install:
+  - export UWSGI_UID=$(id -u)
+  - export UWSGI_GID=$(id -g)
+  - docker-compose build
+  - docker-compose up -d
+  - docker-compose exec rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
+
+script:
+  - docker-compose exec rcamp-uwsgi python manage.py test
+
+notifications:
+  email: false
+  slack:
+    rooms:
+      secure: sEWHI86XLXXuVAQd15UbDMPpDKop/bTDn/XynrLKqp+GF+28h8BtewVZXCMHHir3ZCFdb2oRqG1qJ+g3kr8AY5xCadt8xu7BYZTAbGJdlv4tqTuGCNdUTr60wkafmvqYx2UZuawTLLAfy31bgzfGcpq068ni0MxYIn4PNJq0lqcUZoFvhlTT5lXrBWhu7q4JCTvfCBni/shjWKW8zmP5QP1GXSpPeHI9AZmBr2luczc2izVJbyTPEipNk1a57l8D5MeAGz+LE8AkXgbd3yl3KWgU+ZgUd8Jga09B9oARBBqG/1sVb1pCAkQQ2qDd+nByNfkPbcOn0LXhT6LM8sX/HVi7NZD1byB/u6qiycmDvf2rb+7Xz7Z2/eN4Rycf5+3JBuKCg2eFbX0Beo3RLJgmn+dYbWqD3YRAupv8nwZci2Km6AS3cWJi3HhQK85r6xGrmWdW5yqMxbaxiz2PAjtwb2aIdaMb+kgYsuDiYBLprNLWRl8sp3feyxWNCeudtQBxrbDX6gGjri2m8IQlDJv+LRwFaFgGF2xkAy/JMpVdDncqLAQrkjVaQbap1uZYVQyafWDPdLQbMdlt+bR92/bqoD9oZLRVsmOiVfLwxki20jm0cQfOQJL3nRIccdrFSLejMmxc+u6aE8EWSHHswoERmU6H4mDSIotV9jhQSNW3qEU=

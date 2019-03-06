@@ -15,41 +15,30 @@ Research Computing Administrative &amp; Management Portal
 
 **rcamp** - The rcamp directory contains site code and, most importantly, settings.
 
-## Installation
+## Setting up your dev environment
+You will need Docker 18.03+ and Compose 1.21+ before you begin. Documentation for Docker can be found here: https://docs.docker.com/install/.
 
-Clone RCAMP
+Start by cloning RCAMP.
 ```
-git clone https://github.com/ResearchComputing/RCAMP
-```
-
-Install the RC fork of django-ldapdb
-```
-git clone https://github.com/ResearchComputing/django-ldapdb
-cd django-ldapdb
-python setup.py install
+$ git clone https://github.com/ResearchComputing/RCAMP
+$ cd RCAMP
 ```
 
-Install remaining project dependencies
+Build your dev environment and then start it using Compose.
 ```
-cd ../RCAMP
-pip install -r requirements.txt
-```
-
-Configure local settings. Configuration in `local_settings.py` will override configuration in `settings.py`.
-```
-cd rcamp/rcamp
-touch local_settings.py
-# Configure fields in local_settings as needed.
-```
-Collect static files
-```
-python manage.py collectstatic
+$ docker-compose build
+$ docker-compose up -d
 ```
 
-Set up the database (SQLite3 preferred for dev/testing).
+Finish by migrating the DB and adding a superuser to the RCAMP app. You'll need to attach to the running RCAMP service to do this:
 ```
-python manage.py migrate
+$ docker-compose exec --entrypoint "python" rcamp-uwsgi manage.py migrate
+$ docker-compose exec -it --entrypoint "python" rcamp-uwsgi manage.py createsuperuser
 ```
 
 ## Writing and Running Tests
 Documentation on use and installation of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
+
+```
+$ docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py test
+```

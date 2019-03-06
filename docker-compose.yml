@@ -1,0 +1,43 @@
+version: "3.6"
+
+services:
+  rcamp-uwsgi:
+    build:
+      context: .
+    container_name: rcamp-uwsgi
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    env_file:
+      - dev-environment.env
+    environment:
+      - UWSGI_UID=${UWSGI_UID}
+      - UWSGI_GID=${UWSGI_GID}
+    volumes:
+      - ./rcamp:/opt/rcamp
+      - ./ldapdb:/opt/ldapdb
+      - static-content:/opt/static
+      - media-uploads:/opt/media
+      - rcamp-logs:/opt/logs
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+      - ldap
+
+  database:
+    image: mysql:5.7
+    container_name: database
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=rcamp1712
+    volumes:
+      - database:/var/lib/mysql
+
+  ldap:
+    image: researchcomputing/rc-test-ldap
+    container_name: ldap
+
+volumes:
+  static-content:
+  media-uploads:
+  rcamp-logs:
+  database:

@@ -2,8 +2,8 @@ from mock import MagicMock
 import mock
 from django.test import override_settings
 
-from lib.test.utils import SafeTestCase
-from lib.test.ldap import get_ldap_user_defaults
+from tests.utilities.utils import SafeTestCase
+from tests.utilities.ldap import get_ldap_user_defaults
 from accounts.models import (
     User,
     AccountRequest,
@@ -113,3 +113,25 @@ class GeneralEligibilityReceiverTestCase(SafeTestCase):
 
         project = Project.objects.get()
         self.assertIn(auth_user,project.collaborators.all())
+
+    def test_check_general_eligibility_no_intent(self):
+        user_defaults = get_ldap_user_defaults()
+
+        auth_user_defaults = dict(
+            username=user_defaults['username'],
+            first_name=user_defaults['first_name'],
+            last_name=user_defaults['last_name'],
+            email=user_defaults['email']
+        )
+        auth_user = User.objects.create(**auth_user_defaults)
+
+        account_request_defaults = dict(
+            username=auth_user.username,
+            first_name=auth_user.first_name,
+            last_name=auth_user.last_name,
+            email=auth_user.email,
+            organization='ucb'
+        )
+        account_request = AccountRequest.objects.create(**account_request_defaults)
+        
+        check_general_eligibility(account_request.__class__,account_request=account_request)
