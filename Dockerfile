@@ -44,4 +44,4 @@ WORKDIR /opt/rcamp
 # Set gosu entrypoint and default command
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
-CMD ["/usr/bin/uwsgi","/opt/uwsgi.ini"]
+CMD ["/usr/bin/uwsgi", "/opt/uwsgi.ini"]

@@ -18,4 +18,4 @@ chown -R $UWSGI_UID:$UWSGI_GID $LOG_DIR
 chown -R $UWSGI_UID:$UWSGI_GID $RCAMP_DIR
 chown $UWSGI_UID:$UWSGI_GID $UWSGI_CONFIG
 
-exec gosu $UWSGI_UID "$@"
+exec gosu $UWSGI_UID:$UWSGI_GID "$@"
