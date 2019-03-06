@@ -6,16 +6,16 @@ LOG_DIR=/opt/logs
 RCAMP_DIR=/opt/rcamp
 UWSGI_CONFIG=/opt/uwsgi.ini
 
-# Add uwsgi user and group
-groupadd -g $UWSGI_GID uwsgi
-useradd -d "/home/uwsgi" -u "$UWSGI_UID" -g "$UWSGI_GID" -m -s /bin/bash "uwsgi"
+# Ensure the uwsgi user and group are set
+: ${UWSGI_UID:?"You must set UWSGI_UID to identify the user to run RCAMP."}
+: ${UWSGI_GID:?"You must set UWSGI_GID to identify the group to run RCAMP."}
 
 # Collect static, and set permissions of shared volumes.
 RCAMP_DEBUG=True bash -c 'python manage.py collectstatic --noinput'
-chown -R uwsgi:uwsgi $STATIC_DIR
-chown -R uwsgi:uwsgi $MEDIA_DIR
-chown -R uwsgi:uwsgi $LOG_DIR
-chown -R uwsgi:uwsgi $RCAMP_DIR
-chown uwsgi:uwsgi $UWSGI_CONFIG
+chown -R $UWSGI_UID:$UWSGI_GID $STATIC_DIR
+chown -R $UWSGI_UID:$UWSGI_GID $MEDIA_DIR
+chown -R $UWSGI_UID:$UWSGI_GID $LOG_DIR
+chown -R $UWSGI_UID:$UWSGI_GID $RCAMP_DIR
+chown $UWSGI_UID:$UWSGI_GID $UWSGI_CONFIG
 
-exec gosu uwsgi "$@"
+exec gosu $UWSGI_UID "$@"

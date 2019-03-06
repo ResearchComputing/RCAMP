@@ -7,6 +7,8 @@ before_install:
   - pip install --upgrade docker-compose
 
 install:
+  - export UWSGI_UID=$(id -u)
+  - export UWSGI_GID=$(id -g)
   - docker-compose build
   - docker-compose up -d
   - docker-compose exec rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'

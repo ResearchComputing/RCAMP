@@ -18,9 +18,6 @@ RUN export GOSU_VERSION=1.10 && \
   	yum clean all && \
     unset GOSU_VERSION
 
-ENV UWSGI_UID=1000
-ENV UWSGI_GID=1000
-
 WORKDIR /opt
 
 # Install core dependencies
