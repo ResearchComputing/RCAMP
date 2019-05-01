@@ -25,7 +25,7 @@ RUN yum -y update && \
     yum makecache fast && \
     yum -y groupinstall "Development Tools" && \
     yum -y install epel-release curl which wget && \
-    yum -y install sssd pam-devel openssl-devel && \
+    yum -y install sssd pam-devel openssl-devel pam_radius && \
     yum -y install python-devel python2-pip && \
     yum -y install openldap-devel MySQL-python
 
