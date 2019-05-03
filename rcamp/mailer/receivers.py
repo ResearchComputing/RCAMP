@@ -59,3 +59,16 @@ def notify_allocation_created_from_request(sender, **kwargs):
     for notifier in notifiers:
         ctx = {'allocation':alloc}
         msg = notifier.send(context=ctx)
+
+@receiver(allocation_expiring)
+def notify_allocation_expiring(sender, **kwargs):
+    project = kwargs.get('project')
+    alloc = kwargs.get('allocation')
+
+    notifiers = MailNotifier.objects.filter(event='allocation_expiring')
+    for notifier in notifiers:
+        ctx = {
+            'project':project,
+            'allocation':alloc
+        }
+        msg = notifier.send(context=ctx)
