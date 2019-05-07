@@ -27,7 +27,8 @@ class Command(BaseCommand):
             const='30,14',
             default='',
             help="Comma separated list of intervals in days at which owners of \
-                expriring allocations will be notified. default='30,14'"
+                expriring allocations will be notified. default='30,14' \
+                '' if argument not specified"
         )
 
     def handle(self, *args, **options):
