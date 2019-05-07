@@ -1,11 +1,11 @@
-from django.test import override_settings
-from django.conf import settings
 import mock
 import datetime
 import pytz
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
+from django.test import override_settings
+from django.conf import settings
 
 from projects.models import (
     Project,
@@ -17,6 +17,7 @@ from projects.management.commands.check_expiring_allocations import (
     UpcomingExpirationNotifier,
 )
 from tests.utilities.utils import (
+    localize_timezone,
     SafeTestCase,
 )
 
@@ -35,10 +36,8 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_only_return_unnotified_expired_allocations(self):
 
-        sdate = datetime.datetime(2016,02,02)
-        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
-        edate_tz = pytz.timezone('America/Denver').localize(edate)
+        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
+        edate_tz = localize_timezone(2017, 02, 02, 'America/Denver')
 
         alloc_dict_not_notified = {
             'project': self.proj,
@@ -68,17 +67,11 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_only_return_allocations_with_passed_expiration_date(self):
 
-        sdate = datetime.datetime(2016,02,02)
-        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate_in_past = datetime.datetime(2017,02,02)
-        edate_in_past_tz = pytz.timezone('America/Denver').localize(edate_in_past)
-        edate_in_future = datetime.datetime(2019,02,02)
-        edate_in_future_tz = pytz.timezone('America/Denver').localize(edate_in_future)
-        current_date_for_test = datetime.datetime(2018,02,02)
-        current_date_for_test_tz = pytz.timezone('America/Denver').localize(current_date_for_test)
+        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
+        current_date_for_test_tz = localize_timezone(2018, 02, 02, 'America/Denver')
+        with mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
 
-        with mock.patch('django.utils.timezone.now', return_value=current_date_for_test):
-
+            edate_in_past_tz = localize_timezone(2017, 02, 02, 'America/Denver')
             alloc_dict_end_date_passed = {
                 'project': self.proj,
                 'allocation_id': 'ucb7_summit2',
@@ -89,6 +82,7 @@ class ExpirationNotifierTestCase(SafeTestCase):
             }
             alloc_end_date_passed = Allocation.objects.create(**alloc_dict_end_date_passed)
 
+            edate_in_future_tz = localize_timezone(2019, 02, 02, 'America/Denver')
             alloc_dict_end_date_future = {
                 'project': self.proj,
                 'allocation_id': 'ucb6_summit2',
@@ -107,11 +101,8 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_send_expiration_notice_for_expired_allocation(self):
 
-        sdate = datetime.datetime(2016,02,02)
-        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
-        edate_tz = pytz.timezone('America/Denver').localize(edate)
-
+        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
+        edate_tz = localize_timezone(2017, 02, 02, 'America/Denver')
         alloc_dict_not_notified = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -129,11 +120,9 @@ class ExpirationNotifierTestCase(SafeTestCase):
             self.assertEqual(mock_send.call_count, 1)
 
     def test_expiration_notice_field_set_when_notice_sent(self):
-        sdate = datetime.datetime(2016,02,02)
-        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
-        edate_tz = pytz.timezone('America/Denver').localize(edate)
 
+        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
+        edate_tz = localize_timezone(2017, 02, 02, 'America/Denver')
         alloc_dict_not_notified = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -166,17 +155,9 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
 
     def test_return_soon_to_expire_allocations_at_interval_date(self):
 
-        sdate = datetime.datetime(2016,02,02)
-        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate_expired = datetime.datetime(2017,02,02)
-        edate_expired_tz = pytz.timezone('America/Denver').localize(edate_expired)
-        edate_far_in_future = datetime.datetime(2030,02,02)
-        edate_far_in_future_tz = pytz.timezone('America/Denver').localize(edate_far_in_future)
-        edate_notice_needed = datetime.datetime(2018,02,21)
-        edate_notice_needed_tz = pytz.timezone('America/Denver').localize(edate_notice_needed)
-        current_date_for_test = datetime.datetime(2018,02,01)
-        current_date_for_test_tz = pytz.timezone('America/Denver').localize(current_date_for_test)
+        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
 
+        edate_notice_needed_tz = localize_timezone(2018, 02, 21, 'America/Denver')
         alloc_dict_notification_needed = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -188,6 +169,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         alloc_notification_needed = Allocation.objects.create(**alloc_dict_notification_needed)
 
         # Expired allocations don't need upcoming notification
+        edate_expired_tz = localize_timezone(2017, 02, 02, 'America/Denver')
         alloc_dict_expired = {
             'project': self.proj,
             'allocation_id': 'ucb6_summit2',
@@ -199,6 +181,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         alloc_expired = Allocation.objects.create(**alloc_dict_expired)
 
         # Notification date in future
+        edate_far_in_future_tz = localize_timezone(2030, 02, 02, 'America/Denver')
         alloc_dict_no_notification = {
             'project': self.proj,
             'allocation_id': 'ucb8_summit3',
@@ -209,7 +192,8 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         }
         alloc_no_notification = Allocation.objects.create(**alloc_dict_no_notification)
 
-        with mock.patch('django.utils.timezone.now', return_value=current_date_for_test):
+        current_date_for_test_tz = localize_timezone(2018, 02, 01, 'America/Denver')
+        with mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
             notification_interval = 20
             upcoming_expiration_notifier = UpcomingExpirationNotifier(notification_interval)
             actual_allocations = upcoming_expiration_notifier.get_expiring_allocations_for_interval()
@@ -219,13 +203,8 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
 
     def test_send_upcoming_expiration_notice(self):
 
-        sdate = datetime.datetime(2016,02,02)
-        sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        current_date_for_test = datetime.datetime(2018,02,01)
-        current_date_for_test_tz = pytz.timezone('America/Denver').localize(current_date_for_test)
-        edate_notice_needed = datetime.datetime(2018,02,21)
-        edate_notice_needed_tz = pytz.timezone('America/Denver').localize(edate_notice_needed)
-
+        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
+        edate_notice_needed_tz = localize_timezone(2018, 02, 21, 'America/Denver')
         alloc_dict_notification_needed = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -236,8 +215,9 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         }
         alloc_notification_needed = Allocation.objects.create(**alloc_dict_notification_needed)
 
+        current_date_for_test_tz = localize_timezone(2018, 02, 01, 'America/Denver')
         with mock.patch('mailer.signals.allocation_expiring.send') as mock_send, \
-                mock.patch('django.utils.timezone.now', return_value=current_date_for_test):
+                mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
             notification_interval = 20
             upcoming_expiration_notifier = UpcomingExpirationNotifier(notification_interval)
             upcoming_expiration_notifier.send_upcoming_expiration_notices()
@@ -251,9 +231,16 @@ class CommandTestCase(SafeTestCase):
         command = Command()
         self.assertRaises(ValueError, command._get_intervals_from_argument, interval_argument)
 
-    def test_interval_inputs_parsed_correctly(self):
+    def test_comma_separated_integers_parsed_into_integer_list(self):
         interval_argument = '14,30'
         command = Command()
         expected_intervals = [14, 30]
+        actual_intervals = command._get_intervals_from_argument(interval_argument)
+        self.assertEqual(sorted(expected_intervals), sorted(actual_intervals))
+
+    def test_trailing_comma_doesnt_create_null_interval(self):
+        interval_argument = '14,'
+        command = Command()
+        expected_intervals = [14]
         actual_intervals = command._get_intervals_from_argument(interval_argument)
         self.assertEqual(sorted(expected_intervals), sorted(actual_intervals))
