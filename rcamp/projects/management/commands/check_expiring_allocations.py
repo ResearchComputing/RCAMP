@@ -46,8 +46,9 @@ class Command(BaseCommand):
     def _get_intervals_from_argument(self, interval_argument):
 
         intervals = []
-        for interval_arg_slice in interval_argument.split(','):
-            interval = int(interval_arg_slice.strip())
+        interval_arg_slices = [interval_arg_slice.strip() for interval_arg_slice in interval_argument.split(',') if interval_arg_slice]
+        for interval_arg_slice in interval_arg_slices:
+            interval = int(interval_arg_slice)
             if interval < 1:
                 raise ValueError("An interval must be positive integer > 0")
 
