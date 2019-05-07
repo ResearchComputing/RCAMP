@@ -7,12 +7,10 @@ from projects.models import (
     Project,
     Allocation,
 )
-
 from mailer.models import (
     MailLog,
     MailNotifier,
 )
-
 from mailer.signals import (
     allocation_expiring,
     allocation_expired,
@@ -27,13 +25,14 @@ class Command(BaseCommand):
             type=str,
             nargs='?',
             const='30,14',
+            default='',
             help="Comma separated list of intervals in days at which owners of \
-                expriring allocations will be notified. default='90,30,14'"
+                expriring allocations will be notified. default='30,14'"
         )
 
     def handle(self, *args, **options):
 
-        interval_argument = options.get('notice_intervals', False)
+        interval_argument = options.get('notice_intervals')
         intervals = self._get_intervals_from_argument(interval_argument)
 
         for interval in intervals:
