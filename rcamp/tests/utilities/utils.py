@@ -1,14 +1,17 @@
 import os
-from django.test import TestCase
-from django.conf import settings
-from accounts.models import User
 import unittest
 import importlib
+import datetime
+import pytz
+
+from django.test import TestCase
+from django.conf import settings
 
 from accounts.models import (
     RcLdapUser,
     RcLdapGroup
 )
+from accounts.models import User
 
 
 def assert_test_env():
@@ -56,6 +59,12 @@ def get_auth_user_defaults():
         email = 'testuser@colorado.edu'
     )
     return auth_user_defaults
+
+def localize_timezone(year, month, day, zone):
+    """Returns a timezone aware date object"""
+    date = datetime.datetime(year, month, day)
+    date_tz_aware = pytz.timezone(zone).localize(date)
+    return date_tz_aware
 
 @unittest.skipUnless(_assert_test_env_or_false(),"Tests are not being run against a safe test environment!")
 class SafeTestCase(TestCase):

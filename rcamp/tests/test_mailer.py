@@ -19,10 +19,12 @@ class EventChoicesTestCase(TestCase):
             ('account_request_approved', 'account_request_approved'),
             ('account_request_received', 'account_request_received'),
             ('allocation_created_from_request', 'allocation_created_from_request'),
+            ('allocation_expiring', 'allocation_expiring'),
+            ('allocation_expired', 'allocation_expired'),
             ('allocation_request_created_by_user', 'allocation_request_created_by_user'),
             ('project_created_by_user', 'project_created_by_user'),
         )
-        self.assertEquals(event_choices,expected_choices)
+        self.assertEquals(sorted(event_choices), sorted(expected_choices))
 
 # This test case covers MailNotifier functionality.
 class MailNotifierTestCase(TestCase):
