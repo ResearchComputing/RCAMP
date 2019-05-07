@@ -218,7 +218,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
             self.assertEqual(expected_query_set, list(actual_allocations))
 
     def test_send_upcoming_expiration_notice(self):
-        
+
         sdate = datetime.datetime(2016,02,02)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
         current_date_for_test = datetime.datetime(2018,02,01)
@@ -243,3 +243,17 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
             upcoming_expiration_notifier.send_upcoming_expiration_notices()
 
             self.assertEqual(mock_send.call_count, 1)
+
+class CommandTestCase(SafeTestCase):
+
+    def test_only_positive_intervals_accepted(self):
+        interval_argument = '-1'
+        command = Command()
+        self.assertRaises(ValueError, command._get_intervals_from_argument, interval_argument)
+
+    def test_interval_inputs_parsed_correctly(self):
+        interval_argument = '14,30'
+        command = Command()
+        expected_intervals = [14, 30]
+        actual_intervals = command._get_intervals_from_argument(interval_argument)
+        self.assertEqual(sorted(expected_intervals), sorted(actual_intervals))
