@@ -117,7 +117,12 @@ class ExpirationNotifierTestCase(SafeTestCase):
             expiration_notifier = ExpirationNotifier()
             expiration_notifier.send_expiration_notices()
 
+            args, kwargs = mock_send.call_args
+            actual_model = type(kwargs['allocation'])
+            expected_model = type(alloc_not_notified)
+
             self.assertEqual(mock_send.call_count, 1)
+            self.assertEqual(expected_model, actual_model)
 
     def test_expiration_notice_field_set_when_notice_sent(self):
 
