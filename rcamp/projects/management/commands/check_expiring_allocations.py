@@ -24,16 +24,16 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--notice-intervals',
-            action='store_const',
-            const=True,
-            default='30,14',
+            type=str,
+            nargs='?',
+            const='30,14',
             help="Comma separated list of intervals in days at which owners of \
                 expriring allocations will be notified. default='90,30,14'"
         )
 
     def handle(self, *args, **options):
 
-        interval_argument = options.get('notice-intervals', False)
+        interval_argument = options.get('notice_intervals', False)
         intervals = self._get_intervals_from_argument(interval_argument)
 
         for interval in intervals:
