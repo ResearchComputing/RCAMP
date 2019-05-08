@@ -100,6 +100,7 @@ class Allocation(models.Model):
     created_on = models.DateField(auto_now_add=True)
     start_date = models.DateField()
     end_date = models.DateField()
+    expiration_notice_sent = models.BooleanField(default=False)
 
     def __unicode__(self):
         return self.allocation_id

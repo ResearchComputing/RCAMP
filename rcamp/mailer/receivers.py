@@ -2,6 +2,7 @@ from django.dispatch import receiver
 from mailer.signals import *
 from mailer.models import MailNotifier
 
+
 @receiver(account_request_received)
 def notify_account_request_received(sender, **kwargs):
     account_request = kwargs.get('account_request')
@@ -56,6 +57,24 @@ def notify_allocation_created_from_request(sender, **kwargs):
     alloc = kwargs.get('allocation')
 
     notifiers = MailNotifier.objects.filter(event='allocation_created_from_request')
+    for notifier in notifiers:
+        ctx = {'allocation':alloc}
+        msg = notifier.send(context=ctx)
+
+@receiver(allocation_expiring)
+def notify_allocation_expiring(sender, **kwargs):
+    alloc = kwargs.get('allocation')
+
+    notifiers = MailNotifier.objects.filter(event='allocation_expiring')
+    for notifier in notifiers:
+        ctx = {'allocation':alloc}
+        msg = notifier.send(context=ctx)
+
+@receiver(allocation_expired)
+def notify_allocation_expired(sender, **kwargs):
+    alloc = kwargs.get('allocation')
+
+    notifiers = MailNotifier.objects.filter(event='allocation_expired')
     for notifier in notifiers:
         ctx = {'allocation':alloc}
         msg = notifier.send(context=ctx)
