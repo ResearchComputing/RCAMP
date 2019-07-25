@@ -30,17 +30,22 @@ class Command(BaseCommand):
                 expriring allocations will be notified. default='30,14' \
                 '' if argument not specified"
         )
+        parser.add_argument('--quiet',
+            action='store_const',
+            const=True,
+            help="Suppress log messages."
+        )
 
     def handle(self, *args, **options):
-
+        self.quiet = options.get('quiet', False)
         interval_argument = options.get('notice_intervals')
         intervals = self._get_intervals_from_argument(interval_argument)
 
         for interval in intervals:
-            upcoming_expiration_notifier = UpcomingExpirationNotifier(interval)
+            upcoming_expiration_notifier = UpcomingExpirationNotifier(self.quiet, interval)
             upcoming_expiration_notifier.send_upcoming_expiration_notices()
 
-        expiration_notifier = ExpirationNotifier()
+        expiration_notifier = ExpirationNotifier(self.quiet)
         expiration_notifier.send_expiration_notices()
 
     def _get_intervals_from_argument(self, interval_argument):
@@ -60,6 +65,15 @@ class Command(BaseCommand):
 class ExpirationNotifier():
     """Manages notifications for expired allocations."""
 
+    def __init__(self, quiet):
+        self.quiet = quiet
+
+    def _log_message(self, message, message_type='stdout'):
+        if (not self.quiet) and (message_type == 'stdout'):
+            self.stdout.write(message)
+        if message_type == 'stderr':
+            self.stderr.write(message)
+
     def get_expired_allocations_with_no_sent_notification(self):
         expired_allocations = Allocation.objects.filter(
             end_date__lte=timezone.now(),
@@ -78,8 +92,15 @@ class ExpirationNotifier():
 class UpcomingExpirationNotifier():
     """Manages notifications for soon-to-expire allocations."""
 
-    def __init__(self, interval):
+    def __init__(self, quiet, interval):
+        self.quiet = quiet
         self.interval = interval
+
+    def _log_message(self, message, message_type='stdout'):
+        if (not self.quiet) and (message_type == 'stdout'):
+            self.stdout.write(message)
+        if message_type == 'stderr':
+            self.stderr.write(message)
 
     def get_expiring_allocations_for_interval(self):
         expiration_date = timezone.now() + datetime.timedelta(days=self.interval)
