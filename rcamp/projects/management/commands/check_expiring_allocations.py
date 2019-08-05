@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
@@ -15,6 +16,8 @@ from mailer.signals import (
     allocation_expiring,
     allocation_expired,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -68,12 +71,6 @@ class ExpirationNotifier():
     def __init__(self, quiet):
         self.quiet = quiet
 
-    def _log_message(self, message, message_type='stdout'):
-        if (not self.quiet) and (message_type == 'stdout'):
-            self.stdout.write(message)
-        if message_type == 'stderr':
-            self.stderr.write(message)
-
     def get_expired_allocations_with_no_sent_notification(self):
         expired_allocations = Allocation.objects.filter(
             end_date__lte=timezone.now(),
@@ -84,7 +81,14 @@ class ExpirationNotifier():
     def send_expiration_notices(self):
         expired_allocations = self.get_expired_allocations_with_no_sent_notification()
         for allocation in expired_allocations:
-            allocation_expired.send(sender=allocation.__class__, allocation=allocation)
+            signal_return = allocation_expired.send(sender=allocation.__class__, allocation=allocation)
+            log_message = """Expired:
+                signal_return={signal_return}
+                end_date={end_date}
+                notice_sent={notice_sent}""".format(signal_return=signal_return,
+                                                    end_date=allocation.end_date,
+                                                    notice_sent=allocation.expiration_notice_sent)
+            logger.debug(log_message)
             allocation.expiration_notice_sent = True
             allocation.save()
 
@@ -96,12 +100,6 @@ class UpcomingExpirationNotifier():
         self.quiet = quiet
         self.interval = interval
 
-    def _log_message(self, message, message_type='stdout'):
-        if (not self.quiet) and (message_type == 'stdout'):
-            self.stdout.write(message)
-        if message_type == 'stderr':
-            self.stderr.write(message)
-
     def get_expiring_allocations_for_interval(self):
         expiration_date = timezone.now() + datetime.timedelta(days=self.interval)
         expiring_allocations = Allocation.objects.filter(end_date=expiration_date)
@@ -110,4 +108,12 @@ class UpcomingExpirationNotifier():
     def send_upcoming_expiration_notices(self):
         expiring_allocations = self.get_expiring_allocations_for_interval()
         for allocation in expiring_allocations:
-            allocation_expiring.send(sender=allocation.__class__, allocation=allocation)
+            signal_return = allocation_expiring.send(sender=allocation.__class__, allocation=allocation)
+            log_message = """Expiring interval={interval}:
+                signal_return={signal_return}
+                end_date={end_date}
+                notice_sent={notice_sent}""".format(interval=self.interval,
+                                                    signal_return=signal_return,
+                                                    end_date=allocation.end_date,
+                                                    notice_sent=allocation.expiration_notice_sent)
+            logger.debug(log_message)
