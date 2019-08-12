@@ -17,7 +17,7 @@ from mailer.signals import (
     allocation_expired,
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('management_commands')
 
 
 class Command(BaseCommand):
@@ -88,7 +88,7 @@ class ExpirationNotifier():
                 notice_sent={notice_sent}""".format(signal_return=signal_return,
                                                     end_date=allocation.end_date,
                                                     notice_sent=allocation.expiration_notice_sent)
-            logger.debug(log_message)
+            logger.info(log_message)
             allocation.expiration_notice_sent = True
             allocation.save()
 
@@ -116,4 +116,4 @@ class UpcomingExpirationNotifier():
                                                     signal_return=signal_return,
                                                     end_date=allocation.end_date,
                                                     notice_sent=allocation.expiration_notice_sent)
-            logger.debug(log_message)
+            logger.info(log_message)

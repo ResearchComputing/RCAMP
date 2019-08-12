@@ -17,6 +17,11 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': '/opt/logs/rcamp.log',
         },
+        'management_commands': {
+            'level': "INFO",
+            'class': 'logging.FileHandler',
+            'filename': '/opt/logs/management_commands.log'
+        }
     },
     'loggers': {
         'django': {
@@ -31,6 +36,11 @@ LOGGING = {
         },
         'projects': {
             'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'management_commands': {
+            'handlers': ['management_commands'],
             'level': 'DEBUG',
             'propagate': True,
         },
