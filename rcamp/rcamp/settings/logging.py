@@ -41,7 +41,7 @@ LOGGING = {
         },
         'management_commands': {
             'handlers': ['management_commands'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
         'accounts': {
