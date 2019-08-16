@@ -1,5 +1,6 @@
 import datetime
 import logging
+import sys
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
@@ -80,6 +81,10 @@ class ExpirationNotifier():
 
     def send_expiration_notices(self):
         expired_allocations = self.get_expired_allocations_with_no_sent_notification()
+        with open('/opt/logs/management_commands', 'w') as f:
+            f.write("Sending expiration notices, f.write")
+        sys.stdout.write("Sending expiration notices, sys")
+        logger.info("Sending expiration notices")
         for allocation in expired_allocations:
             try:
                 signal_return = allocation_expired.send(sender=allocation.__class__, allocation=allocation)
@@ -89,10 +94,18 @@ class ExpirationNotifier():
                     notice_sent={notice_sent}""".format(signal_return=signal_return,
                                                         end_date=allocation.end_date,
                                                         notice_sent=allocation.expiration_notice_sent)
+                with open('/opt/logs/management_commands', 'w') as f:
+                    for line in log_message:
+                        f.write(line)
+                for line in log_message:
+                    sys.stdout.write(line)
                 logger.info(log_message)
                 allocation.expiration_notice_sent = True
                 allocation.save()
             except Exception as e:
+                with open('/opt/logs/management_commands', 'w') as f:
+                    f.write("Expiration notices error, f.write")
+                sys.stdout.write("Expiration notices error, sys")
                 logger.warn('Expiration notices error')
                 logger.warn(e)
 
@@ -111,6 +124,10 @@ class UpcomingExpirationNotifier():
 
     def send_upcoming_expiration_notices(self):
         expiring_allocations = self.get_expiring_allocations_for_interval()
+        with open('/opt/logs/management_commands', 'w') as f:
+            f.write("Sending upcoming expiration notices, f.write")
+        sys.stdout.write("Sending upcoming expiration notices, sys")
+        logger.info("Sending upcoming expiration notices")
         for allocation in expiring_allocations:
             try:
                 signal_return = allocation_expiring.send(sender=allocation.__class__, allocation=allocation)
@@ -121,7 +138,15 @@ class UpcomingExpirationNotifier():
                                                         signal_return=signal_return,
                                                         end_date=allocation.end_date,
                                                         notice_sent=allocation.expiration_notice_sent)
+                with open('/opt/logs/management_commands', 'w') as f:
+                    for line in log_message:
+                        f.write(line)
+                for line in log_message:
+                    sys.stdout.write(line)
                 logger.info(log_message)
             except Exception as e:
+                with open('/opt/logs/management_commands', 'w') as f:
+                    f.write("Upcoming expiration notices error, f.write")
+                sys.stdout.write("Upcoming expiration notices error, sys")
                 logger.warn('Upcoming expiration notices error')
                 logger.warn(e)
