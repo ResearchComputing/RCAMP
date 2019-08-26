@@ -19,6 +19,10 @@ from mailer.signals import (
     allocation_expiring,
     allocation_expired,
 )
+from mailer.receivers import (
+    notify_allocation_expiring,
+    notify_allocation_expired,
+)
 
 class Command(BaseCommand):
     help = 'Send notifications for allocations that have expired or are soon to expire'
