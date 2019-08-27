@@ -89,13 +89,14 @@ class ExpirationNotifier():
         for allocation in expired_allocations:
             try:
                 signal_return = allocation_expired.send(sender=allocation.__class__, allocation=allocation)
-                log_message = """Expired:
-                    signal_return={signal_return}
-                    end_date={end_date}
-                    notice_sent={notice_sent}""".format(signal_return=signal_return,
-                                                        end_date=allocation.end_date,
-                                                        notice_sent=allocation.expiration_notice_sent)
-                self.logger.info(log_message)
+                log_message = """Allocation Expired: {allocation}
+signal_return={signal_return}
+end_date={end_date}
+notice_sent={notice_sent}""".format(allocation=allocation.allocation_id,
+                                    signal_return=signal_return,
+                                    end_date=allocation.end_date,
+                                    notice_sent=allocation.expiration_notice_sent)
+                self.logger.debug(log_message)
                 allocation.expiration_notice_sent = True
                 allocation.save()
             except Exception as e:
@@ -122,14 +123,16 @@ class UpcomingExpirationNotifier():
         for allocation in expiring_allocations:
             try:
                 signal_return = allocation_expiring.send(sender=allocation.__class__, allocation=allocation)
-                log_message = """Expiring interval={interval}:
-                    signal_return={signal_return}
-                    end_date={end_date}
-                    notice_sent={notice_sent}""".format(interval=self.interval,
-                                                        signal_return=signal_return,
-                                                        end_date=allocation.end_date,
-                                                        notice_sent=allocation.expiration_notice_sent)
-                self.logger.info(log_message)
+                log_message = """Allocation Expiring Soon: {allocation}
+expiring interval={interval}:
+signal_return={signal_return}
+end_date={end_date}
+notice_sent={notice_sent}""".format(allocation=allocation.allocation_id,
+                                    interval=self.interval,
+                                    signal_return=signal_return,
+                                    end_date=allocation.end_date,
+                                    notice_sent=allocation.expiration_notice_sent)
+                self.logger.debug(log_message)
             except Exception as e:
                 self.logger.warn('Upcoming expiration notices error')
                 self.logger.warn(e)
