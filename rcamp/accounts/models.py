@@ -126,7 +126,7 @@ class AccountRequest(models.Model):
             account_request_approved.send(sender=self.__class__,account_request=self)
 
 class Intent(models.Model):
-    account_request = models.OneToOneField(AccountRequest,blank=True,null=True)
+    account_request = models.OneToOneField(AccountRequest,blank=True,null=True,on_delete=models.CASCADE)
     reason_summit = models.BooleanField(default=False)
     reason_course = models.BooleanField(default=False)
     reason_petalibrary = models.BooleanField(default=False)

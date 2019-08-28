@@ -60,7 +60,7 @@ class Project(models.Model):
         super(Project,self).save(*args,**kwargs)
 
 class Reference(models.Model):
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     description = models.TextField()
     link = models.TextField()
     created_on = models.DateField(auto_now_add=True)
@@ -94,7 +94,7 @@ class AllocationManager(models.Manager):
 class Allocation(models.Model):
     objects = AllocationManager()
 
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
     allocation_id = models.SlugField(unique=True,blank=True,null=True)
     amount = models.BigIntegerField()
     created_on = models.DateField(auto_now_add=True)
@@ -148,8 +148,8 @@ class AllocationRequest(models.Model):
         ('p','Approved - Partially Funded'),
     )
 
-    project = models.ForeignKey(Project)
-    allocation = models.ForeignKey(Allocation,null=True,blank=True)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    allocation = models.ForeignKey(Allocation,null=True,blank=True, on_delete=models.CASCADE)
 
     abstract = models.TextField(null=True,blank=True)
     funding = models.TextField(null=True,blank=True)
@@ -160,7 +160,7 @@ class AllocationRequest(models.Model):
     disk_space = models.IntegerField(default=0,null=True,blank=True)
     software_request = models.TextField(null=True,blank=True)
 
-    requester = models.ForeignKey(User,null=True,blank=True)
+    requester = models.ForeignKey(User,null=True,blank=True, on_delete=models.CASCADE)
     request_date = models.DateTimeField(auto_now_add=True)
 
     status = models.CharField(max_length=16,choices=STATUSES,default='w')
