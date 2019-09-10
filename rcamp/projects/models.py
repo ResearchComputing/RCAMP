@@ -124,7 +124,7 @@ class Allocation(models.Model):
                     alloc_enum='1'
                 )
             else:
-                last_id = allocs[0].allocation_id
+                last_id = allocs.order_by('-allocation_id')[0].allocation_id
                 last_id = last_id.replace(proj_id+'_summit','')
                 next_id = int(last_id) + 1
                 next_id = alloc_id_tpl.format(
