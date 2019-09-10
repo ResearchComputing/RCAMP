@@ -136,6 +136,19 @@ class AllocationCreateTestCase(SafeTestCase):
         self.assertIsNotNone(alloc.start_date)
         self.assertIsNotNone(alloc.end_date)
 
+    def test_create_allocation_from_request_increments_id(self):
+        # Increment allocation to 4
+        Allocation.objects.create_allocation_from_request(**self.ar_dict)
+        Allocation.objects.create_allocation_from_request(**self.ar_dict)
+        Allocation.objects.create_allocation_from_request(**self.ar_dict)
+        alloc = Allocation.objects.create_allocation_from_request(**self.ar_dict)
+
+        self.assertEquals(alloc.project,self.proj)
+        self.assertEquals(alloc.amount,self.ar_dict['amount_awarded'])
+        self.assertIsNotNone(alloc.start_date)
+        self.assertIsNotNone(alloc.end_date)
+        self.assertEquals(alloc.allocation_id, 'ucb1_summit4')
+
     def test_create_allocation_from_request_missing_fields(self):
         tmp_dict = copy.deepcopy(self.ar_dict)
         del tmp_dict['project']

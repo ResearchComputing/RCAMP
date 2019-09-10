@@ -59,7 +59,7 @@ class ExpirationNotifierTestCase(SafeTestCase):
         }
         alloc_notified = Allocation.objects.create(**alloc_dict_notified)
 
-        expiration_notifier = ExpirationNotifier()
+        expiration_notifier = ExpirationNotifier(False)
         actual_allocations = expiration_notifier.get_expired_allocations_with_no_sent_notification()
         expected_query_set = [alloc_not_notified]
 
@@ -93,7 +93,7 @@ class ExpirationNotifierTestCase(SafeTestCase):
             }
             alloc_end_date_future = Allocation.objects.create(**alloc_dict_end_date_future)
 
-            expiration_notifier = ExpirationNotifier()
+            expiration_notifier = ExpirationNotifier(False)
             actual_allocations = expiration_notifier.get_expired_allocations_with_no_sent_notification()
             expected_query_set = [alloc_end_date_passed]
 
@@ -114,7 +114,7 @@ class ExpirationNotifierTestCase(SafeTestCase):
         alloc_not_notified = Allocation.objects.create(**alloc_dict_not_notified)
 
         with mock.patch('mailer.signals.allocation_expired.send') as mock_send:
-            expiration_notifier = ExpirationNotifier()
+            expiration_notifier = ExpirationNotifier(False)
             expiration_notifier.send_expiration_notices()
 
             args, kwargs = mock_send.call_args
@@ -138,7 +138,7 @@ class ExpirationNotifierTestCase(SafeTestCase):
         alloc_not_notified = Allocation.objects.create(**alloc_dict_not_notified)
 
         with mock.patch('mailer.signals.allocation_expired.send'):
-            expiration_notifier = ExpirationNotifier()
+            expiration_notifier = ExpirationNotifier(False)
             expiration_notifier.send_expiration_notices()
             actual_allocation_object = Allocation.objects.get(allocation_id='ucb7_summit2')
 
@@ -199,7 +199,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         current_date_for_test_tz = localize_timezone(2018, 02, 01, 'America/Denver')
         with mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
             notification_interval = 20
-            upcoming_expiration_notifier = UpcomingExpirationNotifier(notification_interval)
+            upcoming_expiration_notifier = UpcomingExpirationNotifier(False, notification_interval)
             actual_allocations = upcoming_expiration_notifier.get_expiring_allocations_for_interval()
             expected_query_set = [alloc_notification_needed]
 
@@ -223,7 +223,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         with mock.patch('mailer.signals.allocation_expiring.send') as mock_send, \
                 mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
             notification_interval = 20
-            upcoming_expiration_notifier = UpcomingExpirationNotifier(notification_interval)
+            upcoming_expiration_notifier = UpcomingExpirationNotifier(False, notification_interval)
             upcoming_expiration_notifier.send_upcoming_expiration_notices()
 
             self.assertEqual(mock_send.call_count, 1)
