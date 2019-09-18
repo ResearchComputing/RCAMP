@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib import admin
 from django.contrib.auth import admin as auth_admin
 from django import forms
@@ -124,6 +126,7 @@ class RcLdapUserForm(RcLdapModelForm):
         ]
 
 class RcLdapModelAdmin(admin.ModelAdmin):
+
     def get_actions(self, request):
         #Disable delete
         actions = super(RcLdapModelAdmin, self).get_actions(request)
@@ -131,10 +134,18 @@ class RcLdapModelAdmin(admin.ModelAdmin):
         return actions
 
     def save_model(self, request, obj, form, change):
+        logger = logging.getLogger('admin')
+        logger.info("Saving model")
+        logger.info("Request = ", request)
+        logger.info("Obj = ", obj)
+        logger.info("Form = ", form)
+        logger.info("Change = ", change)
         if obj.pk:
             organization = obj.organization
+            logger.info("In if, obj.pk, organization = ", obj.pk, organization)
         else:
             organization = form.cleaned_data['organization']
+            logger.info("In else, organization = ", organization)
         obj.save(organization=organization)
 
 @admin.register(RcLdapUser)
