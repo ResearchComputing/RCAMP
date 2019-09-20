@@ -136,16 +136,37 @@ class RcLdapModelAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         logger = logging.getLogger('admin')
         logger.info("Saving model")
-        logger.info("Request = ", request)
-        logger.info("Obj = ", obj)
-        logger.info("Form = ", form)
-        logger.info("Change = ", change)
+        try:
+            logger.info("Request = {req}".format(req=request))
+        except:
+            logger.info("No request")
+        try:
+            logger.info("Obj = {obj}",format(obj=obj))
+        except:
+            logger.info("No obj")
+        try:
+            logger.info("Form = {form}".format(form=form))
+        except:
+            logger.info("No form")
+        try:
+            logger.info("Change = {change}".format(change=change))
+        except:
+            logger.info("No change")
+
         if obj.pk:
             organization = obj.organization
-            logger.info("In if, obj.pk, organization = ", obj.pk, organization)
+            logger.info("In if")
+            logger.info("In if, obj.pk = {obj}, organization = {org}".format(obj=obj.pk, org=organization))
         else:
             organization = form.cleaned_data['organization']
-            logger.info("In else, organization = ", organization)
+            logger.info("In else")
+            logger.info("else organization = {org}".format(org=organization))
+
+        if organization:
+            logger.info("Final organization = {org}".format(org=organization))
+        else:
+            logger.info("Final no organization")
+
         obj.save(organization=organization)
 
 @admin.register(RcLdapUser)
