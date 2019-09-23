@@ -295,6 +295,15 @@ class AccountRequestTestCase(SafeTestCase):
         self.assertEquals(ar.status,'p')
         self.assertIsNone(ar.approved_on)
 
+    def test_update_pending_account_request_approve_on_is_none(self):
+        ar = AccountRequest.objects.get(username='testuser')
+        ar.approved_on = datetime.date.today()
+        self.assertEquals(ar.status,'p')
+        self.assertIsNotNone(ar.approved_on)
+        ar.save()
+        self.assertEquals(ar.status,'p')
+        self.assertIsNone(ar.approved_on)
+
     def test_approve_request(self):
         mock_ldap_manager = mock.MagicMock()
         mock_rc_ldap_user = build_mock_rcldap_user()
