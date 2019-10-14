@@ -143,24 +143,29 @@ class RcLdapModelAdmin(admin.ModelAdmin):
         try:
             logger.info("Obj = {obj}",format(obj=obj))
         except:
-            logger.info("No obj")
+            logger.info("Can't print obj")
         try:
-            logger.info("Form = {form}".format(form=form))
+            logger.info("Obj vars = {vars}".format(vars=vars(obj)))
         except:
-            logger.info("No form")
+            logger.info("Can't print vars(obj)")
         try:
             logger.info("Change = {change}".format(change=change))
         except:
             logger.info("No change")
 
-        if obj.pk:
+        if obj.pk and obj.organization:
             organization = obj.organization
             logger.info("In if")
             logger.info("In if, obj.pk = {obj}, organization = {org}".format(obj=obj.pk, org=organization))
+        elif request.get('_post', {}).get('organization'):
+            logger.info("In elif")
+            logger.info("Request organization = ", request['_post']['organization'])
+            if request['_post']['organization'][0] in ORGANIZATIONS:
+                organization = request['_post']['organization'][0]
         else:
             organization = form.cleaned_data['organization']
             logger.info("In else")
-            logger.info("else organization = {org}".format(org=organization))
+            logger.info("form.cleaned_data['organization'] = {org}".format(org=organization))
 
         if organization:
             logger.info("Final organization = {org}".format(org=organization))
