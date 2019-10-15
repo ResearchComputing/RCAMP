@@ -157,11 +157,11 @@ class RcLdapModelAdmin(admin.ModelAdmin):
             organization = obj.organization
             logger.info("In if")
             logger.info("In if, obj.pk = {obj}, organization = {org}".format(obj=obj.pk, org=organization))
-        elif request.get('_post', {}).get('organization'):
+        elif request.POST.get('_post', {}).get('organization'):
             logger.info("In elif")
-            logger.info("Request organization = ", request['_post']['organization'])
-            if request['_post']['organization'][0] in ORGANIZATIONS:
-                organization = request['_post']['organization'][0]
+            logger.info("Request organization = ", request.POST['_post']['organization'])
+            if request.POST['_post']['organization'][0] in ORGANIZATIONS:
+                organization = request.POST['_post']['organization'][0]
         else:
             organization = form.cleaned_data['organization']
             logger.info("In else")
