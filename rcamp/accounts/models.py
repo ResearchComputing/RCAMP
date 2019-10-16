@@ -121,6 +121,10 @@ class AccountRequest(models.Model):
                 defaults=auth_user_defaults
             )
             # account_created_from_request.send(sender=rc_user.__class__,account=rc_user)
+
+        if (self.status != 'a'):
+            self.approved_on = None
+
         super(AccountRequest,self).save(*args,**kwargs)
         if manually_approved:
             account_request_approved.send(sender=self.__class__,account_request=self)
