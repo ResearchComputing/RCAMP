@@ -135,44 +135,13 @@ class RcLdapModelAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         logger = logging.getLogger('admin')
-        logger.info("Saving model")
-        try:
-            logger.info("Request = {req}".format(req=request))
-            logger.info("Request vars = {req}".format(req=vars(request)))
-        except:
-            logger.info("No request")
-        try:
-            logger.info("Obj = {obj}".format(obj=obj))
-            logger.info("Obj vars = {vars}".format(vars=vars(obj)))
-        except:
-            logger.info("Can't print obj")
-        try:
-            logger.info("Obj vars = {vars}".format(vars=vars(obj)))
-        except:
-            logger.info("Can't print vars(obj)")
-        try:
-            logger.info("Change = {change}".format(change=change))
-        except:
-            logger.info("No change")
 
         if obj.pk and obj.organization:
             organization = obj.organization
-            logger.info("In if")
-            logger.info("In if, obj.pk = {obj}, organization = {org}".format(obj=obj.pk, org=organization))
-        elif request.POST.get('_post', {}).get('organization'):
-            logger.info("In elif")
-            logger.info("Request organization = ", request.POST['_post']['organization'])
-            if request.POST['_post']['organization'][0] in ORGANIZATIONS:
-                organization = request.POST['_post']['organization'][0]
         else:
             organization = form.cleaned_data['organization']
-            logger.info("In else")
-            logger.info("form.cleaned_data['organization'] = {org}".format(org=organization))
 
-        if organization:
-            logger.info("Final organization = {org}".format(org=organization))
-        else:
-            logger.info("Final no organization")
+        logger.info("Saving {obj} with organization {org}".format(obj=obj, org=organization))
 
         obj.save(organization=organization)
 
