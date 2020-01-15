@@ -197,6 +197,8 @@ class RcLdapGroupForm(RcLdapModelForm):
             'gid',
             'members',
         ]
+        help_texts = {'dn': "Leave blank in most cases, RCAMP will populate on save",
+            'gid': "Leave blank and RCAMP will pick the next valid Gid",}
 
 @admin.register(RcLdapGroup)
 class RcLdapGroupAdmin(RcLdapModelAdmin):
