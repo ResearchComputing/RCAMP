@@ -6,7 +6,7 @@ from projects.models import Project
 from projects.models import Allocation
 
 
-class AccountRequestFilter(rest_framework.filters.FilterSet):
+class AccountRequestFilter(django_filters.rest_framework.FilterSet):
     min_request_date = django_filters.DateTimeFilter(name="request_date", lookup_expr='gte')
     max_request_date = django_filters.DateTimeFilter(name="request_date", lookup_expr='lte')
     min_approve_date = django_filters.DateTimeFilter(name="approved_on", lookup_expr='gte')
@@ -27,7 +27,7 @@ class AccountRequestFilter(rest_framework.filters.FilterSet):
             'request_date',
         ]
 
-class ProjectFilter(rest_framework.filters.FilterSet):
+class ProjectFilter(django_filters.rest_framework.FilterSet):
     min_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='gte')
     max_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='lte')
     class Meta:
@@ -47,7 +47,7 @@ class ProjectFilter(rest_framework.filters.FilterSet):
             'deactivated',
         ]
 
-class AllocationFilter(rest_framework.filters.FilterSet):
+class AllocationFilter(django_filters.rest_framework.FilterSet):
     min_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='gte')
     max_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='lte')
     class Meta:
