@@ -22,9 +22,21 @@ class UserAdmin(auth_admin.UserAdmin):
     search_fields = ['username','first_name','last_name','email']
 
 class AccountRequestAdminForm(forms.ModelForm):
+    def __init__(self,*args,**kwargs):
+        super(AccountRequestAdminForm,self).__init__(*args,**kwargs)
+
+        instance = getattr(self,'instance',None)
+        if instance.status == 'p':
+            self.fields['approved_on'].widget.attrs['disabled'] = True
+        else:
+            self.fields['approved_on'].widget.attrs['disabled'] = False
+
+
     class Meta:
         model = AccountRequest
         exclude = ()
+        # help_texts = {'approved_on': "{vars}".format(vars=vars(self.asdf))}
+        help_texts = {'approved_on': "Leave blank and RCAMP will populate on save"}
 
     def clean(self):
         super(AccountRequestAdminForm,self).clean()
@@ -40,6 +52,10 @@ class AccountRequestAdminForm(forms.ModelForm):
             for user in rc_users:
                 if user.organization == org:
                     raise forms.ValidationError('RC Account already exists: {}'.format(un))
+        if self.instance.status == 'p':
+            self.fields['approved_on'].widget.attrs['disabled'] = True
+        else:
+            self.fields['approved_on'].widget.attrs['disabled'] = False
 
 class IntentInline(admin.TabularInline):
     model = Intent
@@ -198,7 +214,7 @@ class RcLdapGroupForm(RcLdapModelForm):
             'members',
         ]
         help_texts = {'dn': "Leave blank in most cases, RCAMP will populate on save",
-            'gid': "Leave blank and RCAMP will pick the next valid Gid",}
+            'gid': "Leave blank and RCAMP will pick the next valid GroupID",}
 
 @admin.register(RcLdapGroup)
 class RcLdapGroupAdmin(RcLdapModelAdmin):
