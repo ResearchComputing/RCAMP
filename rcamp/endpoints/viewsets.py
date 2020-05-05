@@ -1,3 +1,5 @@
+import django_filters
+
 from rest_framework import (
     viewsets,
     generics,
@@ -24,7 +26,7 @@ from projects.models import Allocation
 class AccountRequestList(viewsets.ModelViewSet):
     queryset = AccountRequest.objects.all()
     serializer_class = AccountRequestSerializer
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter,)
     permission_classes = (permissions.IsAuthenticated,)
     search_fields = ('username','first_name','last_name','email',)
     filter_class = AccountRequestFilter
@@ -33,7 +35,7 @@ class AccountRequestList(viewsets.ModelViewSet):
 class ProjectList(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter,)
     permission_classes = (permissions.IsAuthenticated,)
     search_fields = ('project_id','pi_emails')
     filter_class = ProjectFilter
@@ -42,7 +44,7 @@ class ProjectList(viewsets.ModelViewSet):
 class AllocationList(viewsets.ReadOnlyModelViewSet):
     queryset = Allocation.objects.all()
     serializer_class = AllocationSerializer
-    filter_backends = (filters.DjangoFilterBackend,filters.SearchFilter,)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter,)
     permission_classes = (permissions.IsAuthenticated,)
     search_fields = ('allocation_id','start_date','end_date','created_on',)
     filter_class = AllocationFilter
