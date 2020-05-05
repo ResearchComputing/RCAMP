@@ -10,25 +10,25 @@ import mock
 def get_ldap_user_defaults():
     """Return a dictionary of reasonable defaults for creating RcLdapUser objects via the ORM."""
     ldap_user_defaults = dict(
-        username = 'testuser',
-        first_name = 'Test',
-        last_name = 'User',
-        full_name = 'User, Test',
-        email = 'testuser@colorado.edu',
+        username = u'testuser',
+        first_name = u'Test',
+        last_name = u'User',
+        full_name = u'User, Test',
+        email = u'testuser@colorado.edu',
         modified_date=datetime.datetime(2015,11,06,03,43,24),
         uid = 1010,
         gid = 1010,
-        gecos='Test User,,,',
-        home_directory='/home/testuser'
+        gecos=u'Test User,,,',
+        home_directory=u'/home/testuser'
     )
     return ldap_user_defaults
 
 def get_ldap_group_defaults():
     """Return a dictionary of reasonable defaults for creating RcLdapGroup objects via the ORM."""
     ldap_group_defaults = dict(
-        name = 'testusergrp',
+        name = u'testusergrp',
         gid = 1010,
-        members = ['testuser']
+        members = [u'testuser']
     )
     return ldap_group_defaults
 
