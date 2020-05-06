@@ -2,6 +2,7 @@ from tests.utilities.utils import (
     _purge_ldap_objects,
     SafeTestCase
 )
+from django.utils import timezone
 import copy
 import datetime
 import mock
@@ -15,7 +16,7 @@ def get_ldap_user_defaults():
         last_name = u'User',
         full_name = u'User, Test',
         email = u'testuser@colorado.edu',
-        modified_date=datetime.datetime(2015,11,06,03,43,24),
+        modified_date=timezone.make_aware(datetime.datetime(2015,11,06,03,43,24), timezone.get_default_timezone()),
         uid = 1010,
         gid = 1010,
         gecos=u'Test User,,,',
