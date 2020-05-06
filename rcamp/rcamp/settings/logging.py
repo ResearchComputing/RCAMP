@@ -21,6 +21,11 @@ LOGGING = {
             'level': "INFO",
             'class': 'logging.FileHandler',
             'filename': '/opt/logs/management_commands.log'
+        },
+        'admin': {
+            'level': "INFO",
+            'class': 'logging.FileHandler',
+            'filename': '/opt/logs/admin.log'
         }
     },
     'loggers': {
@@ -41,6 +46,11 @@ LOGGING = {
         },
         'management_commands': {
             'handlers': ['management_commands'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'admin': {
+            'handlers': ['admin'],
             'level': 'INFO',
             'propagate': True,
         },
