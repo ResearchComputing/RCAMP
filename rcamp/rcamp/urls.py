@@ -23,6 +23,7 @@ from django.conf import settings
 # Make sure signals/receivers get loaded.
 from mailer import receivers
 from projects import receivers
+from lib.views import index_view
 
 
 
@@ -31,7 +32,7 @@ handler500 = 'lib.views.handler500'
 
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
-    url(r'^$', 'lib.views.index_view', name='index'),
+    url(r'^$', index_view, name='index'),
     url(r'^login', auth_views.login, {'template_name':'login.html'}),
     url(r'^logout', auth_views.logout, {'template_name':'logout.html'}),
     url(r'^admin/', include(admin.site.urls)),
