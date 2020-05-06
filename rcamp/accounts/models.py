@@ -303,7 +303,7 @@ class RcLdapUser(LdapUser):
             ou = self.base_dn.lower().split(u',')[0]
             __, org = ou.split(u'=')
             self.org = org
-            self.base_dn = u','.join([ou,self.base_dn])
+            self.base_dn = self.base_dn.lower()
 
     objects = RcLdapUserManager()
 
@@ -406,6 +406,7 @@ class RcLdapGroup(ldapdb.models.Model):
 
     def __init__(self,*args,**kwargs):
         super(RcLdapGroup,self).__init__(*args,**kwargs)
+
         rdn = self.dn.lower().replace(self.base_dn.lower(), u'')
         rdn_list = rdn.split(u',')
         self.org = u''
@@ -413,7 +414,7 @@ class RcLdapGroup(ldapdb.models.Model):
             ou = self.base_dn.lower().split(u',')[0]
             __, org = ou.split(u'=')
             self.org = org
-            self.base_dn = u','.join([ou,self.base_dn])
+            self.base_dn = self.base_dn.lower()
 
     objects = RcLdapGroupManager()
 
