@@ -362,12 +362,12 @@ class CuLdapUser(LdapUser):
 
     base_dn = settings.LDAPCONFS['culdap']['people_dn']
     object_classes = []
-    uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
+    uid = ldap_fields.IntegerField(db_column=u'uidNumber', unique=True)
     # Used for automatic determination of role and affiliation.
-    edu_affiliation = ldap_fields.ListField(db_column='eduPersonAffiliation')
-    edu_primary_affiliation = ldap_fields.CharField(db_column='eduPersonPrimaryAffiliation')
-    cu_primary_major = ldap_fields.CharField(db_column='cuEduPersonPrimaryMajor1')
-    cu_home_department = ldap_fields.CharField(db_column='cuEduPersonHomeDepartment')
+    edu_affiliation = ldap_fields.ListField(db_column=u'eduPersonAffiliation')
+    edu_primary_affiliation = ldap_fields.CharField(db_column=u'eduPersonPrimaryAffiliation')
+    cu_primary_major = ldap_fields.CharField(db_column=u'cuEduPersonPrimaryMajor1')
+    cu_home_department = ldap_fields.CharField(db_column=u'cuEduPersonHomeDepartment')
 
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
