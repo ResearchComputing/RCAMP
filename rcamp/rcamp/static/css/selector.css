@@ -35,17 +35,16 @@
 
 .selector-chosen h2 {
     background: #79aec8;
-    color: #fff;
+    color: black;
 }
 
 .selector .selector-available h2 {
     background: #f8f8f8;
-    color: #666;
+    color: black;
 }
 
 .selector .selector-filter {
     background: white;
-    border: 1px solid #ccc;
     border-width: 0 1px;
     padding: 8px;
     color: #999;
