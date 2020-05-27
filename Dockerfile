@@ -33,7 +33,7 @@ ADD requirements.txt /opt/
 RUN pip2 install --upgrade pip && \
     pip2 install -r requirements.txt
 
-RUN ls -la && git clone https://github.com/ResearchComputing/django-ldapdb-test-env
+RUN git clone https://github.com/ResearchComputing/django-ldapdb-test-env
 WORKDIR django-ldapdb-test-env
 RUN python2 setup.py install
 WORKDIR /opt
