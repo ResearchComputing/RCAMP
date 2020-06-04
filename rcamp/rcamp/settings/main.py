@@ -101,6 +101,9 @@ MEDIA_ROOT = os.path.join(HOME_DIR, 'media', '')
 # GRAPPELLI ADMIN SETTINGS
 GRAPPELLI_ADMIN_TITLE = 'RCAMP'
 
+# Needs to be larger than number of users in ucb-general
+DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
 REST_FRAMEWORK = {
     'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%SZ",
 }
