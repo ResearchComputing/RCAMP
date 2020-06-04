@@ -8,7 +8,7 @@ def authenticate(dn,pwd,ldap_conf_key):
     ldap_conf = settings.LDAPCONFS[ldap_conf_key]
     server = ldap_conf['server']
     ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, ldap.OPT_X_TLS_ALLOW)
-    conn = ldap.initialize(server)
+    conn = ldap.initialize(server, bytes_mode=False)
     # Authenticate
     try:
         conn.simple_bind_s(dn, pwd)

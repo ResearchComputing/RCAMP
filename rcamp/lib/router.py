@@ -7,8 +7,8 @@ class LdapRouter(object):
     of the LDAP databases.
     """
 
-    def allow_migrate(self, db, model):
-        if is_ldap_model(model):
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        if "ldap" in db:
             return False
         return None
 

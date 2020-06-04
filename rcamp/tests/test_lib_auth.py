@@ -39,13 +39,13 @@ class PamBackendTestCase(LdapTestCase):
     @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=False))
     def test_authenticate_failed(self):
         rc_user_defaults = get_ldap_user_defaults()
-        RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
+        RcLdapUser.objects.create(organization=u'ucb',**rc_user_defaults)
         self.assertRaises(User.DoesNotExist, User.objects.get,
-                        username='testuser')
-        user = self.pb.authenticate(username='testuser',password='badpasswd')
+                        username=u'testuser')
+        user = self.pb.authenticate(username=u'testuser',password=u'badpasswd')
         self.assertIsNone(user)
         self.assertRaises(User.DoesNotExist, User.objects.get,
-                        username='testuser')
+                        username=u'testuser')
 
     @mock.patch('pam.pam.authenticate',mock.MagicMock(return_value=True))
     def test_authenticate_update_user(self):

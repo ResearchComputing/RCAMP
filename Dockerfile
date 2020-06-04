@@ -1,5 +1,5 @@
 FROM centos:7
-MAINTAINER Zebula Sampedro <sampedro@colorado.edu>
+MAINTAINER Aaron Holt <aaron.holt@colorado.edu>
 
 # Install gosu to drop user and chown shared volumes at runtime
 RUN export GOSU_VERSION=1.10 && \
@@ -31,8 +31,12 @@ RUN yum -y update && \
 
 ADD requirements.txt /opt/
 RUN pip2 install --upgrade pip && \
-    pip2 install -r requirements.txt && \
-    pip2 install -e git://github.com/ResearchComputing/django-ldapdb.git@v0.5.1#egg=django-ldapdb
+    pip2 install -r requirements.txt
+
+RUN git clone https://github.com/ResearchComputing/django-ldapdb-test-env
+WORKDIR django-ldapdb-test-env
+RUN python2 setup.py install
+WORKDIR /opt
 
 # Add uwsgi conf
 COPY uwsgi.ini /opt/uwsgi.ini
