@@ -92,7 +92,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T06:00:00Z'
+                u'approved_on': u'2016-04-01T00:00:00Z'
             },
             {
                 u'username': u'testuser3',
@@ -154,7 +154,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T06:00:00Z'
+                u'approved_on': u'2016-04-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
@@ -177,7 +177,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 u'resources_requested': u'summit',
                 u'organization': u'ucb',
                 u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T06:00:00Z'
+                u'approved_on': u'2016-04-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
