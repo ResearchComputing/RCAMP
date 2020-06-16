@@ -1,3 +1,5 @@
+import logging
+
 from django import forms
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from django.views.decorators.debug import sensitive_variables
@@ -10,7 +12,7 @@ from accounts.models import (
     REQUEST_ROLES
 )
 
-
+logger = logging.getLogger('admin')
 
 class AccountRequestVerifyForm(forms.Form):
     """
@@ -55,7 +57,9 @@ class AccountRequestVerifyForm(forms.Form):
             raise forms.ValidationError('Invalid organization')
         except self.auth_user_model.DoesNotExist:
             raise forms.ValidationError('Invalid username')
-        except TypeError:
+        except TypeError as e:
+            logger.info("Type error")
+            logger.exception(e, exc_info=True)
             raise forms.ValidationError('Missing field(s)')
 
 
