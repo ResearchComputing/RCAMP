@@ -31,7 +31,7 @@ def get_ldap_username_and_org(suffixed_username):
     org = 'ucb'
     if '@' in suffixed_username:
         username, suffix = suffixed_username.rsplit('@',1)
-        for k,v in settings.ORGANIZATION_INFO.iteritems():
+        for k,v in settings.ORGANIZATION_INFO.items():
             if v['suffix'] == suffix:
                 org = k
                 break
