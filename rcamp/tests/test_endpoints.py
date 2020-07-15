@@ -106,7 +106,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_ar_post(self):
@@ -158,7 +158,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_ar_search(self):
@@ -181,7 +181,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
 # The test case covers the projects API endpoint
@@ -274,7 +274,7 @@ class ProjectEndpointTestCase(SafeTestCase):
             },
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_proj_post(self):
@@ -328,7 +328,7 @@ class ProjectEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_proj_search(self):
@@ -352,7 +352,7 @@ class ProjectEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
 # The test case covers the allocations API endpoint
@@ -487,7 +487,7 @@ class AllocationEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_alloc_post(self):
@@ -574,7 +574,7 @@ class AllocationEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_alloc_search(self):
@@ -608,5 +608,5 @@ class AllocationEndpointTestCase(SafeTestCase):
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
