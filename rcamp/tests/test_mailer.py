@@ -24,7 +24,7 @@ class EventChoicesTestCase(TestCase):
             ('allocation_request_created_by_user', 'allocation_request_created_by_user'),
             ('project_created_by_user', 'project_created_by_user'),
         )
-        self.assertEquals(sorted(event_choices), sorted(expected_choices))
+        self.assertEqual(sorted(event_choices), sorted(expected_choices))
 
 # This test case covers MailNotifier functionality.
 class MailNotifierTestCase(TestCase):
@@ -48,61 +48,61 @@ class MailNotifierTestCase(TestCase):
     def test_make_body(self):
         body = self.mn.make_body(self.ctx)
 
-        self.assertEquals(self.mn.body,'You, {{ username }}, did it!!!!')
-        self.assertEquals(body,'You, testuser, did it!!!!')
+        self.assertEqual(self.mn.body,'You, {{ username }}, did it!!!!')
+        self.assertEqual(body,'You, testuser, did it!!!!')
 
         # Test with no context
         body = self.mn.make_body()
-        self.assertEquals(body,'You, , did it!!!!')
+        self.assertEqual(body,'You, , did it!!!!')
 
     def test_make_subject(self):
         subj = self.mn.make_subject(self.ctx)
 
-        self.assertEquals(self.mn.subject,'Hi, {{ username }}!')
-        self.assertEquals(subj,'Hi, testuser!')
+        self.assertEqual(self.mn.subject,'Hi, {{ username }}!')
+        self.assertEqual(subj,'Hi, testuser!')
 
         # Test with no context
         subj = self.mn.make_subject()
-        self.assertEquals(subj,'Hi, !')
+        self.assertEqual(subj,'Hi, !')
 
     def test_make_mailto_list(self):
         mailto = self.mn.make_mailto_list(self.ctx)
 
-        self.assertEquals(
+        self.assertEqual(
             mailto,
             ['requestuser@test.org','testuser@test.org']
         )
-        self.assertEquals(self.mn.mailto,'requestuser@test.org,{{ email }},,')
+        self.assertEqual(self.mn.mailto,'requestuser@test.org,{{ email }},,')
 
         # Test with no context
         mailto = self.mn.make_mailto_list()
-        self.assertEquals(mailto,['requestuser@test.org'])
+        self.assertEqual(mailto,['requestuser@test.org'])
 
     def test_make_cc_list(self):
         cc = self.mn.make_cc_list(self.ctx)
 
-        self.assertEquals(
+        self.assertEqual(
             cc,
             ['requestuser@test.org','testuser@test.org']
         )
-        self.assertEquals(self.mn.cc,'requestuser@test.org,{{ email }},,')
+        self.assertEqual(self.mn.cc,'requestuser@test.org,{{ email }},,')
 
         # Test with no context
         cc = self.mn.make_cc_list()
-        self.assertEquals(cc,['requestuser@test.org'])
+        self.assertEqual(cc,['requestuser@test.org'])
 
     def test_make_bcc_list(self):
         bcc = self.mn.make_bcc_list(self.ctx)
 
-        self.assertEquals(
+        self.assertEqual(
             bcc,
             ['requestuser@test.org','testuser@test.org']
         )
-        self.assertEquals(self.mn.bcc,'requestuser@test.org,{{ email }},,')
+        self.assertEqual(self.mn.bcc,'requestuser@test.org,{{ email }},,')
 
         # Test with no context
         bcc = self.mn.make_bcc_list()
-        self.assertEquals(bcc,['requestuser@test.org'])
+        self.assertEqual(bcc,['requestuser@test.org'])
 
     def test_make_email(self):
         email = self.mn.make_email(self.ctx)
@@ -110,12 +110,12 @@ class MailNotifierTestCase(TestCase):
         import django.core.mail.message
         self.assertIsInstance(email,django.core.mail.message.EmailMessage)
 
-        self.assertEquals(email.subject,'Hi, testuser!')
-        self.assertEquals(email.body,'You, testuser, did it!!!!')
-        self.assertEquals(email.from_email,'test@test.org')
-        self.assertEquals(email.to,['requestuser@test.org','testuser@test.org'])
-        self.assertEquals(email.cc,['requestuser@test.org','testuser@test.org'])
-        self.assertEquals(email.bcc,['requestuser@test.org','testuser@test.org'])
+        self.assertEqual(email.subject,'Hi, testuser!')
+        self.assertEqual(email.body,'You, testuser, did it!!!!')
+        self.assertEqual(email.from_email,'test@test.org')
+        self.assertEqual(email.to,['requestuser@test.org','testuser@test.org'])
+        self.assertEqual(email.cc,['requestuser@test.org','testuser@test.org'])
+        self.assertEqual(email.bcc,['requestuser@test.org','testuser@test.org'])
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_send(self):
@@ -125,10 +125,10 @@ class MailNotifierTestCase(TestCase):
         self.assertIsInstance(msg,django.core.mail.message.SafeMIMEText)
 
         from django.core.mail import outbox
-        self.assertEquals(len(outbox),1)
+        self.assertEqual(len(outbox),1)
 
         ml = MailLog.objects.get()
-        self.assertEquals(ml.recipient_emails,'requestuser@test.org,testuser@test.org')
+        self.assertEqual(ml.recipient_emails,'requestuser@test.org,testuser@test.org')
 
     @override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
     def test_save_tpl_error(self):
@@ -178,12 +178,12 @@ class ARReceivedTestCase(TestCase):
         )
 
         from django.core.mail import outbox
-        self.assertEquals(len(outbox),2)
-        self.assertEquals(
+        self.assertEqual(len(outbox),2)
+        self.assertEqual(
             outbox[0].body,
             self.mn1.make_body({'account_request':self.ctx})
         )
-        self.assertEquals(
+        self.assertEqual(
             outbox[1].body,
             self.mn2.make_body({'account_request':self.ctx})
         )
@@ -225,12 +225,12 @@ class ARApprovedTestCase(TestCase):
         )
 
         from django.core.mail import outbox
-        self.assertEquals(len(outbox),2)
-        self.assertEquals(
+        self.assertEqual(len(outbox),2)
+        self.assertEqual(
             outbox[0].body,
             self.mn1.make_body({'account':self.ctx})
         )
-        self.assertEquals(
+        self.assertEqual(
             outbox[1].body,
             self.mn2.make_body({'account':self.ctx})
         )
@@ -272,12 +272,12 @@ class ProjectCreatedTestCase(TestCase):
         )
 
         from django.core.mail import outbox
-        self.assertEquals(len(outbox),2)
-        self.assertEquals(
+        self.assertEqual(len(outbox),2)
+        self.assertEqual(
             outbox[0].body,
             self.mn1.make_body({'project':self.ctx})
         )
-        self.assertEquals(
+        self.assertEqual(
             outbox[1].body,
             self.mn2.make_body({'project':self.ctx})
         )
@@ -320,12 +320,12 @@ class AllocReqReceivedTestCase(TestCase):
         )
 
         from django.core.mail import outbox
-        self.assertEquals(len(outbox),2)
-        self.assertEquals(
+        self.assertEqual(len(outbox),2)
+        self.assertEqual(
             outbox[0].body,
             self.mn1.make_body({'allocation_request':self.ctx})
         )
-        self.assertEquals(
+        self.assertEqual(
             outbox[1].body,
             self.mn2.make_body({'allocation_request':self.ctx})
         )
@@ -367,12 +367,12 @@ class ARApprovedTestCase(TestCase):
         )
 
         from django.core.mail import outbox
-        self.assertEquals(len(outbox),2)
-        self.assertEquals(
+        self.assertEqual(len(outbox),2)
+        self.assertEqual(
             outbox[0].body,
             self.mn1.make_body({'allocation':self.ctx})
         )
-        self.assertEquals(
+        self.assertEqual(
             outbox[1].body,
             self.mn2.make_body({'allocation':self.ctx})
         )
