@@ -76,33 +76,33 @@ class AccountRequestEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'username': u'testuser1',
-                u'status': u'p',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu@tu.org',
+                'username': 'testuser1',
+                'status': 'p',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu@tu.org',
             },
             {
-                u'username': u'testuser2',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T00:00:00Z'
+                'username': 'testuser2',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu2@tu.org',
+                'approved_on': '2016-04-01T00:00:00Z'
             },
             {
-                u'username': u'testuser3',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': None,
-                u'notes': u'approved!',
-                u'organization': u'ucb',
-                u'email': u'tu3@tu.org',
+                'username': 'testuser3',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': None,
+                'notes': 'approved!',
+                'organization': 'ucb',
+                'email': 'tu3@tu.org',
             }
         ]
         res_content = json.loads(res.content)
@@ -111,13 +111,13 @@ class AccountRequestEndpointTestCase(SafeTestCase):
 
     def test_ar_post(self):
         post_data = dict(
-            username = u'newuser',
-            status = u'p',
-            first_name = u'test',
-            last_name = u'user',
-            resources_requested = u'summit',
-            organization = u'ucb',
-            email = u'newtu@tu.org',
+            username = 'newuser',
+            status = 'p',
+            first_name = 'test',
+            last_name = 'user',
+            resources_requested = 'summit',
+            organization = 'ucb',
+            email = 'newtu@tu.org',
         )
         res = self.client.post('/api/accountrequests/', data=post_data)
         self.assertEquals(res.status_code, 201)
@@ -127,13 +127,13 @@ class AccountRequestEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'username': u'testuser1',
-            u'status': u'p',
-            u'first_name': u'test',
-            u'last_name': u'user',
-            u'resources_requested': u'summit',
-            u'organization': u'ucb',
-            u'email': u'tu@tu.org',
+            'username': 'testuser1',
+            'status': 'p',
+            'first_name': 'test',
+            'last_name': 'user',
+            'resources_requested': 'summit',
+            'organization': 'ucb',
+            'email': 'tu@tu.org',
         }
         self.assertDictContainsSubset(expected_content,res_content)
 
@@ -147,14 +147,14 @@ class AccountRequestEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'username': u'testuser2',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T00:00:00Z'
+                'username': 'testuser2',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu2@tu.org',
+                'approved_on': '2016-04-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
@@ -170,14 +170,14 @@ class AccountRequestEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'username': u'testuser2',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T00:00:00Z'
+                'username': 'testuser2',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu2@tu.org',
+                'approved_on': '2016-04-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
@@ -239,38 +239,38 @@ class ProjectEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi@pi.org']",
-                u'qos_addenda': u'+=viz',
-                u'organization': u'ucb',
-                u'project_id': u'ucb1'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi@pi.org']",
+                'qos_addenda': '+=viz',
+                'organization': 'ucb',
+                'project_id': 'ucb1'
             },
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi2@pi.org']",
-                u'created_on': u'2016-04-01',
-                u'organization': u'ucb',
-                u'project_id': u'ucb2',
-                u'parent_account': u'ucball',
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi2@pi.org']",
+                'created_on': '2016-04-01',
+                'organization': 'ucb',
+                'project_id': 'ucb2',
+                'parent_account': 'ucball',
             },
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'notes': u'These are notes.',
-                u'pi_emails': u"[u'pi3@pi.org']",
-                u'organization': u'ucb',
-                u'project_id': u'ucb3'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'notes': 'These are notes.',
+                'pi_emails': "['pi3@pi.org']",
+                'organization': 'ucb',
+                'project_id': 'ucb3'
             },
         ]
         res_content = json.loads(res.content)
@@ -294,15 +294,15 @@ class ProjectEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-            u'managers': [u'testuser'],
-            u'description': u'A description.',
-            u'title': u'Test Project',
-            u'deactivated': False,
-            u'pi_emails': u"[u'pi@pi.org']",
-            u'qos_addenda': u'+=viz',
-            u'organization': u'ucb',
-            u'project_id': u'ucb1'
+            'collaborators': ['testuser','testuser@colostate.edu'],
+            'managers': ['testuser'],
+            'description': 'A description.',
+            'title': 'Test Project',
+            'deactivated': False,
+            'pi_emails': "['pi@pi.org']",
+            'qos_addenda': '+=viz',
+            'organization': 'ucb',
+            'project_id': 'ucb1'
         }
         self.assertDictContainsSubset(expected_content,res_content)
 
@@ -316,15 +316,15 @@ class ProjectEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi2@pi.org']",
-                u'created_on': u'2016-04-01',
-                u'organization': u'ucb',
-                u'project_id': u'ucb2'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi2@pi.org']",
+                'created_on': '2016-04-01',
+                'organization': 'ucb',
+                'project_id': 'ucb2'
             }
         ]
         res_content = json.loads(res.content)
@@ -340,15 +340,15 @@ class ProjectEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi2@pi.org']",
-                u'created_on': u'2016-04-01',
-                u'organization': u'ucb',
-                u'project_id': u'ucb2'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi2@pi.org']",
+                'created_on': '2016-04-01',
+                'organization': 'ucb',
+                'project_id': 'ucb2'
             }
         ]
         res_content = json.loads(res.content)
@@ -423,67 +423,67 @@ class AllocationEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb1',
-                    u'parent_account': u'ucball'
+                'end_date': '2017-02-02',
+                'allocation_id': 'ucb1_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb1',
+                    'parent_account': 'ucball'
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             },
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb1_summit2',
-                u'created_on': u'2016-04-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb1',
-                    u'parent_account': u'ucball'
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb1_summit2',
+                'created_on': '2016-04-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb1',
+                    'parent_account': 'ucball'
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             },
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb2',
-                    u'parent_account': None
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb2_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb2',
+                    'parent_account': None
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
@@ -499,25 +499,25 @@ class AllocationEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'end_date': u'2017-02-02',
-            u'allocation_id': u'ucb1_summit1',
-            u'created_on': u'2016-06-01',
-            u'project': {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'notes': None,
-                u'pi_emails': u"[u'pi@pi.org']",
-                u'created_on': u'2016-06-01',
-                u'qos_addenda': u'+=viz',
-                u'organization': u'ucb',
-                u'project_id': u'ucb1',
-                u'parent_account': u'ucball'
+            'end_date': '2017-02-02',
+            'allocation_id': 'ucb1_summit1',
+            'created_on': '2016-06-01',
+            'project': {
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'notes': None,
+                'pi_emails': "['pi@pi.org']",
+                'created_on': '2016-06-01',
+                'qos_addenda': '+=viz',
+                'organization': 'ucb',
+                'project_id': 'ucb1',
+                'parent_account': 'ucball'
             },
-            u'amount': 50000,
-            u'start_date': u'2016-02-02'
+            'amount': 50000,
+            'start_date': '2016-02-02'
         }
         self.assertDictContainsSubset(expected_content,res_content)
 
@@ -531,46 +531,46 @@ class AllocationEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb1',
-                    u'parent_account': u'ucball'
+                'end_date': '2017-02-02',
+                'allocation_id': 'ucb1_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb1',
+                    'parent_account': 'ucball'
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             },
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb2',
-                    u'parent_account': None
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb2_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb2',
+                    'parent_account': None
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
@@ -586,25 +586,25 @@ class AllocationEndpointTestCase(SafeTestCase):
         self.assertEquals(res.status_code, 200)
         expected_content = [
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb2',
-                    u'parent_account': None
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb2_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb2',
+                    'parent_account': None
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
