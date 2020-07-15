@@ -73,7 +73,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
 
     def test_ar_list(self):
         res = self.client.get('/api/accountrequests/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'username': 'testuser1',
@@ -120,11 +120,11 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             email = 'newtu@tu.org',
         )
         res = self.client.post('/api/accountrequests/', data=post_data)
-        self.assertEquals(res.status_code, 201)
+        self.assertEqual(res.status_code, 201)
 
     def test_ar_detail(self):
         res = self.client.get('/api/accountrequests/testuser1/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
             'username': 'testuser1',
@@ -144,7 +144,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 '2016-04-01'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'username': 'testuser2',
@@ -167,7 +167,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'tu2@tu.org'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'username': 'testuser2',
@@ -236,7 +236,7 @@ class ProjectEndpointTestCase(SafeTestCase):
 
     def test_proj_list(self):
         res = self.client.get('/api/projects/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'collaborators': ['testuser','testuser@colostate.edu'],
@@ -287,11 +287,11 @@ class ProjectEndpointTestCase(SafeTestCase):
             qos_addenda='+=viz'
         )
         res = self.client.post('/api/projects/', data=proj_dict)
-        self.assertEquals(res.status_code, 201)
+        self.assertEqual(res.status_code, 201)
 
     def test_proj_detail(self):
         res = self.client.get('/api/projects/ucb1/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
             'collaborators': ['testuser','testuser@colostate.edu'],
@@ -313,7 +313,7 @@ class ProjectEndpointTestCase(SafeTestCase):
                 '2016-04-01'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'collaborators': ['testuser','testuser@colostate.edu'],
@@ -337,7 +337,7 @@ class ProjectEndpointTestCase(SafeTestCase):
                 'pi2@pi.org'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'collaborators': ['testuser','testuser@colostate.edu'],
@@ -420,7 +420,7 @@ class AllocationEndpointTestCase(SafeTestCase):
 
     def test_alloc_list(self):
         res = self.client.get('/api/allocations/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'end_date': '2017-02-02',
@@ -492,11 +492,11 @@ class AllocationEndpointTestCase(SafeTestCase):
 
     def test_alloc_post(self):
         res = self.client.post('/api/allocations/')
-        self.assertEquals(res.status_code, 405)
+        self.assertEqual(res.status_code, 405)
 
     def test_alloc_detail(self):
         res = self.client.get('/api/allocations/ucb1_summit1/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
             'end_date': '2017-02-02',
@@ -528,7 +528,7 @@ class AllocationEndpointTestCase(SafeTestCase):
                 '2016-06-01'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'end_date': '2017-02-02',
@@ -583,7 +583,7 @@ class AllocationEndpointTestCase(SafeTestCase):
                 'ucb2'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
                 'end_date': '2017-03-02',
