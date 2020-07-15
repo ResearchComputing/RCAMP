@@ -36,8 +36,8 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_only_return_unnotified_expired_allocations(self):
 
-        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
-        edate_tz = localize_timezone(2017, 02, 02, 'America/Denver')
+        sdate_tz = localize_timezone(2016, 2, 2, 'America/Denver')
+        edate_tz = localize_timezone(2017, 2, 2, 'America/Denver')
 
         alloc_dict_not_notified = {
             'project': self.proj,
@@ -67,11 +67,11 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_only_return_allocations_with_passed_expiration_date(self):
 
-        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
-        current_date_for_test_tz = localize_timezone(2018, 02, 02, 'America/Denver')
+        sdate_tz = localize_timezone(2016, 2, 2, 'America/Denver')
+        current_date_for_test_tz = localize_timezone(2018, 2, 2, 'America/Denver')
         with mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
 
-            edate_in_past_tz = localize_timezone(2017, 02, 02, 'America/Denver')
+            edate_in_past_tz = localize_timezone(2017, 2, 2, 'America/Denver')
             alloc_dict_end_date_passed = {
                 'project': self.proj,
                 'allocation_id': 'ucb7_summit2',
@@ -82,7 +82,7 @@ class ExpirationNotifierTestCase(SafeTestCase):
             }
             alloc_end_date_passed = Allocation.objects.create(**alloc_dict_end_date_passed)
 
-            edate_in_future_tz = localize_timezone(2019, 02, 02, 'America/Denver')
+            edate_in_future_tz = localize_timezone(2019, 2, 2, 'America/Denver')
             alloc_dict_end_date_future = {
                 'project': self.proj,
                 'allocation_id': 'ucb6_summit2',
@@ -101,8 +101,8 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_send_expiration_notice_for_expired_allocation(self):
 
-        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
-        edate_tz = localize_timezone(2017, 02, 02, 'America/Denver')
+        sdate_tz = localize_timezone(2016, 2, 2, 'America/Denver')
+        edate_tz = localize_timezone(2017, 2, 2, 'America/Denver')
         alloc_dict_not_notified = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -125,8 +125,8 @@ class ExpirationNotifierTestCase(SafeTestCase):
 
     def test_expiration_notice_field_set_when_notice_sent(self):
 
-        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
-        edate_tz = localize_timezone(2017, 02, 02, 'America/Denver')
+        sdate_tz = localize_timezone(2016, 2, 2, 'America/Denver')
+        edate_tz = localize_timezone(2017, 2, 2, 'America/Denver')
         alloc_dict_not_notified = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -159,9 +159,9 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
 
     def test_return_soon_to_expire_allocations_at_interval_date(self):
 
-        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
+        sdate_tz = localize_timezone(2016, 2, 2, 'America/Denver')
 
-        edate_notice_needed_tz = localize_timezone(2018, 02, 21, 'America/Denver')
+        edate_notice_needed_tz = localize_timezone(2018, 2, 21, 'America/Denver')
         alloc_dict_notification_needed = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -173,7 +173,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         alloc_notification_needed = Allocation.objects.create(**alloc_dict_notification_needed)
 
         # Expired allocations don't need upcoming notification
-        edate_expired_tz = localize_timezone(2017, 02, 02, 'America/Denver')
+        edate_expired_tz = localize_timezone(2017, 2, 2, 'America/Denver')
         alloc_dict_expired = {
             'project': self.proj,
             'allocation_id': 'ucb6_summit2',
@@ -185,7 +185,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         alloc_expired = Allocation.objects.create(**alloc_dict_expired)
 
         # Notification date in future
-        edate_far_in_future_tz = localize_timezone(2030, 02, 02, 'America/Denver')
+        edate_far_in_future_tz = localize_timezone(2030, 2, 2, 'America/Denver')
         alloc_dict_no_notification = {
             'project': self.proj,
             'allocation_id': 'ucb8_summit3',
@@ -196,7 +196,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         }
         alloc_no_notification = Allocation.objects.create(**alloc_dict_no_notification)
 
-        current_date_for_test_tz = localize_timezone(2018, 02, 01, 'America/Denver')
+        current_date_for_test_tz = localize_timezone(2018, 2, 1, 'America/Denver')
         with mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
             notification_interval = 20
             upcoming_expiration_notifier = UpcomingExpirationNotifier(False, notification_interval)
@@ -207,8 +207,8 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
 
     def test_send_upcoming_expiration_notice(self):
 
-        sdate_tz = localize_timezone(2016, 02, 02, 'America/Denver')
-        edate_notice_needed_tz = localize_timezone(2018, 02, 21, 'America/Denver')
+        sdate_tz = localize_timezone(2016, 2, 2, 'America/Denver')
+        edate_notice_needed_tz = localize_timezone(2018, 2, 21, 'America/Denver')
         alloc_dict_notification_needed = {
             'project': self.proj,
             'allocation_id': 'ucb7_summit2',
@@ -219,7 +219,7 @@ class UpcomingExpirationNotifierTestCase(SafeTestCase):
         }
         alloc_notification_needed = Allocation.objects.create(**alloc_dict_notification_needed)
 
-        current_date_for_test_tz = localize_timezone(2018, 02, 01, 'America/Denver')
+        current_date_for_test_tz = localize_timezone(2018, 2, 1, 'America/Denver')
         with mock.patch('mailer.signals.allocation_expiring.send') as mock_send, \
                 mock.patch('django.utils.timezone.now', return_value=current_date_for_test_tz):
             notification_interval = 20
