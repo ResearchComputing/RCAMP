@@ -53,7 +53,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             username='testuser2',
             email='tu2@tu.org',
             role='faculty',
-            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,04,01)),
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,4,1)),
             status='a'
         ))
         self.ar2 = AccountRequest.objects.create(**ar_dict)
@@ -65,7 +65,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             status='a',
             notes='approved!',
             id_verified_by='admin',
-            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,05,01)),
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,5,1)),
         ))
         self.ar3 = AccountRequest.objects.create(**ar_dict)
 
@@ -218,7 +218,7 @@ class ProjectEndpointTestCase(SafeTestCase):
         ))
         del proj_dict['qos_addenda']
         self.proj2 = Project.objects.create(**proj_dict)
-        self.proj2.created_on = datetime.datetime(2016,04,01)
+        self.proj2.created_on = datetime.datetime(2016,4,1)
         self.proj2.save()
         self.proj2.managers.add(self.ucb_auth_user)
         self.proj2.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
@@ -380,21 +380,21 @@ class AllocationEndpointTestCase(SafeTestCase):
             qos_addenda='+=viz'
         )
         self.proj1 = Project.objects.create(**proj_dict)
-        self.proj1.created_on = datetime.datetime(2016,06,01)
+        self.proj1.created_on = datetime.datetime(2016,6,1)
         self.proj1.save()
         self.proj1.managers.add(self.ucb_auth_user)
         self.proj1.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
         del proj_dict['parent_account']
         proj_dict['project_id'] = 'ucb2'
         self.proj2 = Project.objects.create(**proj_dict)
-        self.proj2.created_on = datetime.datetime(2016,06,01)
+        self.proj2.created_on = datetime.datetime(2016,6,1)
         self.proj2.save()
         self.proj2.managers.add(self.ucb_auth_user)
         self.proj2.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
-        sdate = datetime.datetime(2016,02,02)
+        sdate = datetime.datetime(2016,2,2)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
+        edate = datetime.datetime(2017,2,2)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
         alloc_dict = dict(
             project=self.proj1,
@@ -403,17 +403,17 @@ class AllocationEndpointTestCase(SafeTestCase):
             end_date=edate_tz
         )
         self.alloc1 = Allocation.objects.create(**alloc_dict)
-        self.alloc1.created_on = datetime.datetime(2016,06,01)
+        self.alloc1.created_on = datetime.datetime(2016,6,1)
         self.alloc1.save()
-        edate = datetime.datetime(2017,03,02)
+        edate = datetime.datetime(2017,3,2)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
         alloc_dict['end_date'] = edate_tz
         self.alloc2 = Allocation.objects.create(**alloc_dict)
-        self.alloc2.created_on = datetime.datetime(2016,04,01)
+        self.alloc2.created_on = datetime.datetime(2016,4,1)
         self.alloc2.save()
         alloc_dict['project'] = self.proj2
         self.alloc3 = Allocation.objects.create(**alloc_dict)
-        self.alloc3.created_on = datetime.datetime(2016,06,01)
+        self.alloc3.created_on = datetime.datetime(2016,6,1)
         self.alloc3.save()
 
         self.client.login(username=self.ucb_auth_user.username, password="password")
