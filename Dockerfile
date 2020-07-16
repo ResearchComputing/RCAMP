@@ -29,6 +29,10 @@ RUN yum -y update && \
     yum -y install python3 python3-devel python3-pip && \
     yum -y install openldap-devel mysql-devel
 
+ENV VIRTUAL_ENV=/opt/rcamp_venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
 ADD requirements.txt /opt/
 RUN pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
