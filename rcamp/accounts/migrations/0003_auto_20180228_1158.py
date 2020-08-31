@@ -45,6 +45,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='intent',
             name='account_request',
-            field=models.OneToOneField(null=True, blank=True, to='accounts.AccountRequest'),
+            field=models.OneToOneField(null=True, blank=True, to='accounts.AccountRequest', on_delete=models.CASCADE),
         ),
     ]

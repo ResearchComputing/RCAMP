@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default=b'w', max_length=16, choices=[(b'a', b'Approved'), (b'd', b'Denied'), (b'w', b'Waiting'), (b'h', b'Hold'), (b'r', b'Ready For Review'), (b'q', b'Response Requested'), (b'i', b'Denied - Insufficient Resources'), (b'x', b'Denied - Proposal Incomplete'), (b'f', b'Approved - Fully Funded'), (b'p', b'Approved - Partially Funded')])),
                 ('approved_on', models.DateTimeField(null=True, blank=True)),
                 ('notes', models.TextField(null=True, blank=True)),
-                ('allocation', models.ForeignKey(blank=True, to='projects.Allocation', null=True)),
+                ('allocation', models.ForeignKey(blank=True, to='projects.Allocation', null=True, on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -67,22 +67,22 @@ class Migration(migrations.Migration):
                 ('description', models.TextField()),
                 ('link', models.TextField()),
                 ('created_on', models.DateField(auto_now_add=True)),
-                ('project', models.ForeignKey(to='projects.Project')),
+                ('project', models.ForeignKey(to='projects.Project', on_delete=models.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='allocationrequest',
             name='project',
-            field=models.ForeignKey(to='projects.Project'),
+            field=models.ForeignKey(to='projects.Project', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='allocationrequest',
             name='requester',
-            field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True),
+            field=models.ForeignKey(blank=True, to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='allocation',
             name='project',
-            field=models.ForeignKey(to='projects.Project'),
+            field=models.ForeignKey(to='projects.Project', on_delete=models.CASCADE),
         ),
     ]
