@@ -32,13 +32,13 @@ $ docker-compose up -d
 
 Finish by migrating the DB and adding a superuser to the RCAMP app. You'll need to attach to the running RCAMP service to do this:
 ```
-$ docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py migrate
-$ docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py createsuperuser
+$ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py migrate
+$ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py createsuperuser
 ```
 
 ## Writing and Running Tests
 Documentation on use and installation of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
 
 ```
-$ docker-compose run --rm --entrypoint "python" rcamp-uwsgi manage.py test
+$ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py test
 ```

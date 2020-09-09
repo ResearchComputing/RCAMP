@@ -35,10 +35,10 @@ urlpatterns = [
     url(r'^$', index_view, name='index'),
     url(r'^login', auth_views.login, {'template_name':'login.html'}),
     url(r'^logout', auth_views.logout, {'template_name':'logout.html'}),
-    url(r'^admin/', include(admin.site.urls)),
+    url(r'^admin/', admin.site.urls),
     url(r'^api/', include('endpoints.urls')),
-    url(r'^accounts/', include('accounts.urls', namespace='accounts')),
-    url(r'^projects/', include('projects.urls', namespace='projects')),
+    url(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
+    url(r'^projects/', include(('projects.urls', 'projects'), namespace='projects')),
 ]
 
 

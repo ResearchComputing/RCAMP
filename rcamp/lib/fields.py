@@ -28,7 +28,7 @@ class ListField(models.TextField):
             try:
                 val = ast.literal_eval(value)
                 return val
-            except SyntaxError,ValueError:
+            except (SyntaxError, ValueError):
                 return value.split(self.delimiter)
 
     def get_prep_value(self, value):

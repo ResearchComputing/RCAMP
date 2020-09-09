@@ -7,10 +7,10 @@ from projects.models import Allocation
 
 
 class AccountRequestFilter(django_filters.rest_framework.FilterSet):
-    min_request_date = django_filters.DateTimeFilter(name="request_date", lookup_expr='gte')
-    max_request_date = django_filters.DateTimeFilter(name="request_date", lookup_expr='lte')
-    min_approve_date = django_filters.DateTimeFilter(name="approved_on", lookup_expr='gte')
-    max_approve_date = django_filters.DateTimeFilter(name="approved_on", lookup_expr='lte')
+    min_request_date = django_filters.DateTimeFilter(field_name="request_date", lookup_expr='gte')
+    max_request_date = django_filters.DateTimeFilter(field_name="request_date", lookup_expr='lte')
+    min_approve_date = django_filters.DateTimeFilter(field_name="approved_on", lookup_expr='gte')
+    max_approve_date = django_filters.DateTimeFilter(field_name="approved_on", lookup_expr='lte')
     class Meta:
         model = AccountRequest
         fields = [
@@ -28,8 +28,8 @@ class AccountRequestFilter(django_filters.rest_framework.FilterSet):
         ]
 
 class ProjectFilter(django_filters.rest_framework.FilterSet):
-    min_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='gte')
-    max_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='lte')
+    min_date = django_filters.DateTimeFilter(field_name="created_on", lookup_expr='gte')
+    max_date = django_filters.DateTimeFilter(field_name="created_on", lookup_expr='lte')
     class Meta:
         model = Project
         fields = [
@@ -48,8 +48,8 @@ class ProjectFilter(django_filters.rest_framework.FilterSet):
         ]
 
 class AllocationFilter(django_filters.rest_framework.FilterSet):
-    min_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='gte')
-    max_date = django_filters.DateTimeFilter(name="created_on", lookup_expr='lte')
+    min_date = django_filters.DateTimeFilter(field_name="created_on", lookup_expr='gte')
+    max_date = django_filters.DateTimeFilter(field_name="created_on", lookup_expr='lte')
     class Meta:
         model = Allocation
         fields = [

@@ -53,7 +53,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             username='testuser2',
             email='tu2@tu.org',
             role='faculty',
-            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,04,01)),
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,4,1)),
             status='a'
         ))
         self.ar2 = AccountRequest.objects.create(**ar_dict)
@@ -65,7 +65,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             status='a',
             notes='approved!',
             id_verified_by='admin',
-            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,05,01)),
+            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,5,1)),
         ))
         self.ar3 = AccountRequest.objects.create(**ar_dict)
 
@@ -73,67 +73,67 @@ class AccountRequestEndpointTestCase(SafeTestCase):
 
     def test_ar_list(self):
         res = self.client.get('/api/accountrequests/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'username': u'testuser1',
-                u'status': u'p',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu@tu.org',
+                'username': 'testuser1',
+                'status': 'p',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu@tu.org',
             },
             {
-                u'username': u'testuser2',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T00:00:00Z'
+                'username': 'testuser2',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu2@tu.org',
+                'approved_on': '2016-04-01T00:00:00Z'
             },
             {
-                u'username': u'testuser3',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': None,
-                u'notes': u'approved!',
-                u'organization': u'ucb',
-                u'email': u'tu3@tu.org',
+                'username': 'testuser3',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': None,
+                'notes': 'approved!',
+                'organization': 'ucb',
+                'email': 'tu3@tu.org',
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_ar_post(self):
         post_data = dict(
-            username = u'newuser',
-            status = u'p',
-            first_name = u'test',
-            last_name = u'user',
-            resources_requested = u'summit',
-            organization = u'ucb',
-            email = u'newtu@tu.org',
+            username = 'newuser',
+            status = 'p',
+            first_name = 'test',
+            last_name = 'user',
+            resources_requested = 'summit',
+            organization = 'ucb',
+            email = 'newtu@tu.org',
         )
         res = self.client.post('/api/accountrequests/', data=post_data)
-        self.assertEquals(res.status_code, 201)
+        self.assertEqual(res.status_code, 201)
 
     def test_ar_detail(self):
         res = self.client.get('/api/accountrequests/testuser1/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'username': u'testuser1',
-            u'status': u'p',
-            u'first_name': u'test',
-            u'last_name': u'user',
-            u'resources_requested': u'summit',
-            u'organization': u'ucb',
-            u'email': u'tu@tu.org',
+            'username': 'testuser1',
+            'status': 'p',
+            'first_name': 'test',
+            'last_name': 'user',
+            'resources_requested': 'summit',
+            'organization': 'ucb',
+            'email': 'tu@tu.org',
         }
         self.assertDictContainsSubset(expected_content,res_content)
 
@@ -144,21 +144,21 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 '2016-04-01'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'username': u'testuser2',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T00:00:00Z'
+                'username': 'testuser2',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu2@tu.org',
+                'approved_on': '2016-04-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_ar_search(self):
@@ -167,21 +167,21 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'tu2@tu.org'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'username': u'testuser2',
-                u'status': u'a',
-                u'first_name': u'test',
-                u'last_name': u'user',
-                u'resources_requested': u'summit',
-                u'organization': u'ucb',
-                u'email': u'tu2@tu.org',
-                u'approved_on': u'2016-04-01T00:00:00Z'
+                'username': 'testuser2',
+                'status': 'a',
+                'first_name': 'test',
+                'last_name': 'user',
+                'resources_requested': 'summit',
+                'organization': 'ucb',
+                'email': 'tu2@tu.org',
+                'approved_on': '2016-04-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
 # The test case covers the projects API endpoint
@@ -218,7 +218,7 @@ class ProjectEndpointTestCase(SafeTestCase):
         ))
         del proj_dict['qos_addenda']
         self.proj2 = Project.objects.create(**proj_dict)
-        self.proj2.created_on = datetime.datetime(2016,04,01)
+        self.proj2.created_on = datetime.datetime(2016,4,1)
         self.proj2.save()
         self.proj2.managers.add(self.ucb_auth_user)
         self.proj2.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
@@ -236,45 +236,45 @@ class ProjectEndpointTestCase(SafeTestCase):
 
     def test_proj_list(self):
         res = self.client.get('/api/projects/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi@pi.org']",
-                u'qos_addenda': u'+=viz',
-                u'organization': u'ucb',
-                u'project_id': u'ucb1'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi@pi.org']",
+                'qos_addenda': '+=viz',
+                'organization': 'ucb',
+                'project_id': 'ucb1'
             },
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi2@pi.org']",
-                u'created_on': u'2016-04-01',
-                u'organization': u'ucb',
-                u'project_id': u'ucb2',
-                u'parent_account': u'ucball',
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi2@pi.org']",
+                'created_on': '2016-04-01',
+                'organization': 'ucb',
+                'project_id': 'ucb2',
+                'parent_account': 'ucball',
             },
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'notes': u'These are notes.',
-                u'pi_emails': u"[u'pi3@pi.org']",
-                u'organization': u'ucb',
-                u'project_id': u'ucb3'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'notes': 'These are notes.',
+                'pi_emails': "['pi3@pi.org']",
+                'organization': 'ucb',
+                'project_id': 'ucb3'
             },
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_proj_post(self):
@@ -287,22 +287,22 @@ class ProjectEndpointTestCase(SafeTestCase):
             qos_addenda='+=viz'
         )
         res = self.client.post('/api/projects/', data=proj_dict)
-        self.assertEquals(res.status_code, 201)
+        self.assertEqual(res.status_code, 201)
 
     def test_proj_detail(self):
         res = self.client.get('/api/projects/ucb1/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-            u'managers': [u'testuser'],
-            u'description': u'A description.',
-            u'title': u'Test Project',
-            u'deactivated': False,
-            u'pi_emails': u"[u'pi@pi.org']",
-            u'qos_addenda': u'+=viz',
-            u'organization': u'ucb',
-            u'project_id': u'ucb1'
+            'collaborators': ['testuser','testuser@colostate.edu'],
+            'managers': ['testuser'],
+            'description': 'A description.',
+            'title': 'Test Project',
+            'deactivated': False,
+            'pi_emails': "['pi@pi.org']",
+            'qos_addenda': '+=viz',
+            'organization': 'ucb',
+            'project_id': 'ucb1'
         }
         self.assertDictContainsSubset(expected_content,res_content)
 
@@ -313,22 +313,22 @@ class ProjectEndpointTestCase(SafeTestCase):
                 '2016-04-01'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi2@pi.org']",
-                u'created_on': u'2016-04-01',
-                u'organization': u'ucb',
-                u'project_id': u'ucb2'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi2@pi.org']",
+                'created_on': '2016-04-01',
+                'organization': 'ucb',
+                'project_id': 'ucb2'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_proj_search(self):
@@ -337,22 +337,22 @@ class ProjectEndpointTestCase(SafeTestCase):
                 'pi2@pi.org'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'pi_emails': u"[u'pi2@pi.org']",
-                u'created_on': u'2016-04-01',
-                u'organization': u'ucb',
-                u'project_id': u'ucb2'
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'pi_emails': "['pi2@pi.org']",
+                'created_on': '2016-04-01',
+                'organization': 'ucb',
+                'project_id': 'ucb2'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
 # The test case covers the allocations API endpoint
@@ -380,21 +380,21 @@ class AllocationEndpointTestCase(SafeTestCase):
             qos_addenda='+=viz'
         )
         self.proj1 = Project.objects.create(**proj_dict)
-        self.proj1.created_on = datetime.datetime(2016,06,01)
+        self.proj1.created_on = datetime.datetime(2016,6,1)
         self.proj1.save()
         self.proj1.managers.add(self.ucb_auth_user)
         self.proj1.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
         del proj_dict['parent_account']
         proj_dict['project_id'] = 'ucb2'
         self.proj2 = Project.objects.create(**proj_dict)
-        self.proj2.created_on = datetime.datetime(2016,06,01)
+        self.proj2.created_on = datetime.datetime(2016,6,1)
         self.proj2.save()
         self.proj2.managers.add(self.ucb_auth_user)
         self.proj2.collaborators.add(self.ucb_auth_user,self.csu_auth_user)
 
-        sdate = datetime.datetime(2016,02,02)
+        sdate = datetime.datetime(2016,2,2)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
+        edate = datetime.datetime(2017,2,2)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
         alloc_dict = dict(
             project=self.proj1,
@@ -403,121 +403,121 @@ class AllocationEndpointTestCase(SafeTestCase):
             end_date=edate_tz
         )
         self.alloc1 = Allocation.objects.create(**alloc_dict)
-        self.alloc1.created_on = datetime.datetime(2016,06,01)
+        self.alloc1.created_on = datetime.datetime(2016,6,1)
         self.alloc1.save()
-        edate = datetime.datetime(2017,03,02)
+        edate = datetime.datetime(2017,3,2)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
         alloc_dict['end_date'] = edate_tz
         self.alloc2 = Allocation.objects.create(**alloc_dict)
-        self.alloc2.created_on = datetime.datetime(2016,04,01)
+        self.alloc2.created_on = datetime.datetime(2016,4,1)
         self.alloc2.save()
         alloc_dict['project'] = self.proj2
         self.alloc3 = Allocation.objects.create(**alloc_dict)
-        self.alloc3.created_on = datetime.datetime(2016,06,01)
+        self.alloc3.created_on = datetime.datetime(2016,6,1)
         self.alloc3.save()
 
         self.client.login(username=self.ucb_auth_user.username, password="password")
 
     def test_alloc_list(self):
         res = self.client.get('/api/allocations/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb1',
-                    u'parent_account': u'ucball'
+                'end_date': '2017-02-02',
+                'allocation_id': 'ucb1_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb1',
+                    'parent_account': 'ucball'
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             },
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb1_summit2',
-                u'created_on': u'2016-04-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb1',
-                    u'parent_account': u'ucball'
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb1_summit2',
+                'created_on': '2016-04-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb1',
+                    'parent_account': 'ucball'
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             },
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb2',
-                    u'parent_account': None
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb2_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb2',
+                    'parent_account': None
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_alloc_post(self):
         res = self.client.post('/api/allocations/')
-        self.assertEquals(res.status_code, 405)
+        self.assertEqual(res.status_code, 405)
 
     def test_alloc_detail(self):
         res = self.client.get('/api/allocations/ucb1_summit1/')
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         res_content = json.loads(res.content)
         expected_content = {
-            u'end_date': u'2017-02-02',
-            u'allocation_id': u'ucb1_summit1',
-            u'created_on': u'2016-06-01',
-            u'project': {
-                u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                u'managers': [u'testuser'],
-                u'description': u'A description.',
-                u'title': u'Test Project',
-                u'deactivated': False,
-                u'notes': None,
-                u'pi_emails': u"[u'pi@pi.org']",
-                u'created_on': u'2016-06-01',
-                u'qos_addenda': u'+=viz',
-                u'organization': u'ucb',
-                u'project_id': u'ucb1',
-                u'parent_account': u'ucball'
+            'end_date': '2017-02-02',
+            'allocation_id': 'ucb1_summit1',
+            'created_on': '2016-06-01',
+            'project': {
+                'collaborators': ['testuser','testuser@colostate.edu'],
+                'managers': ['testuser'],
+                'description': 'A description.',
+                'title': 'Test Project',
+                'deactivated': False,
+                'notes': None,
+                'pi_emails': "['pi@pi.org']",
+                'created_on': '2016-06-01',
+                'qos_addenda': '+=viz',
+                'organization': 'ucb',
+                'project_id': 'ucb1',
+                'parent_account': 'ucball'
             },
-            u'amount': 50000,
-            u'start_date': u'2016-02-02'
+            'amount': 50000,
+            'start_date': '2016-02-02'
         }
         self.assertDictContainsSubset(expected_content,res_content)
 
@@ -528,53 +528,53 @@ class AllocationEndpointTestCase(SafeTestCase):
                 '2016-06-01'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'end_date': u'2017-02-02',
-                u'allocation_id': u'ucb1_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb1',
-                    u'parent_account': u'ucball'
+                'end_date': '2017-02-02',
+                'allocation_id': 'ucb1_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb1',
+                    'parent_account': 'ucball'
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             },
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb2',
-                    u'parent_account': None
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb2_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb2',
+                    'parent_account': None
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])
 
     def test_alloc_search(self):
@@ -583,30 +583,30 @@ class AllocationEndpointTestCase(SafeTestCase):
                 'ucb2'
             )
         )
-        self.assertEquals(res.status_code, 200)
+        self.assertEqual(res.status_code, 200)
         expected_content = [
             {
-                u'end_date': u'2017-03-02',
-                u'allocation_id': u'ucb2_summit1',
-                u'created_on': u'2016-06-01',
-                u'project': {
-                    u'collaborators': [u'testuser',u'testuser@colostate.edu'],
-                    u'managers': [u'testuser'],
-                    u'description': u'A description.',
-                    u'title': u'Test Project',
-                    u'deactivated': False,
-                    u'notes': None,
-                    u'pi_emails': u"[u'pi@pi.org']",
-                    u'created_on': u'2016-06-01',
-                    u'qos_addenda': u'+=viz',
-                    u'organization': u'ucb',
-                    u'project_id': u'ucb2',
-                    u'parent_account': None
+                'end_date': '2017-03-02',
+                'allocation_id': 'ucb2_summit1',
+                'created_on': '2016-06-01',
+                'project': {
+                    'collaborators': ['testuser','testuser@colostate.edu'],
+                    'managers': ['testuser'],
+                    'description': 'A description.',
+                    'title': 'Test Project',
+                    'deactivated': False,
+                    'notes': None,
+                    'pi_emails': "['pi@pi.org']",
+                    'created_on': '2016-06-01',
+                    'qos_addenda': '+=viz',
+                    'organization': 'ucb',
+                    'project_id': 'ucb2',
+                    'parent_account': None
                 },
-                u'amount': 50000,
-                u'start_date': u'2016-02-02'
+                'amount': 50000,
+                'start_date': '2016-02-02'
             }
         ]
         res_content = json.loads(res.content)
-        for i in xrange(0,len(res_content)):
+        for i in range(0,len(res_content)):
             self.assertDictContainsSubset(expected_content[i],res_content[i])

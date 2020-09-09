@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 # Create your models here.
-ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in settings.ORGANIZATION_INFO.iteritems()])
+ORGANIZATIONS = tuple([(k,v['long_name']) for k,v in settings.ORGANIZATION_INFO.items()])
 
 REQUEST_ROLES = (
     ('undergraduate','Undergraduate',),
@@ -130,7 +130,12 @@ class AccountRequest(models.Model):
             account_request_approved.send(sender=self.__class__,account_request=self)
 
 class Intent(models.Model):
-    account_request = models.OneToOneField(AccountRequest,blank=True,null=True)
+    account_request = models.OneToOneField(
+            AccountRequest,
+            blank=True,
+            null=True,
+            on_delete=models.CASCADE
+            )
     reason_summit = models.BooleanField(default=False)
     reason_course = models.BooleanField(default=False)
     reason_petalibrary = models.BooleanField(default=False)
@@ -175,17 +180,17 @@ class LdapUser(ldapdb.models.Model):
     class Meta:
         managed = False
 
-    rdn_keys = [u'username']
+    rdn_keys = ['username']
 
     # inetOrgPerson
-    first_name = ldap_fields.CharField(db_column=u'givenName')
-    last_name = ldap_fields.CharField(db_column=u'sn')
-    full_name = ldap_fields.CharField(db_column=u'cn')
-    email = ldap_fields.CharField(db_column=u'mail')
+    first_name = ldap_fields.CharField(db_column='givenName')
+    last_name = ldap_fields.CharField(db_column='sn')
+    full_name = ldap_fields.CharField(db_column='cn')
+    email = ldap_fields.CharField(db_column='mail')
     # posixAccount
-    username = ldap_fields.CharField(db_column=u'uid')
+    username = ldap_fields.CharField(db_column='uid')
     # ldap specific
-    modified_date = ldap_fields.DateTimeField(db_column=u'modifytimestamp',blank=True)
+    modified_date = ldap_fields.DateTimeField(db_column='modifytimestamp',blank=True)
 
     def __str__(self):
         return self.username
@@ -290,34 +295,34 @@ class RcLdapUserManager(models.Manager):
 
 class RcLdapUser(LdapUser):
     class Meta:
-        verbose_name = u'LDAP user'
-        verbose_name_plural = u'LDAP users'
+        verbose_name = 'LDAP user'
+        verbose_name_plural = 'LDAP users'
         managed = False
 
     def __init__(self,*args,**kwargs):
         super(RcLdapUser,self).__init__(*args,**kwargs)
         rdn = self.dn.lower().replace(self.base_dn.lower(), '')
-        rdn_list = rdn.split(u',')
-        self.org = u''
+        rdn_list = rdn.split(',')
+        self.org = ''
         if len(rdn_list) > 1:
-            ou = self.base_dn.lower().split(u',')[0]
-            __, org = ou.split(u'=')
+            ou = self.base_dn.lower().split(',')[0]
+            __, org = ou.split('=')
             self.org = org
             self.base_dn = self.base_dn.lower()
 
     objects = RcLdapUserManager()
 
-    base_dn = unicode(settings.LDAPCONFS['rcldap']['people_dn'])
-    object_classes = map(unicode, ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount'])
-    expires = ldap_fields.IntegerField(db_column=u'shadowExpire',blank=True,null=True)
-    uid = ldap_fields.IntegerField(db_column=u'uidNumber',null=True,blank=True)
-    gid = ldap_fields.IntegerField(db_column=u'gidNumber',null=True,blank=True)
-    gecos = ldap_fields.CharField(db_column=u'gecos',default='')
-    home_directory = ldap_fields.CharField(db_column=u'homeDirectory')
-    login_shell = ldap_fields.CharField(db_column=u'loginShell', default=u'/bin/bash')
+    base_dn = str(settings.LDAPCONFS['rcldap']['people_dn'])
+    object_classes = list(map(str, ['top','person','inetorgperson','posixaccount','curcPerson','shadowAccount']))
+    expires = ldap_fields.IntegerField(db_column='shadowExpire',blank=True,null=True)
+    uid = ldap_fields.IntegerField(db_column='uidNumber',null=True,blank=True)
+    gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
+    gecos = ldap_fields.CharField(db_column='gecos',default='')
+    home_directory = ldap_fields.CharField(db_column='homeDirectory')
+    login_shell = ldap_fields.CharField(db_column='loginShell', default='/bin/bash')
     #curcPerson attributes
-    role = ldap_fields.ListField(db_column=u'curcRole',blank=True,null=True)
-    affiliation = ldap_fields.ListField(db_column=u'curcAffiliation',blank=True,null=True)
+    role = ldap_fields.ListField(db_column='curcRole',blank=True,null=True)
+    affiliation = ldap_fields.ListField(db_column='curcAffiliation',blank=True,null=True)
 
     @property
     def organization(self):
@@ -329,16 +334,16 @@ class RcLdapUser(LdapUser):
         return suffixed_username
 
     def _set_base_dn(self,org):
-        if org in map(unicode, settings.ORGANIZATION_INFO.keys()):
-            ou = u'ou={}'.format(org)
+        if org in list(map(str, list(settings.ORGANIZATION_INFO.keys()))):
+            ou = 'ou={}'.format(org)
             self.org = org
             if ou not in self.base_dn.lower():
-                self.base_dn = u','.join([ou,self.base_dn])
+                self.base_dn = ','.join([ou,self.base_dn])
         else:
             raise ValueError('Invalid organization specified: {}'.format(org))
 
     def save(self,*args,**kwargs):
-        org = unicode(kwargs.pop('organization', None))
+        org = str(kwargs.pop('organization', None))
         if not org:
             raise ValueError('No organization specified.')
         self._set_base_dn(org)
@@ -362,12 +367,12 @@ class CuLdapUser(LdapUser):
 
     base_dn = settings.LDAPCONFS['culdap']['people_dn']
     object_classes = []
-    uid = ldap_fields.IntegerField(db_column=u'uidNumber', unique=True)
+    uid = ldap_fields.IntegerField(db_column='uidNumber', unique=True)
     # Used for automatic determination of role and affiliation.
-    edu_affiliation = ldap_fields.ListField(db_column=u'eduPersonAffiliation')
-    edu_primary_affiliation = ldap_fields.CharField(db_column=u'eduPersonPrimaryAffiliation')
-    cu_primary_major = ldap_fields.CharField(db_column=u'cuEduPersonPrimaryMajor1')
-    cu_home_department = ldap_fields.CharField(db_column=u'cuEduPersonHomeDepartment')
+    edu_affiliation = ldap_fields.ListField(db_column='eduPersonAffiliation')
+    edu_primary_affiliation = ldap_fields.CharField(db_column='eduPersonPrimaryAffiliation')
+    cu_primary_major = ldap_fields.CharField(db_column='cuEduPersonPrimaryMajor1')
+    cu_home_department = ldap_fields.CharField(db_column='cuEduPersonHomeDepartment')
 
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
@@ -387,8 +392,8 @@ class CsuLdapUser(LdapUser):
         authed = p.authenticate(self.username, pwd, service=settings.PAM_SERVICES['csu'])
         return authed
 # Monkey-patch LDAP attr names in field bindings
-CsuLdapUser._meta.get_field('username').db_column = u'sAMAccountName'
-CsuLdapUser._meta.get_field('username').column = u'sAMAccountName'
+CsuLdapUser._meta.get_field('username').db_column = 'sAMAccountName'
+CsuLdapUser._meta.get_field('username').column = 'sAMAccountName'
 
 class RcLdapGroupManager(models.Manager):
     def create(self,*args,**kwargs):
@@ -407,12 +412,12 @@ class RcLdapGroup(ldapdb.models.Model):
     def __init__(self,*args,**kwargs):
         super(RcLdapGroup,self).__init__(*args,**kwargs)
 
-        rdn = self.dn.lower().replace(self.base_dn.lower(), u'')
-        rdn_list = rdn.split(u',')
-        self.org = u''
+        rdn = self.dn.lower().replace(self.base_dn.lower(), '')
+        rdn_list = rdn.split(',')
+        self.org = ''
         if len(rdn_list) > 1:
-            ou = self.base_dn.lower().split(u',')[0]
-            __, org = ou.split(u'=')
+            ou = self.base_dn.lower().split(',')[0]
+            __, org = ou.split('=')
             self.org = org
             self.base_dn = self.base_dn.lower()
 
@@ -423,9 +428,9 @@ class RcLdapGroup(ldapdb.models.Model):
     object_classes = ['top','posixGroup']
     # posixGroup attributes
     # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
-    gid = ldap_fields.IntegerField(db_column=u'gidNumber',null=True,blank=True)
-    name = ldap_fields.CharField(db_column=u'cn', max_length=200)
-    members = ldap_fields.ListField(db_column=u'memberUid',blank=True,null=True)
+    gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
+    name = ldap_fields.CharField(db_column='cn', max_length=200)
+    members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
     def __str__(self):
         return self.name
@@ -443,7 +448,7 @@ class RcLdapGroup(ldapdb.models.Model):
         return suffixed_name
 
     def _set_base_dn(self,org):
-        if org in settings.ORGANIZATION_INFO.keys():
+        if org in list(settings.ORGANIZATION_INFO.keys()):
             ou = 'ou={}'.format(org)
             self.org = org
             if ou not in self.base_dn.lower():

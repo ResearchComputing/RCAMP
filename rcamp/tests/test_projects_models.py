@@ -60,9 +60,9 @@ class AllocationTestCase(SafeTestCase):
         }
         proj = Project.objects.create(**proj_dict)
 
-        sdate = datetime.datetime(2016,02,02)
+        sdate = datetime.datetime(2016,2,2)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
+        edate = datetime.datetime(2017,2,2)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
 
         alloc_dict = {
@@ -93,9 +93,9 @@ class AllocationTestCase(SafeTestCase):
         proj2_dict['project_id'] = 'ucb78'
         proj2 = Project.objects.create(**proj2_dict)
 
-        sdate = datetime.datetime(2016,02,02)
+        sdate = datetime.datetime(2016,2,2)
         sdate_tz = pytz.timezone('America/Denver').localize(sdate)
-        edate = datetime.datetime(2017,02,02)
+        edate = datetime.datetime(2017,2,2)
         edate_tz = pytz.timezone('America/Denver').localize(edate)
 
         alloc_dict = {
@@ -131,8 +131,8 @@ class AllocationCreateTestCase(SafeTestCase):
     def test_create_allocation_from_request(self):
         alloc = Allocation.objects.create_allocation_from_request(**self.ar_dict)
 
-        self.assertEquals(alloc.project,self.proj)
-        self.assertEquals(alloc.amount,self.ar_dict['amount_awarded'])
+        self.assertEqual(alloc.project,self.proj)
+        self.assertEqual(alloc.amount,self.ar_dict['amount_awarded'])
         self.assertIsNotNone(alloc.start_date)
         self.assertIsNotNone(alloc.end_date)
 
@@ -143,11 +143,11 @@ class AllocationCreateTestCase(SafeTestCase):
         Allocation.objects.create_allocation_from_request(**self.ar_dict)
         alloc = Allocation.objects.create_allocation_from_request(**self.ar_dict)
 
-        self.assertEquals(alloc.project,self.proj)
-        self.assertEquals(alloc.amount,self.ar_dict['amount_awarded'])
+        self.assertEqual(alloc.project,self.proj)
+        self.assertEqual(alloc.amount,self.ar_dict['amount_awarded'])
         self.assertIsNotNone(alloc.start_date)
         self.assertIsNotNone(alloc.end_date)
-        self.assertEquals(alloc.allocation_id, 'ucb1_summit4')
+        self.assertEqual(alloc.allocation_id, 'ucb1_summit4')
 
     def test_create_allocation_from_request_missing_fields(self):
         tmp_dict = copy.deepcopy(self.ar_dict)
@@ -196,17 +196,17 @@ class AllocationRequestTestCase(SafeTestCase):
 
     def test_update_allocation_request(self):
         ar = AllocationRequest.objects.get(project=self.proj)
-        self.assertEquals(ar.status,'w')
+        self.assertEqual(ar.status,'w')
         ar.status = 'w'
         ar.save()
-        self.assertEquals(ar.status,'w')
+        self.assertEqual(ar.status,'w')
         self.assertIsNone(ar.approved_on)
 
     def test_approve_allocation_request(self):
         ar = AllocationRequest.objects.get(project=self.proj)
-        self.assertEquals(ar.status,'w')
+        self.assertEqual(ar.status,'w')
         ar.status = 'a'
         ar.save()
-        self.assertEquals(ar.status,'a')
+        self.assertEqual(ar.status,'a')
         self.assertIsNotNone(ar.approved_on)
         self.assertIsNotNone(ar.allocation)
