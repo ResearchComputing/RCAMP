@@ -11,7 +11,7 @@ UWSGI_CONFIG=/opt/uwsgi.ini
 : ${UWSGI_GID:?"You must set UWSGI_GID to identify the group to run RCAMP."}
 
 # Collect static, and set permissions of shared volumes.
-RCAMP_DEBUG=True bash -c 'python manage.py collectstatic --noinput'
+RCAMP_DEBUG=True bash -c 'python3 manage.py collectstatic --noinput'
 chown -R $UWSGI_UID:$UWSGI_GID $STATIC_DIR
 chown -R $UWSGI_UID:$UWSGI_GID $MEDIA_DIR
 chown -R $UWSGI_UID:$UWSGI_GID $LOG_DIR
