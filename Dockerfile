@@ -37,6 +37,7 @@ ADD requirements.txt /opt/
 RUN pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
 
+RUN pwd
 RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
 WORKDIR django-ldapdb-test-env
 RUN python3 setup.py install
