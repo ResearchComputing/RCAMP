@@ -34,7 +34,7 @@ class Project(models.Model):
     qos_addenda = models.CharField(max_length=128,null=True,blank=True)
     deactivated = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.project_id
 
     def save(self,*args,**kwargs):
@@ -65,7 +65,7 @@ class Reference(models.Model):
     link = models.TextField()
     created_on = models.DateField(auto_now_add=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}_{}'.format((self.project.project_id,str(self.created_on)))
 
 class AllocationManager(models.Manager):
@@ -102,7 +102,7 @@ class Allocation(models.Model):
     end_date = models.DateField()
     expiration_notice_sent = models.BooleanField(default=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.allocation_id
 
     def save(self,*args,**kwargs):
@@ -172,14 +172,14 @@ class AllocationRequest(models.Model):
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField(null=True,blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '{}_{}'.format(self.project.project_id,self.request_date)
 
     def save(self,*args,**kwargs):
         # Check for change in approval status
         if (self.status in ['a','f','p']) and (not self.approved_on):
             # Approval process
-            # logger.info('Approving project request: '+self.__unicode__())
+            # logger.info('Approving project request: '+self.__str__())
             alloc = Allocation.objects.create_allocation_from_request(
                 project = self.project,
                 amount_awarded = self.amount_awarded

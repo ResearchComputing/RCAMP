@@ -91,7 +91,7 @@ class AccountRequest(models.Model):
     sponsor_email = models.EmailField(blank=True,null=True)
     course_number = models.CharField(max_length=128,blank=True,null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s_%s'%(self.username,self.request_date)
 
     def save(self,*args,**kwargs):
@@ -157,7 +157,7 @@ class IdTracker(models.Model):
     max_id = models.IntegerField(blank=False,null=False)
     next_id = models.IntegerField(blank=True,null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.category
 
     def get_next_id(self):
@@ -195,7 +195,7 @@ class LdapUser(ldapdb.models.Model):
     def __str__(self):
         return self.username
 
-    def __unicode__(self):
+    def __str__(self):
         return self.full_name
 
     def save(self,*args,**kwargs):
@@ -435,7 +435,7 @@ class RcLdapGroup(ldapdb.models.Model):
     def __str__(self):
         return self.name
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
