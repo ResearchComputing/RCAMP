@@ -4,7 +4,7 @@ from django.template import RequestContext
 from django.shortcuts import redirect
 
 
-def handler404(request):
+def handler404(request, exception=None):
     return render(request, '404.html', {}, status=404)
 
 
