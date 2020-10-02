@@ -12,7 +12,7 @@ def handler500(request):
     return render(request, '500.html', {}, status=500)
 
 def index_view(request):
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         return redirect('projects:project-list')
 
     return render(request, 'index.html', {})
