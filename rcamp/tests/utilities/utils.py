@@ -77,6 +77,8 @@ class SafeTestCase(TestCase):
     IMPORTANT: Every unit or integration test should inherit from this class. For functional tests
     user tests.utilities.functional.SafeStaticLiveServerTestCase instead.
     """
+    databases = frozenset({'default', 'culdap', 'csuldap', 'rcldap'})
+
     @classmethod
     def setUpClass(cls):
         assert_test_env()

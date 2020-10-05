@@ -1,10 +1,10 @@
-FROM centos:7
+FROM centos:8
 MAINTAINER Aaron Holt <aaron.holt@colorado.edu>
 
 # Install gosu to drop user and chown shared volumes at runtime
 RUN export GOSU_VERSION=1.10 && \
-    yum -y install epel-release && \
-  	yum -y install wget dpkg && \
+    dnf -y install epel-release && \
+  	dnf -y install wget dpkg && \
   	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
   	wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
   	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
@@ -14,20 +14,20 @@ RUN export GOSU_VERSION=1.10 && \
   	rm -r "$GNUPGHOME" /tmp/gosu.asc && \
   	chmod +x /usr/bin/gosu; \
   	gosu nobody true && \
-  	yum -y remove wget dpkg && \
-  	yum clean all && \
+  	dnf -y remove wget dpkg && \
+  	dnf clean all && \
     unset GOSU_VERSION
 
 WORKDIR /opt
 
 # Install core dependencies
-RUN yum -y update && \
-    yum makecache fast && \
-    yum -y groupinstall "Development Tools" && \
-    yum -y install epel-release curl which wget && \
-    yum -y install sssd pam-devel openssl-devel pam_radius && \
-    yum -y install python3 python3-devel python3-pip && \
-    yum -y install openldap-devel mysql-devel
+RUN dnf -y update && \
+    dnf -y groupinstall "Development Tools" && \
+    dnf -y install epel-release curl which wget && \
+    dnf -y install sssd pam-devel openssl-devel pam_radius && \
+    dnf -y install python3 python3-devel python3-pip && \
+    dnf -y install openldap-devel mysql-devel sqlite
+RUN dnf clean all
 
 ENV VIRTUAL_ENV=/opt/rcamp_venv
 RUN python3 -m venv $VIRTUAL_ENV
@@ -37,7 +37,6 @@ ADD requirements.txt /opt/
 RUN pip3 install --upgrade pip && \
     pip3 install -r requirements.txt
 
-RUN pwd
 RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
 WORKDIR django-ldapdb-test-env
 RUN python3 setup.py install
