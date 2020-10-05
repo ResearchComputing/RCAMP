@@ -9,7 +9,8 @@ import socket
 import mailer.signals
 
 
-MODULE_EXCLUDES = ['__builtins__', '__doc__', '__file__', '__name__', '__package__','django']
+MODULE_EXCLUDES = ['__builtins__', '__cached__', '__doc__', '__file__', '__loader__',
+                        '__name__', '__package__', '__spec__', 'django']
 EVENT_CHOICES = tuple((s,s) for s in dir(mailer.signals) if s not in MODULE_EXCLUDES)
 
 class MailNotifier(models.Model):
@@ -104,7 +105,7 @@ class MailNotifier(models.Model):
 
         return t.render(c)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 class MailLog(models.Model):
@@ -114,5 +115,5 @@ class MailLog(models.Model):
     reference_name = models.CharField(max_length=256)
     email_object=models.TextField()
 
-    def __unicode__(self):
+    def __str__(self):
         return str(time.strftime(self.reference_name + '_%Y/%m/%d/%H:%M:%S'))

@@ -63,16 +63,16 @@ class AccountRequestVerifyUcbViewTestCase(LdapTestCase):
                 )
             session_ar_data = self.client.session['account_request_data']
 
-            self.assertEquals(response.status_code, 302)
+            self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/create/intent'))
-            self.assertEquals(session_ar_data['organization'],'ucb')
+            self.assertEqual(session_ar_data['organization'],'ucb')
             self.assertFalse('status' in session_ar_data)
-            self.assertEquals(session_ar_data['email'],'testuser@colorado.edu')
-            self.assertEquals(session_ar_data['role'],'faculty')
-            self.assertEquals(session_ar_data['department'],'physics')
-            self.assertEquals(session_ar_data['first_name'],'Test')
-            self.assertEquals(session_ar_data['last_name'],'User')
-            self.assertEquals(session_ar_data['username'],'testuser')
+            self.assertEqual(session_ar_data['email'],'testuser@colorado.edu')
+            self.assertEqual(session_ar_data['role'],'faculty')
+            self.assertEqual(session_ar_data['department'],'physics')
+            self.assertEqual(session_ar_data['first_name'],'Test')
+            self.assertEqual(session_ar_data['last_name'],'User')
+            self.assertEqual(session_ar_data['username'],'testuser')
 
     def test_request_verify_autoapprove(self):
         mock_cu_user_defaults = get_org_user_defaults()
@@ -88,10 +88,10 @@ class AccountRequestVerifyUcbViewTestCase(LdapTestCase):
                 )
             session_ar_data = self.client.session['account_request_data']
 
-            self.assertEquals(response.status_code, 302)
+            self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/create/intent'))
-            self.assertEquals(session_ar_data['organization'],'ucb')
-            self.assertEquals(session_ar_data['status'],'a')
+            self.assertEqual(session_ar_data['organization'],'ucb')
+            self.assertEqual(session_ar_data['status'],'a')
 
     def test_request_verify_invalid_creds(self):
         mock_cu_user_defaults = get_org_user_defaults()
@@ -105,9 +105,9 @@ class AccountRequestVerifyUcbViewTestCase(LdapTestCase):
                     data=account_request_verify_defaults
                 )
 
-            self.assertEquals(
+            self.assertEqual(
                     response.context['form'].errors['__all__'],
-                    [u'Invalid username']
+                    ['Invalid username']
                 )
             self.assertRaises(
                     AccountRequest.DoesNotExist,
@@ -122,9 +122,9 @@ class AccountRequestVerifyUcbViewTestCase(LdapTestCase):
                     data=account_request_verify_defaults
                 )
 
-            self.assertEquals(
+            self.assertEqual(
                     response.context['form'].errors['__all__'],
-                    [u'Invalid password']
+                    ['Invalid password']
                 )
             self.assertRaises(
                     AccountRequest.DoesNotExist,
@@ -147,10 +147,10 @@ class AccountRequestVerifyCsuViewTestCase(LdapTestCase):
                 )
             session_ar_data = self.client.session['account_request_data']
 
-            self.assertEquals(response.status_code, 302)
+            self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/create/intent'))
-            self.assertEquals(session_ar_data['organization'],'csu')
-            self.assertEquals(session_ar_data['status'],'a')
+            self.assertEqual(session_ar_data['organization'],'csu')
+            self.assertEqual(session_ar_data['status'],'a')
 
     def test_request_verify_invalid_creds(self):
         mock_csu_user_defaults = get_org_user_defaults()
@@ -164,9 +164,9 @@ class AccountRequestVerifyCsuViewTestCase(LdapTestCase):
                     data=account_request_verify_defaults
                 )
 
-            self.assertEquals(
+            self.assertEqual(
                     response.context['form'].errors['__all__'],
-                    [u'Invalid username']
+                    ['Invalid username']
                 )
             self.assertRaises(
                     AccountRequest.DoesNotExist,
@@ -181,9 +181,9 @@ class AccountRequestVerifyCsuViewTestCase(LdapTestCase):
                     data=account_request_verify_defaults
                 )
 
-            self.assertEquals(
+            self.assertEqual(
                     response.context['form'].errors['__all__'],
-                    [u'Invalid password']
+                    ['Invalid password']
                 )
             self.assertRaises(
                     AccountRequest.DoesNotExist,
@@ -236,30 +236,30 @@ class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
                 data = intent_request_data
             )
 
-            self.assertEquals(response.status_code, 302)
+            self.assertEqual(response.status_code, 302)
             self.assertTrue(response.url.endswith('/accounts/account-request/review'))
 
             account_request = AccountRequest.objects.get(username='testuser')
             account_request_received_mock.assert_called_with(sender=account_request.__class__,instance=account_request)
 
-            self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
-            self.assertEquals(account_request.organization,'ucb')
-            self.assertEquals(account_request.username,'testuser')
-            self.assertEquals(account_request.email,'testuser@colorado.edu')
-            self.assertEquals(account_request.first_name,'Test')
-            self.assertEquals(account_request.last_name,'User')
-            self.assertEquals(account_request.role,'faculty')
-            self.assertEquals(account_request.department,'physics')
+            self.assertEqual(self.client.session['account_request_data']['id'],account_request.id)
+            self.assertEqual(account_request.organization,'ucb')
+            self.assertEqual(account_request.username,'testuser')
+            self.assertEqual(account_request.email,'testuser@colorado.edu')
+            self.assertEqual(account_request.first_name,'Test')
+            self.assertEqual(account_request.last_name,'User')
+            self.assertEqual(account_request.role,'faculty')
+            self.assertEqual(account_request.department,'physics')
             # This should be the case, as no override status was set on session
-            self.assertEquals(account_request.status,'p')
+            self.assertEqual(account_request.status,'p')
 
             intent = Intent.objects.get(account_request=account_request)
             self.assertTrue(intent.reason_summit)
             self.assertFalse(intent.reason_course)
             self.assertFalse(intent.reason_petalibrary)
             self.assertFalse(intent.reason_blanca)
-            self.assertEquals(intent.summit_description,'Description of work.')
-            self.assertEquals(intent.summit_funding,'NSF Grant 1234')
+            self.assertEqual(intent.summit_description,'Description of work.')
+            self.assertEqual(intent.summit_funding,'NSF Grant 1234')
 
     def test_request_submit_intent_multi(self):
         account_request_data = get_account_request_session_defaults()
@@ -281,21 +281,21 @@ class AccountRequestIntentViewTestCase(LdapTestCase,SessionEnabledTestMixin):
             '/accounts/account-request/create/intent',
             data = intent_request_data
         )
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertTrue(response.url.endswith('/accounts/account-request/review'))
 
         account_request = AccountRequest.objects.get(username='testuser')
-        self.assertEquals(self.client.session['account_request_data']['id'],account_request.id)
+        self.assertEqual(self.client.session['account_request_data']['id'],account_request.id)
 
         intent = Intent.objects.get(account_request=account_request)
         self.assertTrue(intent.reason_summit)
         self.assertTrue(intent.reason_course)
         self.assertTrue(intent.reason_petalibrary)
         self.assertFalse(intent.reason_blanca)
-        self.assertEquals(intent.summit_description,'Description of work.')
-        self.assertEquals(intent.summit_funding,'NSF Grant 1234')
-        self.assertEquals(intent.course_instructor_email,'instructor@colorado.edu')
-        self.assertEquals(intent.course_number,'PHYS1000')
+        self.assertEqual(intent.summit_description,'Description of work.')
+        self.assertEqual(intent.summit_funding,'NSF Grant 1234')
+        self.assertEqual(intent.course_instructor_email,'instructor@colorado.edu')
+        self.assertEqual(intent.course_number,'PHYS1000')
 
 
 class AccountRequestReviewViewTestCase(SafeTestCase,SessionEnabledTestMixin):
@@ -309,10 +309,10 @@ class AccountRequestReviewViewTestCase(SafeTestCase,SessionEnabledTestMixin):
         session.save()
 
         response = self.client.get('/accounts/account-request/review')
-        self.assertEquals(response.status_code,200)
+        self.assertEqual(response.status_code,200)
 
-        self.assertEquals(response.context['account_request'],account_request)
+        self.assertEqual(response.context['account_request'],account_request)
 
     def test_request_review_no_data(self):
         response = self.client.get('/accounts/account-request/review')
-        self.assertEquals(response.status_code,404)
+        self.assertEqual(response.status_code,404)

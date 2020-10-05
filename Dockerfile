@@ -26,16 +26,21 @@ RUN yum -y update && \
     yum -y groupinstall "Development Tools" && \
     yum -y install epel-release curl which wget && \
     yum -y install sssd pam-devel openssl-devel pam_radius && \
-    yum -y install python-devel python2-pip && \
-    yum -y install openldap-devel MySQL-python
+    yum -y install python3 python3-devel python3-pip && \
+    yum -y install openldap-devel mysql-devel
+
+ENV VIRTUAL_ENV=/opt/rcamp_venv
+RUN python3 -m venv $VIRTUAL_ENV
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 ADD requirements.txt /opt/
-RUN pip2 install --upgrade pip && \
-    pip2 install -r requirements.txt
+RUN pip3 install --upgrade pip && \
+    pip3 install -r requirements.txt
 
-RUN git clone https://github.com/ResearchComputing/django-ldapdb-test-env
+RUN pwd
+RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
 WORKDIR django-ldapdb-test-env
-RUN python2 setup.py install
+RUN python3 setup.py install
 WORKDIR /opt
 
 # Add uwsgi conf
@@ -48,4 +53,4 @@ WORKDIR /opt/rcamp
 # Set gosu entrypoint and default command
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
-CMD ["/usr/bin/uwsgi", "/opt/uwsgi.ini"]
+CMD ["/opt/rcamp_venv/bin/uwsgi", "/opt/uwsgi.ini"]
