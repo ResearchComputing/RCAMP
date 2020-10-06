@@ -1,10 +1,11 @@
 FROM centos:8
 MAINTAINER Aaron Holt <aaron.holt@colorado.edu>
 
+RUN dnf -y install epel-release && \
+    dnf -y install wget dpkg
+
 # Install gosu to drop user and chown shared volumes at runtime
 RUN export GOSU_VERSION=1.10 && \
-    dnf -y install epel-release && \
-  	dnf -y install wget dpkg && \
   	dpkgArch="$(dpkg --print-architecture | awk -F- '{ print $NF }')" && \
   	wget -O /usr/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch" && \
   	wget -O /tmp/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$dpkgArch.asc" && \
@@ -14,9 +15,10 @@ RUN export GOSU_VERSION=1.10 && \
   	rm -r "$GNUPGHOME" /tmp/gosu.asc && \
   	chmod +x /usr/bin/gosu; \
   	gosu nobody true && \
-  	dnf -y remove wget dpkg && \
-  	dnf clean all && \
     unset GOSU_VERSION
+
+RUN dnf -y remove wget dpkg && \
+    dnf clean all
 
 WORKDIR /opt
 
