@@ -12,15 +12,12 @@ RUN export GOSU_VERSION=1.10 && \
   	export GNUPGHOME="$(mktemp -d)" && \
   	gpg --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 && \
   	gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu && \
-  	rm -r "$GNUPGHOME" /tmp/gosu.asc && \
+    echo "$GNUPGHOME" && \
+    ls -la "$GNUPGHOME" && \
+  	rm -rf "$GNUPGHOME" /tmp/gosu.asc && \
   	chmod +x /usr/bin/gosu; \
   	gosu nobody true && \
     unset GOSU_VERSION
-
-RUN dnf -y remove wget dpkg && \
-    dnf clean all
-
-WORKDIR /opt
 
 # Install core dependencies
 RUN dnf -y update && \
@@ -29,8 +26,12 @@ RUN dnf -y update && \
     dnf -y install sssd pam-devel openssl-devel pam_radius && \
     dnf -y install python3 python3-devel python3-pip && \
     dnf -y install openldap-devel mysql-devel sqlite
-RUN dnf clean all
 
+# Remove uneeded extras
+RUN dnf -y remove wget dpkg && \
+    dnf clean all
+
+WORKDIR /opt
 ENV VIRTUAL_ENV=/opt/rcamp_venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
