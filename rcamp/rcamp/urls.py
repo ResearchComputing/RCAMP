@@ -33,8 +33,8 @@ handler500 = 'lib.views.handler500'
 urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     url(r'^$', index_view, name='index'),
-    url(r'^login', auth_views.LoginView, {'template_name':'login.html'}),
-    url(r'^logout', auth_views.LogoutView, {'template_name':'logout.html'}),
+    url(r'^login', auth_views.LoginView.as_view(), {'template_name':'login.html'}),
+    url(r'^logout', auth_views.LogoutView.as_view(), {'template_name':'logout.html'}),
     url(r'^admin/', admin.site.urls),
     url(r'^api/', include('endpoints.urls')),
     url(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
