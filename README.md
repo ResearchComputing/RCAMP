@@ -23,6 +23,16 @@ Start by cloning RCAMP.
 $ git clone https://github.com/ResearchComputing/RCAMP
 $ cd RCAMP
 ```
+Set UWSGI_UID and UWSGI_GID. These are used to match the UID and GID inside and outside of the container, preventing a rebuild every time you need to make changes. 
+```
+$ id -u $USER
+1000
+$ export UWSGI_UID=1000
+
+$ id -g $USER
+1000
+$ export UWSGI_GID=1000
+```
 
 Build your dev environment and then start it using Compose.
 ```
@@ -37,7 +47,7 @@ $ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py createsup
 ```
 
 ## Writing and Running Tests
-Documentation on use and installation of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
+Documentation on use of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
 
 ```
 $ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py test
