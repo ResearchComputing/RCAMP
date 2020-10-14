@@ -45,6 +45,7 @@ Finish by migrating the DB and adding a superuser to the RCAMP app. You'll need 
 $ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py migrate
 $ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py createsuperuser
 ```
+The name, password, and email needed by the createsuperuser script can be whatever you like. You should now be able to view the webpage at localhost:8000.
 
 ## Writing and Running Tests
 Documentation on use of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
