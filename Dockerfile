@@ -23,7 +23,7 @@ RUN dnf -y update && \
     dnf -y install epel-release curl which wget && \
     dnf -y install sssd pam-devel openssl-devel pam_radius && \
     dnf -y install python3 python3-devel python3-pip && \
-    dnf -y install openldap-devel mysql-devel sqlite
+    dnf -y install openldap-devel mysql-devel pcre-devel sqlite
 
 # Remove uneeded extras
 RUN dnf -y remove wget dpkg && \
@@ -34,12 +34,13 @@ ENV VIRTUAL_ENV=/opt/rcamp_venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-ADD requirements.txt /opt/
+COPY requirements.txt /opt/
 RUN pip3 install --upgrade pip && \
+    pip3 install wheel && \
     pip3 install -r requirements.txt
 
 RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
-WORKDIR django-ldapdb-test-env
+WORKDIR /opt/django-ldapdb-test-env
 RUN python3 setup.py install
 WORKDIR /opt
 
