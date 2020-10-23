@@ -35,7 +35,7 @@ LOGGING = {
     },
     'formatters': {
         'verbose': {
-            'format': 'rcamp: {module} {levelname} {asctime}: {message}',
+            'format': 'RCAMP: {module} {levelname} {asctime}: {message}',
             'style': '{',
         }
     },
