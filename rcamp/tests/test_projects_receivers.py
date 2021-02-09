@@ -66,7 +66,7 @@ class GeneralEligibilityReceiverTestCase(SafeTestCase):
         project = Project.objects.get()
         self.assertIn(auth_user,project.collaborators.all())
 
-        # No Summit intention declared
+        # No Summit intention declared, now add to 'general' account anyway
         project.collaborators.clear()
         intent.reason_summit = False
         intent.save()
@@ -74,7 +74,7 @@ class GeneralEligibilityReceiverTestCase(SafeTestCase):
         check_general_eligibility(account_request.__class__,account_request=account_request)
 
         project = Project.objects.get()
-        self.assertNotIn(auth_user,project.collaborators.all())
+        self.assertIn(auth_user,project.collaborators.all())
 
     def test_check_general_eligibility_suffixed(self):
         user_defaults = get_ldap_user_defaults()
@@ -133,5 +133,5 @@ class GeneralEligibilityReceiverTestCase(SafeTestCase):
             organization='ucb'
         )
         account_request = AccountRequest.objects.create(**account_request_defaults)
-        
+
         check_general_eligibility(account_request.__class__,account_request=account_request)
