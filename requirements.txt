@@ -3,6 +3,7 @@ django-crispy-forms==1.8.1
 django-easy-pjax==1.2.0
 django-filter==2.2.0
 django-grappelli==2.13.4
+django-auth-ldap==2.3.0
 django-material==1.7.1
 djangorestframework==3.10.3
 funcparserlib==0.3.6
