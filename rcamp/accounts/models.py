@@ -10,6 +10,11 @@ import logging
 import datetime
 import pam
 
+from lib.ldap_backend import (
+    AUTH_CSU_LDAP_Backend,
+    AUTH_RC_LDAP_Backend
+)
+
 from mailer.signals import (
     account_created_from_request,
     account_request_approved
@@ -376,7 +381,7 @@ class CuLdapUser(LdapUser):
 
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
-        authed = ldap_utils.authenticate(self.dn,pwd,'culdap')
+        authed = ldap_utils.authenticate(self.dn, pwd, 'culdap')
         return authed
 
 class CsuLdapUser(LdapUser):
@@ -388,9 +393,9 @@ class CsuLdapUser(LdapUser):
 
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
-        p = pam.pam()
-        authed = p.authenticate(self.username, pwd, service=settings.PAM_SERVICES['csu'])
+        authed = AUTH_CSU_LDAP_Backend.authenticate(self.username, pwd)
         return authed
+
 # Monkey-patch LDAP attr names in field bindings
 CsuLdapUser._meta.get_field('username').db_column = 'sAMAccountName'
 CsuLdapUser._meta.get_field('username').column = 'sAMAccountName'
