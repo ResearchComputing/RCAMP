@@ -33,8 +33,12 @@ services:
       - database:/var/lib/mysql
 
   ldap:
-    image: researchcomputing/rc-test-ldap
+    image: researchcomputing/curc-test-ldap
     container_name: ldap
+
+  csu_ldap:
+    image: researchcomputing/csu-test-ldap
+    container_name: csu_ldap
 
 volumes:
   static-content:
