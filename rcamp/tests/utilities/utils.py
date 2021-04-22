@@ -3,6 +3,7 @@ import unittest
 import importlib
 import datetime
 import pytz
+import logging
 
 from django.test import TestCase
 from django.conf import settings
@@ -77,6 +78,9 @@ class SafeTestCase(TestCase):
     IMPORTANT: Every unit or integration test should inherit from this class. For functional tests
     user tests.utilities.functional.SafeStaticLiveServerTestCase instead.
     """
+
+    logging.disable(logging.CRITICAL)
+
     databases = frozenset({'default', 'culdap', 'csuldap', 'rcldap'})
 
     @classmethod
