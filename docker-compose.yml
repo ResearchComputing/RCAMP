@@ -38,7 +38,7 @@ services:
 
   csu_ldap:
     image: researchcomputing/csu-test-ldap
-    container_name: csu_ldap
+    container_name: csu-ldap
 
 volumes:
   static-content:
