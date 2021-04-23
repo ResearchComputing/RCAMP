@@ -23,7 +23,7 @@ RUN dnf -y update && \
     dnf -y install epel-release curl which wget && \
     dnf -y install sssd pam-devel openssl-devel pam_radius && \
     dnf -y install python3 python3-devel python3-pip && \
-    dnf -y install openldap-devel mysql-devel pcre-devel sqlite
+    dnf -y install openldap-devel mysql-devel pcre pcre-devel sqlite
 
 # Remove uneeded extras
 RUN dnf -y remove wget dpkg && \
