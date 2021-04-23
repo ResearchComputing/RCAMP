@@ -15,7 +15,7 @@ from mailer.signals import (
     account_request_approved
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('accounts')
 
 
 # Create your models here.
