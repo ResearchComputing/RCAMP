@@ -8,7 +8,7 @@ import pam
 
 
 class PamBackend():
-    def authenticate(self, username=None, password=None):
+    def authenticate(self, request, username=None, password=None):
         rc_user = RcLdapUser.objects.get_user_from_suffixed_username(username)
         if not rc_user:
             return None
