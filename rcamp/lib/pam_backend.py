@@ -4,8 +4,9 @@ from accounts.models import (
     User
 )
 import pam
+import logging
 
-
+logger = logging.getLogger('accounts')
 
 class PamBackend():
     def authenticate(self, request, username=None, password=None):
@@ -15,6 +16,7 @@ class PamBackend():
 
         p = pam.pam()
         authed = p.authenticate(username, password, service=settings.PAM_SERVICES['default'])
+        logging.info('User {} auth attempt: {}'.format(username, authed))
 
         if authed:
             user_dict = {
