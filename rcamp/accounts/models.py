@@ -386,7 +386,8 @@ class CuLdapUser(LdapUser):
 
     @sensitive_variables('pwd')
     def authenticate(self,pwd):
-        authed = ldap_utils.authenticate(self.dn, pwd, 'culdap')
+        authed = AUTH_CU_LDAP_Backend.authenticate(self.username, pwd)
+        # authed = ldap_utils.authenticate(self.dn, pwd, 'culdap')
         return authed
 
 class CsuLdapUser(LdapUser):

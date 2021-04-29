@@ -36,6 +36,10 @@ services:
     image: researchcomputing/curc-test-ldap
     container_name: ldap
 
+  cu_ldap:
+    image: researchcomputing/cu-test-ldap
+    container_name: cu-ldap
+
   csu_ldap:
     image: researchcomputing/csu-test-ldap
     container_name: csu-ldap
