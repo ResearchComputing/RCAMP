@@ -17,6 +17,11 @@ LOGGING = {
             'class': 'logging.FileHandler',
             'filename': '/opt/logs/rcamp.log',
         },
+        'console': {
+            'level': 'WARN',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
         'management_commands': {
             'level': "INFO",
             'class': 'logging.FileHandler',
@@ -28,34 +33,40 @@ LOGGING = {
             'filename': '/opt/logs/admin.log'
         }
     },
+    'formatters': {
+        'verbose': {
+            'format': 'RCAMP: {module} {levelname} {asctime}: {message}',
+            'style': '{',
+        }
+    },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'rcamp': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'projects': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'management_commands': {
-            'handlers': ['management_commands'],
+            'handlers': ['management_commands', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
         'admin': {
-            'handlers': ['admin'],
+            'handlers': ['admin', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
         'accounts': {
-            'handlers': ['file'],
+            'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
         },
