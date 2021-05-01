@@ -14,9 +14,12 @@ class PamBackend():
         if not rc_user:
             return None
 
+        logging.info('User {} auth attempt'.format(username))
+
         p = pam.pam()
         authed = p.authenticate(username, password, service=settings.PAM_SERVICES['default'])
-        logging.info('User {} auth attempt: {}'.format(username, authed))
+
+        logging.info('User {} auth attempt status: {}'.format(username, authed))
 
         if authed:
             user_dict = {
