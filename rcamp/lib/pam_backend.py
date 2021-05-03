@@ -17,8 +17,9 @@ class PamBackend():
         logger = logging.getLogger('accounts')
         logger.info('User {} auth attempt'.format(username))
         p = pam.pam()
-        authed = p.authenticate(username, password, service=settings.PAM_SERVICES['default'])
-        logger.info('User {} auth attempt status: {}'.format(username, authed))
+        pam_service = settings.PAM_SERVICES['default']
+        authed = p.authenticate(username, password, service=pam_service)
+        logger.info('User {} auth attempt status: {}, pam service: {}'.format(username, authed, pam_service))
 
         if authed:
             user_dict = {
