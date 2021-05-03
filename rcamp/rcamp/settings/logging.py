@@ -52,7 +52,7 @@ LOGGING = {
         },
         'projects': {
             'handlers': ['file', 'console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
         'management_commands': {
@@ -67,7 +67,7 @@ LOGGING = {
         },
         'accounts': {
             'handlers': ['file', 'console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },
