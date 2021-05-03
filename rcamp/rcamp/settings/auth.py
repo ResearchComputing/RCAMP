@@ -8,6 +8,6 @@ AUTH_USER_MODEL = 'accounts.User'
 LOGIN_URL = '/login'
 
 PAM_SERVICES = {
-    'default': 'login',
+    'default': 'curc-twofactor-duo',
     'csu': 'csu'
 }
