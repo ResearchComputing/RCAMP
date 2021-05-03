@@ -20,7 +20,7 @@ LOGGING = {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose'
+            'formatter': 'console'
         },
         'management_commands': {
             'level': "INFO",
@@ -38,6 +38,10 @@ LOGGING = {
     'formatters': {
         'verbose': {
             'format': 'RCAMP: {module} {levelname} {asctime}: {message}',
+            'style': '{',
+        },
+        'console': {
+            'format': '{module} {levelname}: {message}',
             'style': '{',
         }
     },
