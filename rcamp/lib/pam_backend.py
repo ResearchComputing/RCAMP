@@ -1,12 +1,12 @@
+import pam
+import logging
+
 from django.conf import settings
 from accounts.models import (
     RcLdapUser,
     User
 )
-import pam
-import logging
 
-logger = logging.getLogger('accounts')
 
 class PamBackend():
     def authenticate(self, request, username=None, password=None):
@@ -14,11 +14,10 @@ class PamBackend():
         if not rc_user:
             return None
 
+        logger = logging.getLogger('accounts')
         logger.info('User {} auth attempt'.format(username))
-
         p = pam.pam()
         authed = p.authenticate(username, password, service=settings.PAM_SERVICES['default'])
-
         logger.info('User {} auth attempt status: {}'.format(username, authed))
 
         if authed:
