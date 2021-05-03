@@ -18,19 +18,21 @@ LOGGING = {
             'filename': '/opt/logs/rcamp.log',
         },
         'console': {
-            'level': 'WARN',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
         'management_commands': {
             'level': "INFO",
             'class': 'logging.FileHandler',
-            'filename': '/opt/logs/management_commands.log'
+            'filename': '/opt/logs/management_commands.log',
+            'formatter': 'verbose'
         },
         'admin': {
             'level': "INFO",
             'class': 'logging.FileHandler',
-            'filename': '/opt/logs/admin.log'
+            'filename': '/opt/logs/admin.log',
+            'formatter': 'verbose'
         }
     },
     'formatters': {
