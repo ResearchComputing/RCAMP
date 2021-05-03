@@ -66,7 +66,7 @@ LOGGING = {
             'propagate': True,
         },
         'accounts': {
-            'handlers': ['file', 'console'],
+            'handlers': ['admin', 'console'],
             'level': 'INFO',
             'propagate': True,
         },
