@@ -25,14 +25,14 @@ class PamBackendTestCase(LdapTestCase):
         rc_user = RcLdapUser.objects.get(username='testuser')
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
-        user = self.pb.authenticate(username='testuser',password='passwd')
+        user = self.pb.authenticate(None, username='testuser',password='passwd')
         self.assertIsNotNone(user)
         self.assertEqual(user.username,rc_user.username)
         self.assertEqual(user.first_name,rc_user.first_name)
         self.assertEqual(user.last_name,rc_user.last_name)
         self.assertEqual(user.email,rc_user.email)
 
-        reauthed_user = self.pb.authenticate(username='testuser',password='passwd')
+        reauthed_user = self.pb.authenticate(None, username='testuser',password='passwd')
         self.assertEqual(reauthed_user,user)
         self.assertFalse(reauthed_user.is_staff)
 
@@ -42,7 +42,7 @@ class PamBackendTestCase(LdapTestCase):
         RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
-        user = self.pb.authenticate(username='testuser',password='badpasswd')
+        user = self.pb.authenticate(None, username='testuser',password='badpasswd')
         self.assertIsNone(user)
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
@@ -54,13 +54,13 @@ class PamBackendTestCase(LdapTestCase):
         rc_user = RcLdapUser.objects.get(username='testuser')
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
-        user = self.pb.authenticate(username='testuser',password='passwd')
+        user = self.pb.authenticate(None, username='testuser',password='passwd')
         self.assertIsNotNone(user)
 
         rc_user.first_name = 'pamtested'
         rc_user.save(organization='ucb',)
 
-        user = self.pb.authenticate(username='testuser',password='passwd')
+        user = self.pb.authenticate(None, username='testuser',password='passwd')
         self.assertEqual(user.first_name,'pamtested')
         self.assertFalse(user.is_staff)
 
@@ -70,8 +70,11 @@ class PamBackendTestCase(LdapTestCase):
         RcLdapUser.objects.create(organization='ucb',**rc_user_defaults)
         self.assertRaises(User.DoesNotExist, User.objects.get,
                         username='testuser')
-        user = self.pb.authenticate(username='testuser',password='passwd')
+        user = self.pb.authenticate(None, username='testuser',password='passwd')
         self.assertIsNotNone(user)
 
         user = self.pb.get_user(user.id)
         self.assertEqual(user.username, 'testuser')
+
+
+# class LDAPBackendTestCase(LdapTestCase):

@@ -12,8 +12,6 @@ from accounts.models import (
     REQUEST_ROLES
 )
 
-logger = logging.getLogger('admin')
-
 class AccountRequestVerifyForm(forms.Form):
     """
     An abstract form for verifying user credentials against a configured authority
@@ -58,6 +56,7 @@ class AccountRequestVerifyForm(forms.Form):
         except self.auth_user_model.DoesNotExist:
             raise forms.ValidationError('Invalid username')
         except TypeError as e:
+            logger = logging.getLogger('admin')
             logger.info("Type error")
             logger.exception(e, exc_info=True)
             raise forms.ValidationError('Missing field(s)')
