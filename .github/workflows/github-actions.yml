@@ -23,7 +23,7 @@ jobs:
     - name: Start Service
       run: |
         docker-compose up -d
-        docker-compose exec rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
+        docker-compose exec -T rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
 
     - name: Run Tests
       run: docker-compose exec rcamp-uwsgi python3 manage.py test
