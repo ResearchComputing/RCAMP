@@ -11,6 +11,9 @@ jobs:
         export UWSGI_UID=$(id -u)
         export UWSGI_GID=$(id -g)
         docker-compose build
+
+    - name: Start Service
+      run: |
         docker-compose up -d
         docker-compose exec rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
 
