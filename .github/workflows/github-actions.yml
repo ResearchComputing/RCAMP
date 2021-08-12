@@ -6,10 +6,18 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - name: Setup Env
+      run: |
+        export UWSGI_UID=$(id -u); echo "UWSGI_UID=${UWSGI_UID}" >> $GITHUB_ENV
+        export UWSGI_GID=$(id -g); echo "UWSGI_GID=${UWSGI_GID}" >> $GITHUB_ENV
+
+    - name: Test env
+      run: |
+        echo "${{ env.UWSGI_UID }}"
+        echo "${{ env.UWSGI_GID }}"
+
     - name: Build
       run: |
-        export UWSGI_UID=$(id -u)
-        export UWSGI_GID=$(id -g)
         docker-compose build
 
     - name: Start Service
