@@ -61,9 +61,9 @@ jobs:
     - name: Build rcamp image
       run: |
         if [[ $GITHUB_REF == 'refs/tags/dev'* ]]; then
-          docker build -t researchcomputing/rcamp:dev
+          docker build -t researchcomputing/rcamp:dev .
           docker push researchcomputing/rcamp:dev
         else
-          docker build -t researchcomputing/rcamp:latest
+          docker build -t researchcomputing/rcamp:latest .
           docker push researchcomputing/rcamp:latest
         fi
