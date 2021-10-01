@@ -1,0 +1,69 @@
+name: Build RCAMP and run unit tests
+on: [push, pull_request]
+jobs:
+  run_rcamp_tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Env
+      run: |
+        export UWSGI_UID=$(id -u); echo "UWSGI_UID=${UWSGI_UID}" >> $GITHUB_ENV
+        export UWSGI_GID=$(id -g); echo "UWSGI_GID=${UWSGI_GID}" >> $GITHUB_ENV
+
+    - name: Test env
+      run: |
+        echo "${{ env.UWSGI_UID }}"
+        echo "${{ env.UWSGI_GID }}"
+
+    - name: Build
+      run: |
+        docker-compose build
+
+    - name: Start Service
+      run: |
+        docker-compose up -d
+        docker-compose exec -T rcamp-uwsgi bash -c 'sleep 30s && python manage.py migrate'
+
+    - name: Run Tests
+      run: docker-compose exec -T rcamp-uwsgi python3 manage.py test
+
+    - name: Notify Slack on Success
+      uses: rtCamp/action-slack-notify@v2
+      if: success()
+      env:
+        SLACK_WEBHOOK: ${{ secrets.RCAMP_BUILD }}
+        SLACK_TITLE: "CI tests passed!"
+
+    - name: Notify Slack on Failure
+      uses: rtCamp/action-slack-notify@v2
+      if: failure()
+      env:
+        SLACK_WEBHOOK: ${{ secrets.RCAMP_BUILD }}
+        SLACK_TITLE: "CI tests failed."
+
+    - name: Stop Containers
+      run: docker-compose down --remove-orphans
+
+  build_docker_image:
+    runs-on: ubuntu-latest
+    needs: run_rcamp_tests
+    if: success() && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/dev')
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to docker hub
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build rcamp image
+      run: |
+        if [[ $GITHUB_REF == 'refs/tags/dev'* ]]; then
+          docker build -t researchcomputing/rcamp:dev
+          docker push researchcomputing/rcamp:dev
+        else
+          docker build -t researchcomputing/rcamp:latest
+          docker push researchcomputing/rcamp:latest
+        fi
