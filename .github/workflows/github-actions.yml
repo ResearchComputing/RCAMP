@@ -58,12 +58,14 @@ jobs:
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build rcamp image
+    - name: Build rcamp dev image
+      if: ${{ github.ref == 'refs/heads/dev' }}
       run: |
-        if [[ $GITHUB_REF == 'refs/tags/dev'* ]]; then
           docker build -t researchcomputing/rcamp:dev .
           docker push researchcomputing/rcamp:dev
-        else
+
+    - name: Build rcamp master image
+      if: ${{ github.ref == 'refs/heads/master' }}
+      run: |
           docker build -t researchcomputing/rcamp:latest .
           docker push researchcomputing/rcamp:latest
-        fi
