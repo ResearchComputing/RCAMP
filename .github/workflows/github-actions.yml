@@ -65,7 +65,7 @@ jobs:
           docker push researchcomputing/rcamp:dev
 
     - name: Build rcamp master image
-      if: ${{ github.ref == 'refs/heads/master' }}
+      # if: ${{ github.ref == 'refs/heads/master' }}
       run: |
           docker build -t researchcomputing/rcamp:latest .
           docker push researchcomputing/rcamp:latest
