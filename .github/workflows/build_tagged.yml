@@ -1,0 +1,25 @@
+name: Build tagged image, push to DockerHub
+on:
+  push:
+    tags: 'v*'
+    branches: master
+jobs:
+  build_tagged_docker_image:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Login to docker hub
+      run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - name: Build, tag, and push release
+      run: |
+          docker build -t researchcomputing/rcamp:${{ steps.get_version.outputs.VERSION }} .
+          docker push researchcomputing/rcamp:${{ steps.get_version.outputs.VERSION }}
