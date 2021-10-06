@@ -2,7 +2,6 @@ name: Build tagged image, push to DockerHub
 on:
   push:
     tags: 'v*'
-    branches: master
 jobs:
   build_tagged_docker_image:
     runs-on: ubuntu-latest
