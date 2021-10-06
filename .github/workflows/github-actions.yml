@@ -1,4 +1,4 @@
-name: Build RCAMP and run unit tests
+name: Build RCAMP, run unit tests, push to DockerHub
 on: [push, pull_request]
 jobs:
   run_rcamp_tests:
