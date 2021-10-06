@@ -17,12 +17,6 @@ def check_general_eligibility(sender, **kwargs):
     organization = account_request.organization
     username = account_request.username
 
-    try:
-        if not account_request.intent.reason_summit:
-            return
-    except Intent.DoesNotExist:
-        return
-
     effective_uid = get_suffixed_username(username,organization)
     auth_user = User.objects.get(username=effective_uid)
     general_project_id = settings.ORGANIZATION_INFO[organization].get('general_project_id',None)
