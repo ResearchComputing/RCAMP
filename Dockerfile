@@ -1,6 +1,12 @@
 FROM centos:8
 MAINTAINER Aaron Holt <aaron.holt@colorado.edu>
 
+#these three lines per
+#https://stackoverflow.com/questions/70963985/error-failed-to-download-metadata-for-repo-appstream-cannot-prepare-internal
+RUN cd /etc/yum.repos.d/
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+
 RUN dnf -y install epel-release && \
     dnf -y install wget dpkg
 
