@@ -28,13 +28,15 @@ Set UWSGI_UID and UWSGI_GID. These are used to match the UID and GID inside and 
 $ id -u $USER
 1000
 $ export UWSGI_UID=1000
+$ echo "UWSGI_UID=1000" > .env
 
 $ id -g $USER
 1000
 $ export UWSGI_GID=1000
+$ echo "UWSGI_GID=1000" >> .env
 ```
 
-Build your dev environment and then start it using Compose.
+Build your dev environment and then start it (RCAMP) using Compose.
 ```
 $ docker-compose build
 $ docker-compose up -d
