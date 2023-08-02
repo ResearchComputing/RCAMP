@@ -42,7 +42,7 @@
       <div class="checkbox">
         <label>
           <input id="id_reason_summit" class="reason-checkbox" type="checkbox" name="reason_summit" {% if form.reason_summit.value %}checked{% endif %}>
-          I would like to run high-performance compute jobs on the <strong>RMACC Summit Cluster</strong>. <a href="https://www.colorado.edu/rc/resources/summit">Learn more about Summit.</a>
+          I would like to run high-performance compute jobs on the <strong>Alpine Cluster</strong>. <a href="https://www.colorado.edu/rc/alpine">Learn more about Alpine.</a>
         </label>
       </div>
 
@@ -58,7 +58,7 @@
               <dd>(required)</dd>
             </label>
             <div class="col-sm-8">
-              <textarea id="id_summit_description" name="summit_description" class="form-control required" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Summit. (150 words or fewer)" />{% if form.summit_description.value %}{{ form.summit_description.value }}{% endif %}</textarea>
+              <textarea id="id_summit_description" name="summit_description" class="form-control required" rows="10" cols="40" placeholder="Concise description of your proposed workflow on Alpine. (150 words or fewer)" />{% if form.summit_description.value %}{{ form.summit_description.value }}{% endif %}</textarea>
               {% if form.summit_description.errors %}
               <div class="alert alert-danger alert-dismissable">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
@@ -179,7 +179,7 @@
       <div class="checkbox">
         <label>
           <input id="id_reason_blanca" class="reason-checkbox" type="checkbox" name="reason_blanca" {% if form.reason_blanca.value %}checked{% endif %}>
-          My research group has purchased condo nodes, either on Summit or in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project <em>(Summit condo is no longer available for purchase).</em> <a href="https://www.colorado.edu/rc/resources/blanca">Learn more about Blanca.</a>
+          My research group has purchased condo nodes, either on Alpine or in the <strong>Blanca Cluster</strong>, or I plan to purchase Blanca nodes for use with my project <em>(Alpine condo is not presently available for purchase).</em> <a href="https://www.colorado.edu/rc/resources/blanca">Learn more about Blanca.</a>
         </label>
       </div>
     </fieldset>
