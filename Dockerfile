@@ -60,7 +60,7 @@ RUN pip install --upgrade pip && \
 RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
 WORKDIR /opt/django-ldapdb-test-env
 RUN python3 setup.py install
-WORKDIR /opt
+WORKDIR /opt/rcamp
 
 #Port Metadata
 EXPOSE 8000/tcp
