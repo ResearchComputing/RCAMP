@@ -18,7 +18,7 @@ services:
       - media-uploads:/opt/media
       - rcamp-logs:/opt/logs
     ports:
-      - "8000:8000"
+      - "80:8000"
     depends_on:
       - database
       - ldap

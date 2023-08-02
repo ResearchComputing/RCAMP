@@ -78,7 +78,7 @@ class AccountRequestIntentForm(forms.Form):
     reason_petalibrary = forms.BooleanField(required=False)
     reason_blanca = forms.BooleanField(required=False)
 
-    # Summit additional info
+    # Alpine additional info
     summit_pi_email = forms.EmailField(required=False)
     summit_funding = forms.CharField(widget=forms.Textarea,required=False)
     summit_description = forms.CharField(widget=forms.Textarea,required=False)

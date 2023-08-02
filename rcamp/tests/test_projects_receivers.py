@@ -66,7 +66,7 @@ class GeneralEligibilityReceiverTestCase(SafeTestCase):
         project = Project.objects.get()
         self.assertIn(auth_user,project.collaborators.all())
 
-        # No Summit intention declared, now add to 'general' account anyway
+        # No Allpine intention declared, now add to 'general' account anyway
         project.collaborators.clear()
         intent.reason_summit = False
         intent.save()
