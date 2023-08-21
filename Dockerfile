@@ -2,7 +2,7 @@ FROM quay.io/rockylinux/rockylinux:8
 LABEL maintainer="Adam W Zheng <wazh7587@colorado.edu>"
 
 # Define s6 overlay process supervisor version
-ARG S6_OVERLAY_VERSION=3.1.5.0
+#ARG S6_OVERLAY_VERSION=3.1.5.0
 
 # Define gosu version
 ARG GOSU_VERSION=1.16
@@ -26,13 +26,13 @@ RUN chmod +x /usr/bin/gosu \
 RUN dnf -y update && dnf clean all && rm -rf /var/cache/dnf && > /var/log/dnf.log
 
 # Add s6-overlay process supervisor
-ADD ["https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz", "/tmp"]
-RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
-ADD ["https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz", "/tmp"]
-RUN tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz
+#ADD ["https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz", "/tmp"]
+#RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
+#ADD ["https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz", "/tmp"]
+#RUN tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz
 
 # Copy s6-supervisor source definition directory into container
-COPY ["etc/s6-overlay/", "/etc/s6-overlay/"]
+#COPY ["etc/s6-overlay/", "/etc/s6-overlay/"]
 
 # Set Workdir
 WORKDIR /opt/rcamp
@@ -63,10 +63,15 @@ RUN python3 setup.py install
 WORKDIR /opt/rcamp
 
 #Port Metadata
-EXPOSE 8000/tcp
+EXPOSE 80/tcp
+EXPOSE 443/tcp
 
 #Simple Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD curl http://localhost:8000/ || exit 1
 
 # s6-overlay entrypoint
-ENTRYPOINT ["/init"]
+#ENTRYPOINT ["/init"]
+
+COPY ["docker-entrypoint.sh", "/usr/local/bin/"]
+ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
+CMD ["/opt/rcamp_venv/bin/uwsgi", "/opt/uwsgi.ini"]
