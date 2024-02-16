@@ -31,7 +31,7 @@ class Command(BaseCommand):
         parser.add_argument('--notice-intervals',
             type=str,
             nargs='?',
-            const='30,14',
+            const='14',
             default='',
             help="Comma separated list of intervals in days at which owners of \
                 expriring allocations will be notified. default='30,14' \
