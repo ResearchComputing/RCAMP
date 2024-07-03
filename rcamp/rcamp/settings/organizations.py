@@ -18,6 +18,11 @@ ORGANIZATION_INFO = {
         'suffix': 'xsede.org',
         'general_project_id': 'rmacc-general'
     },
+    'amc': {
+        'long_name': 'University of Colorado Denver | Anschutz Medical Campus',
+        'suffix': 'cuanschutz.edu',
+        'general_project_id': 'amc-general'
+    },
     'ncar': {
         'long_name': 'NCAR',
         'suffix': 'ncar.ucar.edu',

@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
                 ('course_number', models.CharField(max_length=128, null=True, blank=True)),
                 ('login_shell', models.CharField(default=b'/bin/bash', max_length=24, choices=[(b'/bin/bash', b'bash'), (b'/bin/tcsh', b'tcsh')])),
                 ('resources_requested', models.CharField(max_length=256, null=True, blank=True)),
-                ('organization', models.CharField(max_length=128, choices=[(b'csu', b'Colorado State University'), (b'xsede', b'XSEDE'), (b'internal', b'Research Computing - Administrative'), (b'ucb', b'University of Colorado Boulder')])),
+                ('organization', models.CharField(max_length=128, choices=[(b'csu', b'Colorado State University'), (b'xsede', b'XSEDE'), (b'amc', b'AMC'), (b'internal', b'Research Computing - Administrative'), (b'ucb', b'University of Colorado Boulder')])),
                 ('role', models.CharField(default=b'student', max_length=24, choices=[(b'student', b'Student'), (b'postdoc', b'Post Doc'), (b'faculty', b'Faculty'), (b'staff', b'Staff'), (b'sponsored', b'Sponsored Affiliate')])),
                 ('status', models.CharField(default=b'p', max_length=16, choices=[(b'p', b'Pending'), (b'a', b'Approved'), (b'd', b'Denied'), (b'i', b'Incomplete')])),
                 ('approved_on', models.DateTimeField(null=True, blank=True)),
