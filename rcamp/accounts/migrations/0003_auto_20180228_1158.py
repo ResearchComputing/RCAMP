@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='accountrequest',
             name='organization',
-            field=models.CharField(max_length=128, choices=[(b'csu', b'Colorado State University'), (b'xsede', b'XSEDE'), (b'ncar', b'NCAR'), (b'ucb', b'University of Colorado Boulder'), (b'internal', b'Research Computing - Administrative')]),
+            field=models.CharField(max_length=128, choices=[(b'csu', b'Colorado State University'), (b'xsede', b'XSEDE'), (b'amc', b'AMC'), (b'ncar', b'NCAR'), (b'ucb', b'University of Colorado Boulder'), (b'internal', b'Research Computing - Administrative')]),
         ),
         migrations.AlterField(
             model_name='accountrequest',

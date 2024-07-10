@@ -17,6 +17,7 @@ class Project(models.Model):
         ('ucb','University of Colorado Boulder'),
         ('csu','Colorado State University'),
         ('xsede','XSEDE'),
+        ('amc', 'AMC'),
     )
 
     pi_emails = fields.ListField()
