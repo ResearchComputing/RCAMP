@@ -76,5 +76,10 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'rcamp.lib.generate_usernames': {  # Ensure this matches the import path
+            'handlers': ['admin','console', 'file'],
+            'level': 'INFO',
+            'propagate': True,  # Use this if you want specific logging for this module
+        },
     },
 }

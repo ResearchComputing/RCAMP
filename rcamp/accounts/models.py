@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
 from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
+from lib.generate_usernames import generate_curc_uid
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
@@ -93,6 +94,7 @@ class AccountRequest(models.Model):
 
     def save(self,*args,**kwargs):
         # Has model already been approved?
+        logger = logging.getLogger('accounts')
         manually_approved = False
         if (self.status == 'a') and (not self.approved_on):
             manually_approved = self.pk is not None
@@ -108,6 +110,9 @@ class AccountRequest(models.Model):
                 organization=self.organization,
                 role=self.role
             )
+            if self.username:
+                self.username = rc_user.username
+            
             # Create associated auth user
             auth_user_defaults = dict(
                 email=rc_user.email,
@@ -238,6 +243,8 @@ class RcLdapUserManager(models.Manager):
             cu_user = CuLdapUser.objects.get(username=username)
             uid = cu_user.uid
         else:
+            if organization == 'amc':
+                username = generate_curc_uid(first_name, last_name, email, organization)
             uid = id_tracker.get_next_id()
         user_fields = {}
         user_fields['first_name'] = first_name.strip()
