@@ -20,7 +20,7 @@ ORGANIZATION_INFO = {
     },
     'amc': {
         'long_name': 'University of Colorado Denver | Anschutz Medical Campus',
-        'suffix': 'cuanschutz.edu',
+        'suffix': None,
         'general_project_id': 'amc-general'
     },
     'ncar': {
