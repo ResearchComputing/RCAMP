@@ -6,6 +6,7 @@ BASE_DIR = '/opt/rcamp'
 
 
 SECRET_KEY = os.environ.get('RCAMP_SECRET_KEY')
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 hosts = os.environ.get('RCAMP_ALLOWEDHOSTS')
 ALLOWED_HOSTS = hosts.split(',')
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
     'mailer',
     'accounts',
     'projects',
+    'comanage',
 ]
 
 if DEBUG:

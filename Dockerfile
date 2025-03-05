@@ -9,10 +9,10 @@ ARG GOSU_VERSION=1.16
 
 # Install dependencies 
 RUN dnf -y install 'dnf-command(config-manager)' \
- && dnf config-manager --set-enabled powertools \
- && dnf -y install epel-release \
- && dnf -y groupinstall "Development Tools" \
- && dnf -y install xz dpkg which sssd pam_radius sqlite pam-devel openssl-devel python3-devel openldap-devel mysql-devel pcre-devel
+  && dnf config-manager --set-enabled powertools \
+  && dnf -y install epel-release \
+  && dnf -y groupinstall "Development Tools" \
+  && dnf -y install xz dpkg which sssd pam_radius sqlite pam-devel python3-devel openssl-devel openldap-devel mysql-devel pcre-devel
 
 # Install gosu to drop user and chown shared volumes at runtime
 ADD ["https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64", "/usr/bin/gosu"]
@@ -74,4 +74,5 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD curl
 
 COPY ["docker-entrypoint.sh", "/usr/local/bin/"]
 ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
+#CMD python3 -m debugpy --listen 0.0.0.0:5678 --wait-for-client manage.py runserver 0.0.0.0:8000
 CMD ["/opt/rcamp_venv/bin/uwsgi", "/opt/uwsgi.ini"]

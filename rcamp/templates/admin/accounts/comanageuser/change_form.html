@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+
+{% block content %}
+    <div>
+        <h1>User Change View</h1>
+        
+        <!-- Display user information -->
+        <h2>{{ original.name }}</h2>
+        <p><strong>User ID:</strong> {{ original.user_id }}</p>
+        <p><strong>Email:</strong> {{ original.email }}</p>
+
+        <!-- Display the sync button only if it's present in the context -->
+        {% if sync_button %}
+            <form action="{% url 'admin:accounts_comanageuser_sync' user_id=original.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="button">Sync User from Comanage</button>
+            </form>
+        {% endif %}
+    </div>
+
+    {{ block.super }}
+{% endblock %}
+

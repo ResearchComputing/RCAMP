@@ -7,7 +7,8 @@ from accounts.models import (
     AccountRequest,
     Intent,
     CuLdapUser,
-    CsuLdapUser
+    CsuLdapUser,
+    ComanageUser
 )
 from accounts.forms import (
     AccountRequestVerifyUcbForm,
@@ -18,8 +19,7 @@ from mailer.signals import (
     account_request_received,
     account_request_approved
 )
-
-
+from django.shortcuts import render, get_object_or_404
 
 class AccountRequestOrgSelectView(TemplateView):
     template_name = 'account-request-org-select.html'
@@ -146,3 +146,27 @@ class AccountRequestReviewView(TemplateView):
             return context
         except AccountRequest.DoesNotExist:
             raise Http404('Account Request not found.')
+
+# View to display detailed group information
+def comanage_user_detail(request, user_id):
+    user = get_object_or_404(ComanageUser, user_id=user_id)
+    # Assume get_groups is a function that returns the groups for a user
+    groups = get_groups(user_id)
+    return render(request, 'comanage_sync_detail.html', {
+        'user_data': user,
+        'groups': groups
+    })
+    
+def sync_user_from_comanage(request, user_id):
+    """
+    A custom view to sync user data from Comanage.
+    """
+    try:
+        user = ComanageUser.objects.get(id=user_id)
+        user.sync_from_comanage(user_id=user.user_id)  # Implement the logic to sync from Comanage
+        message = "User synced successfully!"
+    except ComanageUser.DoesNotExist:
+        message = "User not found."
+    
+    # Redirect back to the change page
+    return redirect('admin:accounts_comanageuser_change', object_id=user_id)

@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="/static/css/custom-admin.css">
+{% endblock %}
+
+{% block content %}
+<h1>User Groups for {{ user_data.name }}</h1>
+
+<p><strong>User ID:</strong> {{ user_data.user_id }}</p>
+<p><strong>Email:</strong> {{ user_data.email }}</p>
+<p><strong>Created At:</strong> {{ user_data.created_at }}</p>
+<p><strong>Modified:</strong> {{ user_data.modified }}</p>
+
+<h2>Groups</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Group Name</th>
+            <th>Created At</th>
+            <th>Modified</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for group in groups %}
+            <tr>
+                <td>{{ group.Name }}</td>
+                <td>{{ group.Created }}</td>
+                <td>{{ group.Modified }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
