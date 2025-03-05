@@ -1,0 +1,11 @@
+<!-- templates/admin/comanage_sync_form.html -->
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>Sync Comanage User</h1>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Sync User</button>
+  </form>
+{% endblock %}

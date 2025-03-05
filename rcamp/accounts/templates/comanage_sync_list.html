@@ -1,0 +1,50 @@
+{% extends 'admin/change_list.html' %}
+
+{% block extrahead %}
+    <link rel="stylesheet" type="text/css" href="/static/css/custom-admin.css">
+{% endblock %}
+
+{% block content %}
+
+<div>
+    <a href="{% url 'admin:comanage-sync-users' %}" class="button">Sync Users from Comanage</a>
+</div>
+
+{% block search %}
+    <form method="get" class="search-form">
+        <div class="form-group">
+            <label for="search">Search</label>
+            <input type="text" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search by Email or User ID">
+        </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+{% endblock %}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>User ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Created At</th>
+            <th>Modified</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in user_data %}
+        <tr>
+            <td>{{ user.user_id }}</td>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.created_at }}</td>
+            <td>{{ user.modified }}</td>
+            <td>
+                <a href="{% url 'admin:comanage-sync-user-detail' user_id=user.user_id %}">View Groups</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}

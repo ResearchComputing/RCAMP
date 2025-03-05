@@ -29,6 +29,12 @@ DATABASES = {
         'USER': str(os.environ.get('RCAMP_CSU_LDAP_USER')),
         'PASSWORD': str(os.environ.get('RCAMP_CSU_LDAP_PASSWORD')),
     },
+    'ldapci': {
+        'ENGINE': 'ldapdb.backends.ldap',
+        'NAME': str(os.environ.get('RCAMP_RC_CI_LDAP_URI')),
+        'USER': str(os.environ.get('RCAMP_RC_CI_LDAP_USER')),
+        'PASSWORD': str(os.environ.get('RCAMP_RC_CI_LDAP_PASSWORD')),
+    }
 }
 
 LDAPCONFS = {
@@ -61,6 +67,19 @@ LDAPCONFS = {
         'group_dn': 'ou=eIdentityUsers,dc=ColoState,dc=edu',
         'people_dn': 'ou=eIdentityUsers,dc=ColoState,dc=edu',
     },
+    'ldapci': {
+        'server': str(DATABASES['ldapci']['NAME']),
+        'bind_dn': str(DATABASES['ldapci']['USER']),
+        'bind_pw': str(DATABASES['ldapci']['PASSWORD']),
+        'base_dn': 'dc=rc,dc=int,dc=colorado,dc=edu',
+        'people_dn': 'ou=people,dc=rc,dc=int,dc=colorado,dc=edu',
+        'ucb_dn': 'ou=ucb,ou=people,dc=rc,dc=int,dc=colorado,dc=edu',
+        'csu_dn': 'ou=csu,ou=people,dc=rc,dc=int,dc=colorado,dc=edu',
+        'xsede_dn': 'ou=xsede,ou=people,dc=rc,dc=int,dc=colorado,dc=edu',
+        'amc_dn': 'ou=amc,ou=people,dc=rc,dc=int,dc=colorado,dc=edu',
+        'internal_dn': 'ou=internal,ou=people,dc=rc,dc=int,dc=colorado,dc=edu',
+        'group_dn': 'ou=groups,dc=rc,dc=int,dc=colorado,dc=edu',
+    }
 }
 
 DATABASE_ROUTERS = ['lib.router.LdapRouter',]

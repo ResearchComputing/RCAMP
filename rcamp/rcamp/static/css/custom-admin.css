@@ -1,0 +1,129 @@
+/* Ensuring the custom page inherits basic admin styles */
+@import url('/static/admin/css/widgets.css'); /* Include the admin widgets */
+@import url('/static/admin/css/base.css'); /* Include the base admin styles */
+
+/* Custom styling for the search form */
+.search-form {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    max-width: 600px;  /* Adjust the width to your liking */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.search-form input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;  /* Smaller font for the input */
+}
+
+.search-form button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+/* Optional: Add some spacing around the form */
+.search-form .form-group {
+    margin-bottom: 15px;
+}
+
+/* Optional: Style for the label */
+.search-form label {
+    font-weight: bold;
+}
+
+/* Add some spacing between the div and the table */
+div {
+    padding-bottom: 20px;
+}
+
+/* Style for the button */
+.button {
+    display: inline-block;
+    padding: 15px 30px; /* Larger padding for a bigger button */
+    font-size: 18px;  /* Adjust font size to make it larger */
+    background-color: #007bff;  /* Blue background color */
+    color: white;  /* White text */
+    text-align: center;
+    border-radius: 5px;  /* Rounded corners */
+    text-decoration: none;  /* Remove underline */
+    transition: background-color 0.3s;  /* Smooth hover effect */
+}
+
+.button:hover {
+    background-color: #0056b3;  /* Darker blue on hover */
+}
+
+/* Optional: Add some space between the button and other elements */
+.button {
+    margin-top: 10px;  /* Adjust as needed */
+}
+
+/* Table Styling */
+.table {
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: transparent;
+    border: 1px solid #ddd;
+}
+
+.table th,
+.table td {
+    padding: 0.75rem;
+    vertical-align: top;
+    border-top: 1px solid #ddd;
+}
+
+.table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+}
+
+.table-bordered {
+    border: 1px solid #ddd;
+}
+
+.table-striped tbody tr:nth-child(odd) {
+    background-color: #f9f9f9;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Action Links Styling */
+table td a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+table td a:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+/* Header Styling */
+h1 {
+    font-size: 1.75rem;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+    .table th, .table td {
+        font-size: 0.875rem;
+    }
+
+    .table td a {
+        font-size: 0.875rem;
+    }
+}

@@ -12,6 +12,9 @@ from accounts.models import (
     REQUEST_ROLES
 )
 
+class ComanageSyncForm(forms.Form):
+    user_id = forms.CharField(max_length=255)
+
 class AccountRequestVerifyForm(forms.Form):
     """
     An abstract form for verifying user credentials against a configured authority
