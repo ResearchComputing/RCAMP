@@ -13,7 +13,7 @@ Including another URLconf
     1. Add an import:  from blog import urls as blog_urls
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
@@ -31,14 +31,14 @@ handler404 = 'lib.views.handler404'
 handler500 = 'lib.views.handler500'
 
 urlpatterns = [
-    url(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
-    url(r'^$', index_view, name='index'),
-    url(r'^login', auth_views.LoginView.as_view(template_name='registration/login.html')),
-    url(r'^logout', auth_views.LogoutView.as_view(template_name='registration/logout.html')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^api/', include('endpoints.urls')),
-    url(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
-    url(r'^projects/', include(('projects.urls', 'projects'), namespace='projects')),
+    re_path(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
+    re_path(r'^$', index_view, name='index'),
+    re_path(r'^login', auth_views.LoginView.as_view(template_name='registration/login.html')),
+    re_path(r'^logout', auth_views.LogoutView.as_view(template_name='registration/logout.html')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^api/', include('endpoints.urls')),
+    re_path(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
+    re_path(r'^projects/', include(('projects.urls', 'projects'), namespace='projects')),
 ]
 
 

@@ -1,7 +1,8 @@
 from django.db import models
 from django import forms
 from django.core.validators import validate_email
-from django.utils.translation import ugettext_lazy as _, ungettext_lazy
+from django.utils.translation import gettext_lazy as _, ngettext_lazy
+
 import ast
 
 

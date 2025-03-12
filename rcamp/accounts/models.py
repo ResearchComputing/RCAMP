@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.views.decorators.debug import sensitive_variables
 from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
-from lib.utils import get_user_and_groups, get_comanage_users_by_org, sync_group_to_comanage
+from lib.utils import get_user_and_groups, get_comanage_users_by_org, sync_group_to_comanage, get_group_id
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
@@ -484,65 +484,6 @@ class RcLdapGroup(ldapdb.models.Model):
 
         super(RcLdapGroup,self).save(*args,**kwargs)
 
-# class ComanageUser(models.Model):
-#     class Meta:
-#         verbose_name = 'Comanage User'
-#         verbose_name_plural = 'Comanage Users'
-    
-#     user_id = models.CharField(max_length=255, unique=True)
-#     name = models.CharField(max_length=255)
-#     email = models.EmailField()
-#     created_at = models.DateTimeField()
-#     modified = models.DateTimeField()
-    
-#     # Add a ManyToManyField for groups
-#     groups = models.ManyToManyField(ComanageGroup, blank=True)
-
-#     # Fallback to store group names as a comma-separated list
-#     group_names = models.TextField(blank=True, null=True)
-
-#     def __str__(self):
-#         return self.name
-
-#     # Method to fetch and update data from Comanage
-#     @classmethod
-#     def sync_from_comanage(cls, user_id):
-#         # Fetch user data and groups from Comanage
-#         user_data, group_data = get_user_and_groups(user_id)
-        
-#         # Get or create the user
-#         user, created = cls.objects.update_or_create(
-#             user_id=user_data['user_id'],
-#             defaults={
-#                 'name': user_data['name'],
-#                 'email': user_data['email'],
-#                 'created_at': user_data['created_at'],
-#                 'modified': user_data['modified']
-#             }
-#         )
-        
-#         # Sync the groups
-#         if group_data:
-#             # Update or create groups in the Group model
-#             for group in group_data:
-#                 group_instance, _ = ComanageGroup.objects.get_or_create(
-#                     group_id=group['Id'], 
-#                     defaults={
-#                         'name': group['Name'],
-#                         'created': group['Created'],
-#                         'modified': group['Modified']
-#                     }
-#                 )
-#                 user.groups.add(group_instance)
-
-#             # Store group names (optional)
-#             user.group_names = ', '.join([group['Name'] for group in group_data])
-        
-#         # Save the user after syncing the groups
-#         user.save()
-
-#         return user
-
 class ComanageUser(models.Model):
     class Meta:
         verbose_name = 'Comanage User'
@@ -635,6 +576,8 @@ class ComanageGroup(models.Model):
                 self.gid = gid
                 logger = logging.getLogger('accounts')
                 logger.info('Auto-assigned GID to group: {}, {}'.format(gid, self.name))
+            if self.group_id is None or self.group_id == '':
+                self.group_id = get_group_id(self)
 
         super(ComanageGroup,self).save(*args,**kwargs)
 
