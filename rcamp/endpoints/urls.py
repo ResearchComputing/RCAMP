@@ -1,4 +1,4 @@
-from django.conf.urls import include, url
+from django.urls import include, re_path
 from rest_framework import routers
 
 from endpoints.viewsets import AccountRequestList
@@ -16,6 +16,6 @@ router.register(r'projects', ProjectList)
 router.register(r'allocations', AllocationList)
 
 urlpatterns = [
-    url(r'^', include(router.urls)),
-    url(r'^auth/',include('rest_framework.urls', namespace='rest_framework')),
+    re_path(r'^', include(router.urls)),
+    re_path(r'^auth/',include('rest_framework.urls', namespace='rest_framework')),
 ]

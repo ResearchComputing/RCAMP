@@ -1,4 +1,4 @@
-from comanage.sync_ldap_to_cilogon import get_co_user_and_groups, get_co_users, sync_co_group
+from comanage.sync_ldap_to_cilogon import get_co_user_and_groups, get_co_users, sync_co_group, get_co_group_id
 import logging
 
 def get_comanage_users_by_org(org="amc"):
@@ -40,4 +40,8 @@ def get_user_and_groups(uid):
 
 def sync_group_to_comanage(group):
     co_group_id = sync_co_group(group)
+    return co_group_id
+
+def get_group_id(group):
+    co_group_id = get_co_group_id(group)
     return co_group_id

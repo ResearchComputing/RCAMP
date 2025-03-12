@@ -1,78 +1,81 @@
-FROM quay.io/rockylinux/rockylinux:8
-LABEL maintainer="Adam W Zheng <wazh7587@colorado.edu>"
-
-# Define s6 overlay process supervisor version
-#ARG S6_OVERLAY_VERSION=3.1.5.0
+# Use Python 3.9 as the base image
+FROM python:3.9-slim
 
 # Define gosu version
 ARG GOSU_VERSION=1.16
 
-# Install dependencies 
-RUN dnf -y install 'dnf-command(config-manager)' \
-  && dnf config-manager --set-enabled powertools \
-  && dnf -y install epel-release \
-  && dnf -y groupinstall "Development Tools" \
-  && dnf -y install xz dpkg which sssd pam_radius sqlite pam-devel python3-devel openssl-devel openldap-devel mysql-devel pcre-devel
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gnupg2 \
+    curl \
+    lsb-release \
+    ca-certificates \
+    build-essential \
+    libssl-dev \
+    libffi-dev \
+    libpq-dev \
+    libmariadb-dev \
+    libmariadb-dev-compat \
+    libldap2-dev \
+    libsasl2-dev \
+    python3-dev \
+    python3-pip \
+    python3-venv \
+    sqlite3 \
+    git \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install gosu to drop user and chown shared volumes at runtime
-ADD ["https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64", "/usr/bin/gosu"]
-ADD ["https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64.asc", "/tmp/gosu.asc"]
-RUN gpg --batch --keyserver hkps://keys.openpgp.org --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
- && gpg --batch --verify /tmp/gosu.asc /usr/bin/gosu
-RUN chmod +x /usr/bin/gosu \
- && gosu nobody true
+RUN curl -fsSL https://github.com/tianon/gosu/releases/download/${GOSU_VERSION}/gosu-amd64 -o /usr/bin/gosu \
+    && chmod +x /usr/bin/gosu \
+    && gosu nobody true
 
-# Cleanup
-RUN dnf -y update && dnf clean all && rm -rf /var/cache/dnf && > /var/log/dnf.log
-
-# Add s6-overlay process supervisor
-#ADD ["https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz", "/tmp"]
-#RUN tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz
-#ADD ["https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz", "/tmp"]
-#RUN tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz
-
-# Copy s6-supervisor source definition directory into container
-#COPY ["etc/s6-overlay/", "/etc/s6-overlay/"]
-
-# Set Workdir
+# Set working directory
 WORKDIR /opt/rcamp
 
-# Add requirements
+# Add requirements and other necessary files
 ADD ["requirements.txt", "/opt/requirements.txt"]
-
-# Add uwsgi conf
 ADD ["uwsgi.ini", "/opt/uwsgi.ini"]
-
-# Add codebase to container
 ADD ["rcamp", "/opt/rcamp"]
 
-# From old dockerfile
+# Set up virtual environment
 WORKDIR /opt
 ENV VIRTUAL_ENV=/opt/rcamp_venv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Install the dependencies from requirements.txt
 COPY requirements.txt /opt/
 RUN pip install --upgrade pip && \
     pip install wheel && \
     pip install -r requirements.txt
 
+# fix dep issues
+RUN sed -i '/from django.utils import timezone/a from pytz import utc\ntimezone.utc = utc' /opt/rcamp_venv/lib/python3.9/site-packages/ldapdb/models/fields.py
+RUN sed -i 's/from django.conf.urls import url/from django.urls import re_path as url/' /opt/rcamp_venv/lib/python3.9/site-packages/grappelli/urls.py
+
+# Clone and install the django-ldapdb-test-env repository
 RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
 WORKDIR /opt/django-ldapdb-test-env
 RUN python3 setup.py install
 WORKDIR /opt/rcamp
 
-#Port Metadata
+# Cleanup
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Expose necessary ports
 EXPOSE 80/tcp
 EXPOSE 443/tcp
 
-#Simple Healthcheck
+# Simple Healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 CMD curl http://localhost:8000/ || exit 1
 
-# s6-overlay entrypoint
-#ENTRYPOINT ["/init"]
-
+# Copy entrypoint script
 COPY ["docker-entrypoint.sh", "/usr/local/bin/"]
-ENTRYPOINT ["sh","/usr/local/bin/docker-entrypoint.sh"]
-#CMD python3 -m debugpy --listen 0.0.0.0:5678 --wait-for-client manage.py runserver 0.0.0.0:8000
+
+# Set entrypoint
+ENTRYPOINT ["sh", "/usr/local/bin/docker-entrypoint.sh"]
+
+# Default command to start the application
 CMD ["/opt/rcamp_venv/bin/uwsgi", "/opt/uwsgi.ini"]
+
