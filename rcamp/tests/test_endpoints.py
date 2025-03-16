@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.test import override_settings
+from django.utils import timezone
 import pytz
 import json
 import datetime
@@ -45,6 +46,8 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             resources_requested='summit',
             organization='ucb',
             role='staff',
+            discipline='Law',
+            approved_on=timezone.make_aware(datetime.datetime(2016, 5, 1), timezone=pytz.timezone('America/Denver')),
             status='p'
         )
         self.ar1 = AccountRequest.objects.create(**ar_dict)
@@ -53,11 +56,11 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             username='testuser2',
             email='tu2@tu.org',
             role='faculty',
-            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,4,1)),
+            approved_on=timezone.make_aware(datetime.datetime(2016, 3, 1), timezone=pytz.timezone('America/Denver')),
             status='a'
         ))
         self.ar2 = AccountRequest.objects.create(**ar_dict)
-
+        
         del ar_dict['resources_requested']
         ar_dict.update(dict(
             username='testuser3',
@@ -65,7 +68,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             status='a',
             notes='approved!',
             id_verified_by='admin',
-            approved_on=pytz.timezone('America/Denver').localize(datetime.datetime(2016,5,1)),
+            approved_on=timezone.make_aware(datetime.datetime(2016, 5, 1), timezone=pytz.timezone('America/Denver'))
         ))
         self.ar3 = AccountRequest.objects.create(**ar_dict)
 
@@ -82,6 +85,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'last_name': 'user',
                 'resources_requested': 'summit',
                 'organization': 'ucb',
+                'discipline': 'Law',
                 'email': 'tu@tu.org',
             },
             {
@@ -92,7 +96,8 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'resources_requested': 'summit',
                 'organization': 'ucb',
                 'email': 'tu2@tu.org',
-                'approved_on': '2016-04-01T00:00:00Z'
+                'discipline': 'Law',
+                'approved_on': '2016-03-01T00:00:00Z'
             },
             {
                 'username': 'testuser3',
@@ -102,6 +107,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'resources_requested': None,
                 'notes': 'approved!',
                 'organization': 'ucb',
+                'discipline': 'Law',
                 'email': 'tu3@tu.org',
             }
         ]
@@ -117,6 +123,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             last_name = 'user',
             resources_requested = 'summit',
             organization = 'ucb',
+            discipline = 'Law',
             email = 'newtu@tu.org',
         )
         res = self.client.post('/api/accountrequests/', data=post_data)
@@ -133,6 +140,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
             'last_name': 'user',
             'resources_requested': 'summit',
             'organization': 'ucb',
+            'discipline': 'Law',
             'email': 'tu@tu.org',
         }
         self.assertDictContainsSubset(expected_content,res_content)
@@ -140,7 +148,7 @@ class AccountRequestEndpointTestCase(SafeTestCase):
     def test_ar_filter_dates(self):
         res = self.client.get(
             '/api/accountrequests/?min_approve_date={}&max_approve_date={}'.format(
-                '2016-03-31',
+                '2016-03-29',
                 '2016-04-01'
             )
         )
@@ -154,7 +162,8 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'resources_requested': 'summit',
                 'organization': 'ucb',
                 'email': 'tu2@tu.org',
-                'approved_on': '2016-04-01T00:00:00Z'
+                'discipline': 'Law',
+                'approved_on': '2016-03-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)
@@ -177,7 +186,8 @@ class AccountRequestEndpointTestCase(SafeTestCase):
                 'resources_requested': 'summit',
                 'organization': 'ucb',
                 'email': 'tu2@tu.org',
-                'approved_on': '2016-04-01T00:00:00Z'
+                'discipline': 'Law',
+                'approved_on': '2016-03-01T00:00:00Z'
             }
         ]
         res_content = json.loads(res.content)

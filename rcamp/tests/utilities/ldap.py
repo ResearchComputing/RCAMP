@@ -16,7 +16,6 @@ def get_ldap_user_defaults():
         last_name = 'User',
         full_name = 'User, Test',
         email = 'testuser@colorado.edu',
-        modified_date=timezone.make_aware(datetime.datetime(2015,11,0o6,0o3,43,24), timezone.get_default_timezone()),
         uid = 1010,
         gid = 1010,
         gecos='Test User,,,',

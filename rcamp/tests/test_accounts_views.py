@@ -33,7 +33,8 @@ def get_account_request_verify_defaults():
         username = 'testuser',
         password = 'testpass',
         role = 'faculty',
-        department = 'physics'
+        department = 'physics',
+        discipline = 'Education',
     )
     return verification_defaults
 

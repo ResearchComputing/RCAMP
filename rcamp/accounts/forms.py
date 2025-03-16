@@ -9,11 +9,10 @@ from accounts.models import (
     CsuLdapUser,
     RcLdapUser,
     AccountRequest,
-    REQUEST_ROLES
+    REQUEST_ROLES,
+    NSF_DISCIPLINES
 )
 
-class ComanageSyncForm(forms.Form):
-    user_id = forms.CharField(max_length=255)
 
 class AccountRequestVerifyForm(forms.Form):
     """
@@ -27,6 +26,7 @@ class AccountRequestVerifyForm(forms.Form):
     password = forms.CharField(max_length=255,widget=forms.PasswordInput,required=True)
     department = forms.CharField(max_length=128,required=True)
     role = forms.ChoiceField(choices=REQUEST_ROLES,required=True)
+    discipline = forms.ChoiceField(choices=NSF_DISCIPLINES, required=True)
 
     @sensitive_variables('password')
     def clean(self):

@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from django.views.decorators.debug import sensitive_variables
 from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
@@ -28,6 +29,26 @@ REQUEST_ROLES = (
     ('affiliated_faculty','Affiliated Faculty',),
     ('staff','Staff',),
     ('sponsored','Sponsored Affiliate',),
+)
+
+NSF_DISCIPLINES = (
+    ('Computer & Information Services', 'Computer & Information Services'),
+    ('Engineering', 'Engineering'),
+    ('Geosciences, Atmospheric Sciences & Ocean Sciences', 'Geosciences, Atmospheric Sciences & Ocean Sciences'),
+    ('Life Sciences', 'Life Sciences'),
+    ('Mathematics and Statistics', 'Mathematics and Statistics'),
+    ('Physical Sciences', 'Physical Sciences'),
+    ('Psychology', 'Psychology'),
+    ('Social Sciences', 'Social Sciences'),
+    ('Other Sciences (not elsewhere classified)', 'Other Sciences (not elsewhere classified)'),
+    ('Education', 'Education'),
+    ('Law', 'Law'),
+    ('Humanities', 'Humanities'),
+    ('Visual & Performing Arts', 'Visual & Performing Arts'),
+    ('Business Management and Business Administration', 'Business Management and Business Administration'),
+    ('Communications, Communications Technologies, Journalism (Library Science is considered “Other Non-Science & Engineering Fields”)', 'Communications, Communications Technologies, Journalism (Library Science is considered “Other Non-Science & Engineering Fields”)'),
+    ('Social Work', 'Social Work'),
+    ('Other Non-Science & Engineering Fields', 'Other Non-Science & Engineering Fields'),
 )
 
 ROLES = REQUEST_ROLES + (
@@ -76,7 +97,7 @@ class AccountRequest(models.Model):
     organization = models.CharField(max_length=128,choices=ORGANIZATIONS,blank=False,null=False)
     department = models.CharField(max_length=128,blank=True,null=True)
     role = models.CharField(max_length=24,choices=REQUEST_ROLES,default='undergraduate')
-
+    discipline = models.CharField(max_length=256,choices=NSF_DISCIPLINES,blank=True, null=True)
     status = models.CharField(max_length=16,choices=STATUSES,default='p')
     approved_on = models.DateTimeField(null=True,blank=True)
     notes = models.TextField(null=True,blank=True)
@@ -107,7 +128,8 @@ class AccountRequest(models.Model):
                 last_name=self.last_name,
                 email=self.email,
                 organization=self.organization,
-                role=self.role
+                role=self.role,
+                discipline=self.discipline,
             )
             # Create associated auth user
             auth_user_defaults = dict(
@@ -127,6 +149,12 @@ class AccountRequest(models.Model):
         super(AccountRequest,self).save(*args,**kwargs)
         if manually_approved:
             account_request_approved.send(sender=self.__class__,account_request=self)
+            
+    def clean(self):
+        # Custom validation to make discipline required if organization is 'xsede'
+        if not self.discipline:
+            raise ValidationError({'discipline': 'This field is required.'})
+        super(AccountRequest, self).clean()
 
 class Intent(models.Model):
     account_request = models.OneToOneField(
@@ -178,6 +206,7 @@ class IdTracker(models.Model):
 class LdapUser(ldapdb.models.Model):
     class Meta:
         managed = False
+        abstract=True
 
     rdn_keys = ['username']
 
@@ -187,7 +216,7 @@ class LdapUser(ldapdb.models.Model):
     full_name = ldap_fields.CharField(db_column='cn')
     email = ldap_fields.CharField(db_column='mail')
     # posixAccount
-    username = ldap_fields.CharField(db_column='uid')
+    username = ldap_fields.CharField(db_column='uid', primary_key=True)
     # ldap specific
     modified_date = ldap_fields.DateTimeField(db_column='modifytimestamp',blank=True)
 
@@ -200,9 +229,6 @@ class LdapUser(ldapdb.models.Model):
     def save(self,*args,**kwargs):
         force_insert = kwargs.pop('force_insert',None)
         super(LdapUser,self).save(*args,**kwargs)
-
-    class Meta:
-        abstract=True
 
 class RcLdapUserManager(models.Manager):
     def get_user_from_suffixed_username(self,suffixed_username):
@@ -440,7 +466,7 @@ class RcLdapGroup(ldapdb.models.Model):
     # posixGroup attributes
     # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
-    name = ldap_fields.CharField(db_column='cn', max_length=200)
+    name = ldap_fields.CharField(db_column='cn', max_length=200, primary_key=True)
     members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
     def __str__(self):
@@ -484,102 +510,104 @@ class RcLdapGroup(ldapdb.models.Model):
 
         super(RcLdapGroup,self).save(*args,**kwargs)
 
-class ComanageUser(models.Model):
-    class Meta:
-        verbose_name = 'Comanage User'
-        verbose_name_plural = 'Comanage Users'
+# Uncomment when working on comanage integration again
+# class ComanageUser(models.Model):
+#     class Meta:
+#         verbose_name = 'Comanage User'
+#         verbose_name_plural = 'Comanage Users'
     
-    user_id = models.CharField(max_length=255, unique=True)
-    co_person_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
-    name = models.CharField(max_length=255)
-    email = models.EmailField()
-    created_at = models.DateTimeField()
-    modified = models.DateTimeField()
+#     user_id = models.CharField(max_length=255, unique=True)
+#     co_person_id = models.CharField(max_length=255, unique=True, blank=True, null=True)
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField()
+#     created_at = models.DateTimeField()
+#     modified = models.DateTimeField()
 
-    # Fallback to store group names as a comma-separated list
-    group_names = models.TextField(blank=True, null=True)
+#     # Fallback to store group names as a comma-separated list
+#     group_names = models.TextField(blank=True, null=True)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
 
-    # Method to fetch and update data from Comanage
-    @classmethod
-    def sync_from_comanage(cls, user_id):
-        # Fetch user data and groups from Comanage
-        user_data, group_data = get_user_and_groups(user_id)
+#     # Method to fetch and update data from Comanage
+#     @classmethod
+#     def sync_from_comanage(cls, user_id):
+#         # Fetch user data and groups from Comanage
+#         user_data, group_data = get_user_and_groups(user_id)
 
-        # Get or create the user
-        user, created = cls.objects.update_or_create(
-            user_id=user_data['user_id'],
-            defaults={
-                'co_person_id': user_data['co_person_id'],
-                'name': user_data['name'],
-                'email': user_data['email'],
-                'created_at': user_data['created_at'],
-                'modified': user_data['modified']
-            }
-        )
+#         # Get or create the user
+#         user, created = cls.objects.update_or_create(
+#             user_id=user_data['user_id'],
+#             defaults={
+#                 'co_person_id': user_data['co_person_id'],
+#                 'name': user_data['name'],
+#                 'email': user_data['email'],
+#                 'created_at': user_data['created_at'],
+#                 'modified': user_data['modified']
+#             }
+#         )
         
-        # Sync the groups
-        if group_data:
-            group_instances = []
-            for group in group_data:
-                # Create or get the group instance
-                group_instance, _ = ComanageGroup.objects.get_or_create(
-                    group_id=group['Id'],
-                    defaults={
-                        'name': group['Name'],
-                        'created_at': group['Created'],
-                        'modified': group['Modified'],
-                        'gid': int(group['gidNumber']),
-                    }
-                )
-                group_instance.gid = int(group['gidNumber'])
-                group_instance.created_at = group['Created']
-                group_instance.modified = group['Modified']
-                group_instance.members.add(user)
-                group_instance.member_uids = ', '.join([group['Name'] for group in group_data])
-                group_instance.save(immutable=True)
-                group_instances.append(group_instance)
+#         # Sync the groups
+#         if group_data:
+#             group_instances = []
+#             for group in group_data:
+#                 # Create or get the group instance
+#                 group_instance, _ = ComanageGroup.objects.get_or_create(
+#                     group_id=group['Id'],
+#                     defaults={
+#                         'name': group['Name'],
+#                         'created_at': group['Created'],
+#                         'modified': group['Modified'],
+#                         'gid': int(group['gidNumber']),
+#                     }
+#                 )
+#                 group_instance.gid = int(group['gidNumber'])
+#                 group_instance.created_at = group['Created']
+#                 group_instance.modified = group['Modified']
+#                 group_instance.members.add(user)
+#                 group_instance.member_uids = ', '.join([group['Name'] for group in group_data])
+#                 group_instance.save(immutable=True)
+#                 group_instances.append(group_instance)
 
-            # You can also store the group names as a comma-separated list
-            user.group_names = ', '.join([group['Name'] for group in group_data])
+#             # You can also store the group names as a comma-separated list
+#             user.group_names = ', '.join([group['Name'] for group in group_data])
 
-        # Save the user after syncing the groups
-        user.save()
+#         # Save the user after syncing the groups
+#         user.save()
 
-        return user
+#         return user
 
-class ComanageGroup(models.Model):
-    class Meta:
-        verbose_name = 'Comanage Group'
-        verbose_name_plural = 'Comanage Groups'
+# Uncomment when working on comanage integration again
+# class ComanageGroup(models.Model):
+#     class Meta:
+#         verbose_name = 'Comanage Group'
+#         verbose_name_plural = 'Comanage Groups'
 
-    name = models.CharField(max_length=255)
-    group_id = models.CharField(max_length=255, unique=True)
-    created_at = models.DateTimeField(null=True, blank=True)
-    modified = models.DateTimeField(null=True, blank=True)
-    members = models.ManyToManyField(ComanageUser, blank=True)
-    gid = models.IntegerField(unique=True)
+#     name = models.CharField(max_length=255)
+#     group_id = models.CharField(max_length=255, unique=True)
+#     created_at = models.DateTimeField(null=True, blank=True)
+#     modified = models.DateTimeField(null=True, blank=True)
+#     members = models.ManyToManyField(ComanageUser, blank=True)
+#     gid = models.IntegerField(unique=True)
 
-    def __str__(self):
-        return self.name
+#     def __str__(self):
+#         return self.name
     
-    def save(self,*args,**kwargs):
-        immutable = kwargs.pop('immutable', False)
+#     def save(self,*args,**kwargs):
+#         immutable = kwargs.pop('immutable', False)
 
-        if not immutable:
-            # If no GID specified, auto-assign
-            if self.gid is None:
-                id_tracker = IdTracker.objects.get(category='posix')
-                gid = id_tracker.get_next_id()
-                self.gid = gid
-                logger = logging.getLogger('accounts')
-                logger.info('Auto-assigned GID to group: {}, {}'.format(gid, self.name))
-            if self.group_id is None or self.group_id == '':
-                self.group_id = get_group_id(self)
+#         if not immutable:
+#             # If no GID specified, auto-assign
+#             if self.gid is None:
+#                 id_tracker = IdTracker.objects.get(category='posix')
+#                 gid = id_tracker.get_next_id()
+#                 self.gid = gid
+#                 logger = logging.getLogger('accounts')
+#                 logger.info('Auto-assigned GID to group: {}, {}'.format(gid, self.name))
+#             if self.group_id is None or self.group_id == '':
+#                 self.group_id = get_group_id(self)
 
-        super(ComanageGroup,self).save(*args,**kwargs)
+#         super(ComanageGroup,self).save(*args,**kwargs)
 
 def date_to_sp_expire (date_, epoch=datetime.date(year=1970, day=1, month=1)):
     return (date_ - epoch).days

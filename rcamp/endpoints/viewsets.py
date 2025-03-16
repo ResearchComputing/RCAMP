@@ -22,14 +22,13 @@ from projects.models import Project
 from projects.models import Allocation
 
 
-# class AccountRequestList(generics.ListAPIView):
 class AccountRequestList(viewsets.ModelViewSet):
     queryset = AccountRequest.objects.all()
     serializer_class = AccountRequestSerializer
-    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter,)
     permission_classes = (permissions.IsAuthenticated,)
-    search_fields = ('username','first_name','last_name','email',)
-    filter_class = AccountRequestFilter
+    search_fields = ('username', 'first_name', 'last_name', 'email',)
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend, filters.SearchFilter,)
+    filterset_class = AccountRequestFilter
     lookup_field = 'username'
 
 class ProjectList(viewsets.ModelViewSet):
@@ -38,7 +37,7 @@ class ProjectList(viewsets.ModelViewSet):
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter,)
     permission_classes = (permissions.IsAuthenticated,)
     search_fields = ('project_id','pi_emails')
-    filter_class = ProjectFilter
+    filterset_class = ProjectFilter
     lookup_field = 'project_id'
 
 class AllocationList(viewsets.ReadOnlyModelViewSet):
@@ -47,5 +46,5 @@ class AllocationList(viewsets.ReadOnlyModelViewSet):
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,filters.SearchFilter,)
     permission_classes = (permissions.IsAuthenticated,)
     search_fields = ('allocation_id','start_date','end_date','created_on',)
-    filter_class = AllocationFilter
+    filterset_class = AllocationFilter
     lookup_field = 'allocation_id'
