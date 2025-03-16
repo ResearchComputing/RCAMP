@@ -1,7 +1,13 @@
 # RCAMP
 Research Computing Administrative &amp; Management Portal
 
-## Overview and App Structure
+# Table of Contents
+1. [Overview](#overview)
+2. [Installation](#installation)
+3. [Tests](#tests)
+4. [API](#api)
+
+## Overview
 
 **accounts** - The accounts app contains all code for the creation, review, and approval of account requests. Also contained in this app is all code necessary for managing users and groups.
 
@@ -15,7 +21,7 @@ Research Computing Administrative &amp; Management Portal
 
 **rcamp** - The rcamp directory contains site code and, most importantly, settings.
 
-## Setting up your dev environment
+## Installation
 You will need Docker 18.03+ and Compose 1.21+ before you begin. Documentation for Docker can be found here: https://docs.docker.com/install/.
 
 Start by cloning RCAMP.
@@ -47,7 +53,7 @@ $ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py createsup
 ```
 The name, password, and email needed by the createsuperuser script can be whatever you like. You should now be able to view the webpage at localhost:8000.
 
-## Writing and Running Tests
+## Tests
 Documentation on use of the RCAMP test framework can be found in the RCAMP Wiki [Test Framework page](https://github.com/ResearchComputing/RCAMP/wiki/Test-Framework).
 
 ```
