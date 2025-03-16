@@ -53,3 +53,123 @@ Documentation on use of the RCAMP test framework can be found in the RCAMP Wiki 
 ```
 $ docker-compose run --rm --entrypoint "python3" rcamp-uwsgi manage.py test
 ```
+
+## API
+
+If your user has superuser permissions, the endpoints can be used for queries. Here are examples of hitting the account requests endpoint
+
+```bash
+$ curl -u <username>:<password> "http://rcamp2.rc.int.colorado.edu/api/accountrequests/?min_approve_date=2025-03-15&max_approve_date=2025-03-16"
+```
+```json
+[
+  {
+    "username": "rmaccuser23",
+    "first_name": "rmacc",
+    "last_name": "user",
+    "email": "rmacc23@user.com",
+    "organization": "xsede",
+    "discipline": "Visual & Performing Arts",
+    "course_number": null,
+    "sponsor_email": null,
+    "resources_requested": null,
+    "status": "a",
+    "approved_on": "2025-03-15T18:14:14Z",
+    "request_date": "2025-03-15T18:14:14Z",
+    "notes": ""
+  }
+]
+```
+
+If I want to request all account requests on 2025-03-14
+```bash
+$ curl -u <user>:<pass> "http://rcamp2.rc.int.colorado.edu/api/accountrequests/?min_approve_date=2025-03-14&max_approve_date=2025-03-15"
+```
+```json
+[
+  {
+    "username": "rmaccuser14",
+    "first_name": "rmacc",
+    "last_name": "user",
+    "email": "rmaccuser14@cool.com",
+    "organization": "xsede",
+    "discipline": "Hum",
+    "course_number": null,
+    "sponsor_email": null,
+    "resources_requested": null,
+    "status": "a",
+    "approved_on": "2025-03-14T11:13:15Z",
+    "request_date": "2025-03-14T11:13:15Z",
+    "notes": ""
+  },
+  {
+    "username": "dahdahdah",
+    "first_name": "rmacc",
+    "last_name": "user",
+    "email": "rmacc255@user.com",
+    "organization": "xsede",
+    "discipline": "Law",
+    "course_number": null,
+    "sponsor_email": null,
+    "resources_requested": null,
+    "status": "a",
+    "approved_on": "2025-03-14T12:27:11Z",
+    "request_date": "2025-03-14T12:27:19Z",
+    "notes": ""
+  },
+  {
+    "username": "kyre6371",
+    "first_name": "Kyle",
+    "last_name": "Reinholt",
+    "email": "kyle@Colorado.EDU",
+    "organization": "ucb",
+    "discipline": "Physical Sciences",
+    "course_number": null,
+    "sponsor_email": null,
+    "resources_requested": null,
+    "status": "a",
+    "approved_on": "2025-03-14T12:29:28Z",
+    "request_date": "2025-03-14T12:29:29Z",
+    "notes": null
+  }
+]
+```
+
+If you interested in a specific discipline you can use a substring to get results: 
+```bash
+curl -u <user>:<pass> "http://rcamp2.rc.int.colorado.edu/api/accountrequests/?discipline=Visual"
+```
+```json
+[
+  {
+    "username": "rmaccuser23",
+    "first_name": "rmacc",
+    "last_name": "user",
+    "email": "rmacc23@user.com",
+    "organization": "xsede",
+    "discipline": "Visual & Performing Arts",
+    "course_number": null,
+    "sponsor_email": null,
+    "resources_requested": null,
+    "status": "a",
+    "approved_on": "2025-03-15T18:14:14Z",
+    "request_date": "2025-03-15T18:14:14Z",
+    "notes": ""
+  },
+  {
+    "username": "rmacc-user67",
+    "first_name": "rmacc67",
+    "last_name": "user67",
+    "email": "rmacc67@user.com",
+    "organization": "xsede",
+    "discipline": "Visual & Performing Arts",
+    "course_number": null,
+    "sponsor_email": null,
+    "resources_requested": null,
+    "status": "a",
+    "approved_on": "2025-03-16T16:36:00Z",
+    "request_date": "2025-03-16T16:36:00Z",
+    "notes": ""
+  }
+]
+```
