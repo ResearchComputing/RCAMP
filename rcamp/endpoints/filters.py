@@ -1,5 +1,6 @@
 import django_filters
 import rest_framework
+import pytz
 
 from accounts.models import AccountRequest
 from projects.models import Project
@@ -11,6 +12,8 @@ class AccountRequestFilter(django_filters.rest_framework.FilterSet):
     max_request_date = django_filters.DateTimeFilter(field_name="request_date", lookup_expr='lte')
     min_approve_date = django_filters.DateTimeFilter(field_name="approved_on", lookup_expr='gte')
     max_approve_date = django_filters.DateTimeFilter(field_name="approved_on", lookup_expr='lte')
+    discipline = django_filters.CharFilter(field_name="discipline", lookup_expr='icontains')
+
     class Meta:
         model = AccountRequest
         fields = [
@@ -19,6 +22,7 @@ class AccountRequestFilter(django_filters.rest_framework.FilterSet):
             'last_name',
             'email',
             'organization',
+            'discipline',
             'course_number',
             'sponsor_email',
             'resources_requested',

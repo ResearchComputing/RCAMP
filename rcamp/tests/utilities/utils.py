@@ -20,10 +20,10 @@ def assert_test_env():
     # We can reasonably assume that no production resource will satisfy this criteria, so
     # this is one of several safeguards against running the functional tests against prod.
     assert os.environ.get('RCAMP_DEBUG') == 'True'
-    assert settings.DATABASES['rcldap']['PASSWORD'] == 'password'
+    assert settings.DATABASES['rcldap']['PASSWORD'] == 'admin'
     # In an abundance of caution, also make sure that the LDAP and MySQL connections are configured
     # to use the test services.
-    assert 'ldap' in settings.DATABASES['rcldap']['NAME']
+    assert 'rcamp' in settings.DATABASES['rcldap']['NAME']
     assert 'database' in settings.DATABASES['default']['HOST']
     # Probably not running against prod backends.
     return True

@@ -19,6 +19,7 @@ class AccountRequestSerializer(serializers.HyperlinkedModelSerializer):
             'last_name',
             'email',
             'organization',
+            'discipline',
             'course_number',
             'sponsor_email',
             'resources_requested',

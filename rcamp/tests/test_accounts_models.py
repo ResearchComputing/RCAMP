@@ -168,6 +168,7 @@ def get_account_request_defaults():
         email = 'testuser@colorado.edu',
         role = 'faculty',
         department = 'physics',
+        discipline = 'Law',
         organization = 'ucb'
     )
     return account_request_defaults

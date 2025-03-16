@@ -122,6 +122,27 @@
                 {% endif %}
             </div>
         </div>
+
+        {% if form.discipline.errors %}
+            <div class="form-group has-error has-feedback">
+        {% else %}
+            <div class="form-group">
+        {% endif %}
+            <label class="col-sm-2 control-label" for="id_discipline">Discipline</label>
+            <div class="col-sm-8">
+                <select name="discipline" id="id_discipline" class="form-control">
+                    {% for value, disp in form.discipline.field.choices %}
+                        <option value="{{ value }}" {% if form.discipline.value == value %}selected{% endif %}>{{ disp }}</option>
+                    {% endfor %}
+                </select>
+                {% if form.discipline.errors %}
+                    <div class="alert alert-danger alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                        <strong>{{ form.discipline.errors }}</strong>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </fieldset>
 
     <div class="request-submit text-center">

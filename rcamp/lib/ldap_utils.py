@@ -1,5 +1,4 @@
 from django.conf import settings
-from ldapdb import escape_ldap_filter
 import ldap
 
 

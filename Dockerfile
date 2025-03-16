@@ -16,8 +16,10 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     libmariadb-dev \
     libmariadb-dev-compat \
+    default-libmysqlclient-dev \
     libldap2-dev \
     libsasl2-dev \
+    pkg-config \
     python3-dev \
     python3-pip \
     python3-venv \
@@ -55,9 +57,6 @@ RUN sed -i '/from django.utils import timezone/a from pytz import utc\ntimezone.
 RUN sed -i 's/from django.conf.urls import url/from django.urls import re_path as url/' /opt/rcamp_venv/lib/python3.9/site-packages/grappelli/urls.py
 
 # Clone and install the django-ldapdb-test-env repository
-RUN git clone -b python3 https://github.com/ResearchComputing/django-ldapdb-test-env
-WORKDIR /opt/django-ldapdb-test-env
-RUN python3 setup.py install
 WORKDIR /opt/rcamp
 
 # Cleanup

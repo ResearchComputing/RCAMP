@@ -14,7 +14,7 @@ class ListField(models.TextField):
         self.delimiter = kwargs.pop('delimiter',',')
         super(ListField, self).__init__(*args, **kwargs)
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection, context=None):
         if not value:
             return []
         else:

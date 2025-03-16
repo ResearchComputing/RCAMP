@@ -29,13 +29,15 @@ mock_cu_user_defaults = dict(
     first_name = 'Test',
     last_name = 'User',
     email = 'testuser@test.org',
-    edu_affiliation = 'faculty'
+    edu_affiliation = 'faculty',
+    discipline = 'Social Sciences',
 )
 mock_csu_user_defaults = dict(
     username = 'testuser',
     first_name = 'Test',
     last_name = 'User',
     email = 'testuser@test.org',
+    discipline = 'Social Sciences',
 )
 
 
@@ -48,6 +50,7 @@ class AccountRequestVerifyUcbFormTestCase(LdapTestCase):
             'password': 'testpass',
             'role': 'faculty',
             'department': 'physics',
+            'discipline': 'Social Sciences',
         }
         form = AccountRequestVerifyUcbForm(data=form_data)
         with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):
@@ -61,6 +64,7 @@ class AccountRequestVerifyUcbFormTestCase(LdapTestCase):
             'password': 'testpass',
             'role': 'faculty',
             'department': 'physics',
+            'discipline': 'Social Sciences',
         }
         form = AccountRequestVerifyUcbForm(data=form_data)
         with mock.patch('accounts.models.CuLdapUser.objects.get',side_effect=[CuLdapUser.DoesNotExist]):
@@ -154,6 +158,7 @@ class AccountRequestVerifyCsuFormTestCase(LdapTestCase):
             'password': 'testpass',
             'role': 'faculty',
             'department': 'physics',
+            'discipline': 'Social Sciences',
         }
         form = AccountRequestVerifyCsuForm(data=form_data)
         with mock.patch('accounts.models.CsuLdapUser.objects.get',return_value=mock_csu_user):
@@ -167,6 +172,7 @@ class AccountRequestVerifyCsuFormTestCase(LdapTestCase):
             'password': 'testpass',
             'role': 'faculty',
             'department': 'physics',
+            'discipline': 'Social Sciences',
         }
         form = AccountRequestVerifyCsuForm(data=form_data)
         with mock.patch('accounts.models.CsuLdapUser.objects.get',return_value=mock_csu_user):
@@ -184,6 +190,7 @@ class AccountRequestAdminFormTestCase(LdapTestCase):
             'last_name': 'user',
             'email': 'testuser@test.org',
             'login_shell': '/bin/bash',
+            'discipline': 'Law',
             'status': 'p'
         }
 
@@ -198,6 +205,7 @@ class AccountRequestAdminFormTestCase(LdapTestCase):
             'role': 'faculty',
             'department': 'physics',
             'login_shell': '/bin/bash',
+            'discipline': 'Law',
             'status': 'p'
         }
         with mock.patch('accounts.models.CuLdapUser.objects.get',return_value=mock_cu_user):

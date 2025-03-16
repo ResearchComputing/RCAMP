@@ -8,7 +8,6 @@ from accounts.models import (
     Intent,
     CuLdapUser,
     CsuLdapUser,
-    ComanageUser
 )
 from accounts.forms import (
     AccountRequestVerifyUcbForm,
@@ -20,6 +19,7 @@ from mailer.signals import (
     account_request_approved
 )
 from django.shortcuts import render, get_object_or_404
+
 
 class AccountRequestOrgSelectView(TemplateView):
     template_name = 'account-request-org-select.html'
@@ -51,6 +51,7 @@ class AccountRequestVerifyUcbView(FormView):
         cu_user = CuLdapUser.objects.get(username=username)
         department = form.cleaned_data.get('department')
         role = form.cleaned_data.get('role')
+        discipline = form.cleaned_data.get('discipline')
 
         account_request_data = dict(
             username = cu_user.username,
@@ -60,6 +61,7 @@ class AccountRequestVerifyUcbView(FormView):
             department = department,
             role = role,
             organization = organization,
+            discipline = discipline,
         )
 
         # Auto-approve eligible users
@@ -81,6 +83,7 @@ class AccountRequestVerifyCsuView(FormView):
         csu_user = CsuLdapUser.objects.get(username=username)
         department = form.cleaned_data.get('department')
         role = form.cleaned_data.get('role')
+        discipline = form.cleaned_data.get('discipline')
 
         account_request_data = dict(
             username = csu_user.username,
@@ -89,7 +92,8 @@ class AccountRequestVerifyCsuView(FormView):
             email = csu_user.email,
             department = department,
             role = role,
-            organization = organization
+            organization = organization,
+            discipline = discipline,
         )
 
         # Auto-approve all CSU users
@@ -147,26 +151,26 @@ class AccountRequestReviewView(TemplateView):
         except AccountRequest.DoesNotExist:
             raise Http404('Account Request not found.')
 
-# View to display detailed group information
-def comanage_user_detail(request, user_id):
-    user = get_object_or_404(ComanageUser, user_id=user_id)
-    # Assume get_groups is a function that returns the groups for a user
-    groups = get_groups(user_id)
-    return render(request, 'comanage_sync_detail.html', {
-        'user_data': user,
-        'groups': groups
-    })
+# # View to display detailed group information
+# def comanage_user_detail(request, user_id):
+#     user = get_object_or_404(ComanageUser, user_id=user_id)
+#     # Assume get_groups is a function that returns the groups for a user
+#     groups = get_groups(user_id)
+#     return render(request, 'comanage_sync_detail.html', {
+#         'user_data': user,
+#         'groups': groups
+#     })
     
-def sync_user_from_comanage(request, user_id):
-    """
-    A custom view to sync user data from Comanage.
-    """
-    try:
-        user = ComanageUser.objects.get(id=user_id)
-        user.sync_from_comanage(user_id=user.user_id)  # Implement the logic to sync from Comanage
-        message = "User synced successfully!"
-    except ComanageUser.DoesNotExist:
-        message = "User not found."
+# def sync_user_from_comanage(request, user_id):
+#     """
+#     A custom view to sync user data from Comanage.
+#     """
+#     try:
+#         user = ComanageUser.objects.get(id=user_id)
+#         user.sync_from_comanage(user_id=user.user_id)  # Implement the logic to sync from Comanage
+#         message = "User synced successfully!"
+#     except ComanageUser.DoesNotExist:
+#         message = "User not found."
     
-    # Redirect back to the change page
-    return redirect('admin:accounts_comanageuser_change', object_id=user_id)
+#     # Redirect back to the change page
+#     return redirect('admin:accounts_comanageuser_change', object_id=user_id)
