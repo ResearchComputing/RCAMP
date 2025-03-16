@@ -124,10 +124,10 @@ $ curl -u <user>:<pass> "http://rcamp2.rc.int.colorado.edu/api/accountrequests/?
     "notes": ""
   },
   {
-    "username": "kyre6371",
-    "first_name": "Kyle",
-    "last_name": "Reinholt",
-    "email": "kyle@Colorado.EDU",
+    "username": "rmaccuser",
+    "first_name": "rmacc",
+    "last_name": "user",
+    "email": "rmacc@Colorado.EDU",
     "organization": "ucb",
     "discipline": "Physical Sciences",
     "course_number": null,
