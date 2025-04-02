@@ -6,7 +6,6 @@ from accounts.views import (
     AccountRequestVerifyCsuView,
     AccountRequestIntentView,
     AccountRequestReviewView,
-    sync_user_from_comanage
 )
 
 
@@ -36,5 +35,6 @@ urlpatterns = [
         AccountRequestReviewView.as_view(),
         name='account-request-review'
     ),
-    path('admin/accounts/comanageuser/<int:user_id>/sync/', sync_user_from_comanage, name='accounts_comanageuser_sync'),
 ]
+
+# removed path('admin/accounts/comanageuser/<int:user_id>/sync/', sync_user_from_comanage, name='accounts_comanageuser_sync'),
