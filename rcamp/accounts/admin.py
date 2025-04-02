@@ -18,7 +18,7 @@ from django.urls import reverse_lazy
 from django.shortcuts import render
 #from .forms import ComanageSyncForm
 #from .models import ComanageUser
-from comanage.lib import UserCO
+#from comanage.lib import UserCO
 # from lib.utils import get_user_and_groups, get_comanage_users_by_org
 from django.urls import path
 from django.utils.html import format_html
