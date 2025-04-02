@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.views.decorators.debug import sensitive_variables
 from django.contrib.auth.models import AbstractUser
 from lib import ldap_utils
-from lib.utils import get_user_and_groups, get_comanage_users_by_org, sync_group_to_comanage, get_group_id
+#from lib.utils import get_user_and_groups, get_comanage_users_by_org, sync_group_to_comanage, get_group_id
 import ldapdb.models.fields as ldap_fields
 import ldapdb.models
 import logging
@@ -148,7 +148,10 @@ class AccountRequest(models.Model):
 
         super(AccountRequest,self).save(*args,**kwargs)
         if manually_approved:
-            account_request_approved.send(sender=self.__class__,account_request=self)
+            logger = logging.getLogger('accounts')
+            logger.info('Sending account_request_approved signal')
+            account_request_approved.send(sender=self.__class__, account_request=self)
+            logger.info('Signal sent: account_request_approved')
             
     def clean(self):
         # Custom validation to make discipline required if organization is 'xsede'
