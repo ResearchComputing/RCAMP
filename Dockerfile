@@ -1,5 +1,5 @@
-# Use Python 3.9 as the base image
-FROM python:3.9-slim
+# Use Python 3.11 as the base image
+FROM python:3.11-slim
 
 # Define gosu version
 ARG GOSU_VERSION=1.16
@@ -7,6 +7,16 @@ ARG GOSU_VERSION=1.16
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gnupg2 \
+    xz-utils \
+    dpkg \
+    which \
+    sssd \
+    libpam0g-dev \
+    libsqlite3-dev \
+    libssl-dev \
+    python3-dev \
+    libldap2-dev \
+    default-libmysqlclient-dev \
     curl \
     lsb-release \
     ca-certificates \
@@ -51,10 +61,6 @@ COPY requirements.txt /opt/
 RUN pip install --upgrade pip && \
     pip install wheel && \
     pip install -r requirements.txt
-
-# fix dep issues
-RUN sed -i '/from django.utils import timezone/a from pytz import utc\ntimezone.utc = utc' /opt/rcamp_venv/lib/python3.9/site-packages/ldapdb/models/fields.py
-RUN sed -i 's/from django.conf.urls import url/from django.urls import re_path as url/' /opt/rcamp_venv/lib/python3.9/site-packages/grappelli/urls.py
 
 # Clone and install the django-ldapdb-test-env repository
 WORKDIR /opt/rcamp

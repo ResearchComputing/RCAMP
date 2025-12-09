@@ -1,27 +1,36 @@
 
 services:
   rcamp-uwsgi:
+    image: rcamp-uwsgi2
     build:
       context: .
     container_name: rcamp-uwsgi
-    command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
+    hostname: ${HOSTNAME}
+    #command: ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
     env_file:
-      - dev-environment.env
+      - .env
     environment:
       - UWSGI_UID=${UWSGI_UID}
       - UWSGI_GID=${UWSGI_GID}
     volumes:
       - ./rcamp:/opt/rcamp
       - ./ldapdb:/opt/ldapdb
-      - static-content:/opt/static
-      - media-uploads:/opt/media
-      - rcamp-logs:/opt/logs
-    ports:
-      - "80:8000"
-      - "5678:5678"  # Debugger port
+      - /var/lib/sss/pipes:/var/lib/sss/pipes:rw
+      - ./rcamp-pam/nsswitch.conf:/etc/nsswitch.conf
+      - ./rcamp-pam/pam.d:/etc/pam.d
+      - ./rcamp-pam/raddb:/etc/raddb  
+      - ./static-content:/opt/static
+      - ${MEDIA_DIR}:/opt/media
+      - ./rcamp-logs:/opt/logs
+#    ports:
+#      - "80:8000"
+#      - "443:443"
+      #- "5678:5678"  # Debugger port
     depends_on:
       database:
         condition: service_healthy
+    logging:
+      driver: syslog
 
   database:
     image: mysql:8.4
@@ -36,6 +45,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  nginx:
+    hostname: ${HOSTNAME}
+    image: nginx:1.20.0
+    container_name: nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/uwsgi_params:/etc/nginx/uwsgi_params:ro
+      - ${SSL_CERT}:/etc/nginx/certs/rcamp.crt:ro
+      - ${SSL_KEY}:/etc/nginx/certs/rcamp.key:ro
+      - ${MEDIA_DIR}:/var/www/media:ro
+      - ./static-content:/var/www/static:ro
+      - ./nginx-logs:/var/logs/nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    logging:
+      driver: syslog
+    depends_on:
+      - rcamp-uwsgi
 
 volumes:
   static-content:
