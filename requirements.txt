@@ -2,14 +2,14 @@ asgiref==3.8.1
 certifi==2025.1.31
 charset-normalizer==3.4.1
 debugpy==1.8.13
-Django==4.2.20
+Django==5.2
 django-auth-ldap==5.1.0
 django-crispy-forms==1.13.0
 django-easy-pjax==1.2.0
 django-extensions==3.2.3
 django-filter==22.1
 django-grappelli==4.0.1
-django-ldapdb @ git+https://github.com/django-ldapdb/django-ldapdb.git@eb9503c85cd230f45765ec8fcd9fc21dbc81ce4c
+django-ldapdb @ git+https://oauth2:glpat-T4wkcqXufHvA53DClNJp_W86MQp1OjE5CA.01.0y13pb1es@gitlab.rc.int.colorado.edu/rc-ops/django-ldap-rc.git@feature/python3.11-update
 django-material==1.11.3
 django-mysql==4.16.0
 django-utils==0.0.2
@@ -31,4 +31,4 @@ six==1.16.0
 sqlparse==0.5.3
 typing_extensions==4.12.2
 urllib3==2.3.0
-uWSGI==2.0.20
+uWSGI==2.0.31
