@@ -443,6 +443,11 @@ class RcLdapGroupManager(models.Manager):
         obj.save(force_insert=True,using=self.db,organization=org)
         return obj
 
+    def get_by_dn(self, dn: str):
+        """Fetch exactly one entry by its DN (authoritative, unique)."""
+        return self.get(dn=dn)
+
+
 class RcLdapGroup(ldapdb.models.Model):
     class Meta:
         verbose_name = 'LDAP group'
@@ -469,7 +474,7 @@ class RcLdapGroup(ldapdb.models.Model):
     # posixGroup attributes
     # gid = ldap_fields.IntegerField(db_column='gidNumber', unique=True)
     gid = ldap_fields.IntegerField(db_column='gidNumber',null=True,blank=True)
-    name = ldap_fields.CharField(db_column='cn', max_length=200, primary_key=True)
+    name = ldap_fields.CharField(db_column='cn', max_length=200)
     members = ldap_fields.ListField(db_column='memberUid',blank=True,null=True)
 
     def __str__(self):

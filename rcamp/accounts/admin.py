@@ -3,7 +3,9 @@ import logging
 from django.contrib import admin, messages
 from django.contrib.auth import admin as auth_admin
 from django import forms
+from django.http import Http404
 from lib.fields import LdapCsvField
+from ldap.filter import escape_filter_chars
 from accounts.models import (
     User,
     RcLdapUser,
@@ -16,6 +18,7 @@ from accounts.models import (
 )
 from django.urls import reverse_lazy
 from django.shortcuts import render
+from django.contrib.admin.utils import quote, unquote
 #from .forms import ComanageSyncForm
 #from .models import ComanageUser
 #from comanage.lib import UserCO
@@ -213,9 +216,103 @@ class RcLdapGroupForm(RcLdapModelForm):
 
 @admin.register(RcLdapGroup)
 class RcLdapGroupAdmin(RcLdapModelAdmin):
-    list_display = ['name','effective_cn','gid','members','organization',]
-    search_fields = ['name']
+    list_display = ['dn_display','name','effective_cn','gid','members','organization']
+    # Make the DN column the clickable link
+    list_display_links = ['dn_display']
+
+    # Optional: allow finding by DN substring (see §3)
+    search_fields = ['name']  # 'dn' is not a DB field; handled in get_search_results
+
     form = RcLdapGroupForm
+
+    # Column that shows the DN (human readable)
+    def dn_display(self, obj):
+        return obj.dn
+    dn_display.short_description = "DN"
+
+    # Ensure changelist links use DN (unique)
+    def url_for_result(self, result):
+        return reverse("admin:accounts_rcldapgroup_change", args=(quote(result.dn),))
+
+    # Keep your DN-aware get_object (from earlier)
+    def get_object(self, request, object_id, from_field=None):
+        dn = unquote(object_id)
+        if "=" in dn and "," in dn:
+            try:
+                return self.model.objects.get(dn=dn)
+            except self.model.DoesNotExist:
+                return None
+        # Old name-based URL fallback (handle duplicates cleanly)
+        qs = self.get_queryset(request).filter(name=object_id)
+        count = qs.count()
+        if count == 1:
+            return qs.first()
+        elif count == 0:
+            return None
+        else:
+            raise Http404(
+                f"Multiple groups named {object_id!r}. "
+                "Open from the changelist (which uses DN) to pick the exact entry."
+            )
+    
+    def get_search_results(self, request, queryset, search_term):   
+        """
+        Restrict search to:
+          - LDAP-side: name (cn) substring
+          - Client-side: DN substring
+        Then return a queryset filtered by OR of exact names of all matches.
+        Avoid any pk/dn lookups to prevent 'Unsupported dn lookup: in'.
+        """
+        qs, use_distinct = super().get_search_results(request, queryset, search_term)
+        if not search_term:
+            return qs, use_distinct
+
+        term = search_term.strip()
+        term_escaped = escape_filter_chars(term)
+        term_lower = term.lower()
+
+        # 1) LDAP-side: cn contains
+        try:
+            name_qs = queryset.filter(name__contains=term_escaped)
+            names_from_name = set(name_qs.values_list('name', flat=True))
+        except Exception:
+            names_from_name = set()
+
+        # 2) Client-side: DN substring (iterate the queryset and test obj.dn)
+        try:
+            names_from_dn = {obj.name for obj in queryset if term_lower in obj.dn.lower()}
+        except Exception:
+            names_from_dn = set()
+
+        # 3) Merge names and filter by OR of exact name matches (no DN lookups)
+        names = names_from_name | names_from_dn
+        if not names:
+            return queryset.none(), use_distinct
+
+        # Build a single OR expression: (cn=name1) OR (cn=name2) OR ...
+        q = Q()
+        for n in names:
+            q |= Q(name=n)
+        qs = queryset.filter(q)
+        return qs, use_distinct
+
+    # Optional: redirect old name-only URLs to the DN URL when unique
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        dn_or_name = unquote(object_id)
+        is_dn = ("=" in dn_or_name and "," in dn_or_name)
+
+        if not is_dn:
+            qs = self.get_queryset(request).filter(name=dn_or_name)
+            if qs.count() == 1:
+                obj = qs.first()
+                canonical = reverse("admin:accounts_rcldapgroup_change", args=(quote(obj.dn),))
+                if request.GET:
+                    canonical = f"{canonical}?{request.META.get('QUERY_STRING','')}"
+                return HttpResponseRedirect(canonical)
+
+        return super().change_view(request, object_id, form_url, extra_context)
+
+
 
 # # Custom action to sync users from Comanage
 # def sync_users_from_comanage(modeladmin, request, queryset):
