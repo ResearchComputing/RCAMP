@@ -42,7 +42,12 @@
                             {% if request.user.is_authenticated %}
                             <li><a href="/admin">Admin</a></li>
                             {% endif %}
-                            <li><a href="/logout">Logout</a></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link p-0 align-baseline">Log out</button>
+                                </form>
+                            </li>
                         </ul>
                     </li>
                     {% else %}
