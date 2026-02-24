@@ -11,6 +11,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 hosts = os.environ.get('RCAMP_ALLOWEDHOSTS')
 ALLOWED_HOSTS = hosts.split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://rcamp.rc.colorado.edu",
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -71,6 +74,7 @@ WSGI_APPLICATION = 'rcamp.wsgi.application'
 
 
 LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = "/login"
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/

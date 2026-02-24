@@ -219,7 +219,7 @@ class LdapUser(ldapdb.models.Model):
     full_name = ldap_fields.CharField(db_column='cn')
     email = ldap_fields.CharField(db_column='mail')
     # posixAccount
-    username = ldap_fields.CharField(db_column='uid', primary_key=True)
+    username = ldap_fields.CharField(db_column='uid')
     # ldap specific
     modified_date = ldap_fields.DateTimeField(db_column='modifytimestamp',blank=True)
 

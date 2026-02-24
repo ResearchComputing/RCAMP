@@ -34,7 +34,7 @@ urlpatterns = [
     re_path(r'^grappelli/', include('grappelli.urls')), # grappelli URLS
     re_path(r'^$', index_view, name='index'),
     re_path(r'^login', auth_views.LoginView.as_view(template_name='registration/login.html')),
-    re_path(r'^logout', auth_views.LogoutView.as_view(template_name='registration/logout.html')),
+    re_path(r'^logout', auth_views.LogoutView.as_view(template_name='registration/logout.html'), name='logout'),
     re_path(r'^admin/', admin.site.urls),
     re_path(r'^api/', include('endpoints.urls')),
     re_path(r'^accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
