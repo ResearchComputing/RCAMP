@@ -26,7 +26,7 @@ INSTALLED_APPS = [
     'django_filters',
     'crispy_forms',
     'rest_framework',
-
+    'rest_framework.authtoken',
     'ldapdb',
     'lib',
     'mailer',
@@ -111,4 +111,8 @@ DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
 REST_FRAMEWORK = {
     'DATETIME_FORMAT': "%Y-%m-%dT%H:%M:%SZ",
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
 }
