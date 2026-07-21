@@ -35,6 +35,7 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     sqlite3 \
     git \
+    libpam-radius-auth \
     && rm -rf /var/lib/apt/lists/*
 
 # Install gosu to drop user and chown shared volumes at runtime
